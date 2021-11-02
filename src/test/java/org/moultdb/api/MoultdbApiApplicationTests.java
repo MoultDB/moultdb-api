@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 
 class MoultdbApiApplicationTests {
 	
-	private final static Logger log = LogManager.getLogger(MoultdbApiApplicationTests.class.getName());
+	private final static Logger logger = LogManager.getLogger(MoultdbApiApplicationTests.class.getName());
 	
 	@Test
 	public void test() {
-		log.debug("Empty test");
+		logger.debug("Empty test");
 	}
 
 }

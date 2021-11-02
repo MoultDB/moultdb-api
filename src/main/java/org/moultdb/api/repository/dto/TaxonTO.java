@@ -1,41 +1,41 @@
-package org.moultdb.api.model;
+package org.moultdb.api.repository.dto;
 
+import java.io.Serial;
 import java.util.StringJoiner;
 
 /**
  * @author Valentine Rech de Laval
- * @since 2021-10-14
+ * @since 2021-10-18
  */
-public class Taxon extends NamedEntity {
+public class TaxonTO extends NamedEntityTO {
+    
+    @Serial
+    private static final long serialVersionUID = 1237027968081812208L;
     
     private final String commonName;
-    private final DbXref dbXref;
+    private final Integer dbXrefId;
     private final Integer parentTaxonId;
     private final String taxonRank;
-    private final boolean extinct;
+    private final Boolean extinct;
     private final String path;
     
-    public Taxon(String scientificName, String commonName, DbXref dbXref, String taxonRank,
-                 Integer parentTaxonId, boolean extinct, String path) {
-        super(scientificName);
+    public TaxonTO(Integer id, String scientificName, String commonName, Integer dbXrefId, Integer parentTaxonId,
+                   String taxonRank, Boolean extinct, String path) {
+        super(id, scientificName);
         this.commonName = commonName;
-        this.taxonRank = taxonRank;
-        this.dbXref = dbXref;
+        this.dbXrefId = dbXrefId;
         this.parentTaxonId = parentTaxonId;
+        this.taxonRank = taxonRank;
         this.extinct = extinct;
         this.path = path;
-    }
-    
-    public String getScientificName() {
-        return getName();
     }
     
     public String getCommonName() {
         return commonName;
     }
     
-    public DbXref getDbXref() {
-        return dbXref;
+    public Integer getDbXrefId() {
+        return dbXrefId;
     }
     
     public Integer getParentTaxonId() {
@@ -46,7 +46,7 @@ public class Taxon extends NamedEntity {
         return taxonRank;
     }
     
-    public boolean isExtinct() {
+    public Boolean isExtinct() {
         return extinct;
     }
     
@@ -56,12 +56,13 @@ public class Taxon extends NamedEntity {
     
     @Override
     public String toString() {
-        return new StringJoiner(", ", Taxon.class.getSimpleName() + "[", "]")
-                .add("scientificName=" + getName())
+        return new StringJoiner(", ", TaxonTO.class.getSimpleName() + "[", "]")
+                .add("id=" + getId())
+                .add("scientificName='" + getName() + "'")
                 .add("commonName='" + commonName + "'")
-                .add("dbXref=" + dbXref)
+                .add("dbXrefId='" + dbXrefId + "'")
+                .add("parentTaxonId='" + parentTaxonId + "'")
                 .add("taxonRank='" + taxonRank + "'")
-                .add("parentTaxonId=" + parentTaxonId)
                 .add("extinct=" + extinct)
                 .add("path='" + path + "'")
                 .toString();
