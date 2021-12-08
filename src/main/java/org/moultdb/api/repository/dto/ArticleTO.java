@@ -1,7 +1,6 @@
 package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
-import java.util.List;
 import java.util.StringJoiner;
 
 /**

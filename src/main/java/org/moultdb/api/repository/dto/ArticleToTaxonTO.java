@@ -12,22 +12,22 @@ public class ArticleToTaxonTO extends TransfertObject {
     @Serial
     private static final long serialVersionUID = 7259799961047341264L;
     
-    private final ArticleTO articleTO;
-    private final TaxonTO taxonTO;
+    private final Integer articleId;
+    private final Integer taxonId;
     private final Integer versionId;
     
-    public ArticleToTaxonTO(ArticleTO articleTO, TaxonTO taxonTO, Integer versionId) {
-        this.articleTO = articleTO;
-        this.taxonTO = taxonTO;
+    public ArticleToTaxonTO(Integer articleId, Integer taxonId, Integer versionId) {
+        this.articleId = articleId;
+        this.taxonId = taxonId;
         this.versionId = versionId;
     }
     
-    public ArticleTO getArticleTO() {
-        return articleTO;
+    public Integer getArticleId() {
+        return articleId;
     }
     
-    public TaxonTO getTaxonTO() {
-        return taxonTO;
+    public Integer getTaxonId() {
+        return taxonId;
     }
     
     public Integer getVersionId() {
@@ -37,8 +37,8 @@ public class ArticleToTaxonTO extends TransfertObject {
     @Override
     public String toString() {
         return new StringJoiner(", ", ArticleToTaxonTO.class.getSimpleName() + "[", "]")
-                .add("articleTO=" + articleTO)
-                .add("taxonTO=" + taxonTO)
+                .add("articleId=" + articleId)
+                .add("taxonId=" + taxonId)
                 .add("versionId=" + versionId)
                 .toString();
     }

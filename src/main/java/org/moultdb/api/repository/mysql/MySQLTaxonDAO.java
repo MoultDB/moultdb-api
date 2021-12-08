@@ -29,7 +29,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT * from taxon ";
+    private static final String SELECT_STATEMENT = "SELECT * from taxon t ";
     
     public MySQLTaxonDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -83,9 +83,9 @@ public class MySQLTaxonDAO implements TaxonDAO {
     private static class TaxonRowMapper implements RowMapper<TaxonTO> {
         @Override
         public TaxonTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new TaxonTO(rs.getInt("id"), rs.getString("scientific_name"), rs.getString("common_name"),
-                    rs.getInt("db_xref_id"), rs.getInt("parent_taxon_id"), rs.getString("taxon_rank"),
-                    rs.getBoolean("extinct"), rs.getString("path"));
+            return new TaxonTO(rs.getInt("t.id"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
+                    rs.getInt("t.db_xref_id"), rs.getInt("t.parent_taxon_id"), rs.getString("t.taxon_rank"),
+                    rs.getBoolean("t.extinct"), rs.getString("t.path"));
         }
     }
 }

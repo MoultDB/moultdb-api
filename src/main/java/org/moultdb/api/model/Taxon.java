@@ -1,5 +1,9 @@
 package org.moultdb.api.model;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -14,9 +18,10 @@ public class Taxon extends NamedEntity {
     private final String taxonRank;
     private final boolean extinct;
     private final String path;
+    private final Set<Article> articles;
     
     public Taxon(String scientificName, String commonName, DbXref dbXref, String taxonRank,
-                 Integer parentTaxonId, boolean extinct, String path) {
+                 Integer parentTaxonId, boolean extinct, String path, Collection<Article> articles) {
         super(scientificName);
         this.commonName = commonName;
         this.taxonRank = taxonRank;
@@ -24,6 +29,7 @@ public class Taxon extends NamedEntity {
         this.parentTaxonId = parentTaxonId;
         this.extinct = extinct;
         this.path = path;
+        this.articles = Collections.unmodifiableSet(articles == null ? new HashSet<>(): new HashSet<>(articles));
     }
     
     public String getScientificName() {
@@ -54,6 +60,10 @@ public class Taxon extends NamedEntity {
         return path;
     }
     
+    public Set<Article> getArticles() {
+        return articles;
+    }
+    
     @Override
     public String toString() {
         return new StringJoiner(", ", Taxon.class.getSimpleName() + "[", "]")
@@ -64,6 +74,7 @@ public class Taxon extends NamedEntity {
                 .add("parentTaxonId=" + parentTaxonId)
                 .add("extinct=" + extinct)
                 .add("path='" + path + "'")
+                .add("articles='" + articles + "'")
                 .toString();
     }
 }

@@ -6,7 +6,7 @@ import java.util.Objects;
  * @author Valentine Rech de Laval
  * @since 2021-10-20
  */
-public class GeneralMoultingCharacters {
+public class MoultingCharacters {
     
     /**
      *  Define whether this insect is hemimetabolous (=true) or holometabolous (= false) (it's gradual or punctuated by metamorphosis)
@@ -38,9 +38,9 @@ public class GeneralMoultingCharacters {
      */
     private final Boolean hasFixedMoultNumber;
 
-    private final SutureLocation sutureLocation;
+    private final String sutureLocation;
     
-    private final EgressDirection egressDirection;
+    private final String egressDirection;
     
     /**
      *  Define whether exuviae is fragmented (=true) or retained (=false) as a single empty unit
@@ -82,15 +82,12 @@ public class GeneralMoultingCharacters {
      */
     private final String hormoneRegulation;
     
-    private final Version version;
-    
-    public GeneralMoultingCharacters(Boolean isHemimetabolous, Integer moultCount, Integer sizeIncrease,
-                                     Boolean hasAdultStage, Boolean isAnamorphic, Boolean hasFixedMoultNumber,
-                                     SutureLocation sutureLocation, EgressDirection egressDirection,
-                                     Boolean isFragmentedExuviae, Boolean isMonoPhasicMoulting,
-                                     Boolean hasExoskeletalMaterialReabsorption, Boolean hasExuviaeConsumed,
-                                     Integer repairExtent, Boolean massMoulting, Boolean isMatingLinked,
-                                     String hormoneRegulation, Version version) {
+    public MoultingCharacters(Boolean isHemimetabolous, Integer moultCount, Integer sizeIncrease,
+                              Boolean hasAdultStage, Boolean isAnamorphic, Boolean hasFixedMoultNumber,
+                              String sutureLocation, String egressDirection,Boolean isFragmentedExuviae,
+                              Boolean isMonoPhasicMoulting, Boolean hasExoskeletalMaterialReabsorption,
+                              Boolean hasExuviaeConsumed, Integer repairExtent, Boolean massMoulting,
+                              Boolean isMatingLinked, String hormoneRegulation) {
         this.isHemimetabolous = isHemimetabolous;
         this.moultCount = moultCount;
         this.sizeIncrease = sizeIncrease;
@@ -107,7 +104,6 @@ public class GeneralMoultingCharacters {
         this.massMoulting = massMoulting;
         this.isMatingLinked = isMatingLinked;
         this.hormoneRegulation = hormoneRegulation;
-        this.version = version;
     }
     
     public Boolean getHemimetabolous() {
@@ -134,11 +130,11 @@ public class GeneralMoultingCharacters {
         return hasFixedMoultNumber;
     }
     
-    public SutureLocation getSutureLocation() {
+    public String getSutureLocation() {
         return sutureLocation;
     }
     
-    public EgressDirection getEgressDirection() {
+    public String getEgressDirection() {
         return egressDirection;
     }
     
@@ -174,17 +170,13 @@ public class GeneralMoultingCharacters {
         return hormoneRegulation;
     }
     
-    public Version getVersion() {
-        return version;
-    }
-    
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        GeneralMoultingCharacters that = (GeneralMoultingCharacters) o;
+        MoultingCharacters that = (MoultingCharacters) o;
         return Objects.equals(isHemimetabolous, that.isHemimetabolous)
                 && Objects.equals(moultCount, that.moultCount)
                 && Objects.equals(sizeIncrease, that.sizeIncrease)
@@ -200,8 +192,7 @@ public class GeneralMoultingCharacters {
                 && Objects.equals(repairExtent, that.repairExtent)
                 && Objects.equals(massMoulting, that.massMoulting)
                 && Objects.equals(isMatingLinked, that.isMatingLinked)
-                && Objects.equals(hormoneRegulation, that.hormoneRegulation)
-                && Objects.equals(version, that.version);
+                && Objects.equals(hormoneRegulation, that.hormoneRegulation);
     }
     
     @Override
@@ -209,6 +200,6 @@ public class GeneralMoultingCharacters {
         return Objects.hash(isHemimetabolous, moultCount, sizeIncrease, hasAdultStage, isAnamorphic,
                 hasFixedMoultNumber, sutureLocation, egressDirection, isFragmentedExuviae, isMonoPhasicMoulting,
                 hasExoskeletalMaterialReabsorption, hasExuviaeConsumed, repairExtent, massMoulting, isMatingLinked,
-                hormoneRegulation, version);
+                hormoneRegulation);
     }
 }

@@ -12,27 +12,27 @@ public class ArticleToDbXrefTO extends TransfertObject {
     @Serial
     private static final long serialVersionUID = -993911556511063937L;
     
-    private final ArticleTO articleTO;
-    private final DbXrefTO dbXrefTO;
+    private final Integer articleId;
+    private final Integer dbXrefId;
     
-    public ArticleToDbXrefTO(ArticleTO articleTO, DbXrefTO dbXrefTO) {
-        this.articleTO = articleTO;
-        this.dbXrefTO = dbXrefTO;
+    public ArticleToDbXrefTO(Integer articleId, Integer dbXrefId) {
+        this.articleId = articleId;
+        this.dbXrefId = dbXrefId;
     }
     
-    public ArticleTO getArticleTO() {
-        return articleTO;
+    public Integer getArticleId() {
+        return articleId;
     }
     
-    public DbXrefTO getDbXrefTO() {
-        return dbXrefTO;
+    public Integer getDbXrefId() {
+        return dbXrefId;
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", ArticleToDbXrefTO.class.getSimpleName() + "[", "]")
-                .add("articleTO=" + articleTO)
-                .add("dbXrefTO=" + dbXrefTO)
+                .add("articleId=" + articleId)
+                .add("dbXrefId=" + dbXrefId)
                 .toString();
     }
 }

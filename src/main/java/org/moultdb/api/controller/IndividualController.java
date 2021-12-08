@@ -1,7 +1,7 @@
 package org.moultdb.api.controller;
 
-import org.moultdb.api.model.DatedTaxon;
-import org.moultdb.api.service.DatedTaxonService;
+import org.moultdb.api.model.Individual;
+import org.moultdb.api.service.IndividualService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,15 +15,15 @@ import java.util.List;
  * @since 2021-10-27
  */
 @RestController
-@RequestMapping(path="/dated-taxon")
-public class DatedTaxonController {
+@RequestMapping(path="/individual")
+public class IndividualController {
     
     @Autowired
-    DatedTaxonService datedTaxonService;
+    IndividualService individualService;
     
     @CrossOrigin
     @GetMapping("/all")
-    public List<DatedTaxon> getAllTaxa() {
-        return datedTaxonService.getAllDatedTaxa();
+    public List<Individual> getAllIndividuals() {
+        return individualService.getAllIndividuals();
     }
 }

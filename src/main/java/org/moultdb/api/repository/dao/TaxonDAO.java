@@ -17,7 +17,7 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     
     TaxonTO findById(int id);
     
-    void insertTaxon(TaxonTO taxon);
-    
     List<TaxonTO> findByIds(Set<Integer> taxonIds);
+    
+    void insertTaxon(TaxonTO taxon);
 }

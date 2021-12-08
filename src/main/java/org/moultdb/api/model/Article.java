@@ -1,6 +1,10 @@
 package org.moultdb.api.model;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -11,14 +15,12 @@ public class Article {
     
     private final String title;
     private final String authors;
-    private final String doi;
-    private final Integer pmid;
+    private final Set<DbXref> dbXrefs;
     
-    public Article(String title, String authors, String doi, Integer pmid) {
+    public Article(String title, String authors, Collection<DbXref> dbXrefs) {
         this.title = title;
         this.authors = authors;
-        this.doi = doi;
-        this.pmid = pmid;
+        this.dbXrefs = Collections.unmodifiableSet(dbXrefs == null ? new HashSet<>(): new HashSet<>(dbXrefs));
     }
     
     public String getTitle() {
@@ -29,12 +31,8 @@ public class Article {
         return authors;
     }
     
-    public String getDoi() {
-        return doi;
-    }
-    
-    public Integer getPmid() {
-        return pmid;
+    public Set<DbXref> getDbXrefs() {
+        return dbXrefs;
     }
     
     @Override
@@ -45,14 +43,12 @@ public class Article {
             return false;
         Article article = (Article) o;
         return Objects.equals(title, article.title)
-                && Objects.equals(authors, article.authors)
-                && Objects.equals(doi, article.doi)
-                && Objects.equals(pmid, article.pmid);
+                && Objects.equals(authors, article.authors);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(title, authors, doi, pmid);
+        return Objects.hash(title, authors);
     }
     
     @Override
@@ -60,8 +56,7 @@ public class Article {
         return new StringJoiner(", ", Article.class.getSimpleName() + "[", "]")
                 .add("title='" + title + "'")
                 .add("authors='" + authors + "'")
-                .add("doi='" + doi + "'")
-                .add("pmid=" + pmid)
+                .add("dbXrefs=" + dbXrefs)
                 .toString();
     }
 }

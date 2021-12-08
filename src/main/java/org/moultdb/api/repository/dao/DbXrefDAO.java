@@ -3,6 +3,7 @@ package org.moultdb.api.repository.dao;
 import org.moultdb.api.repository.dto.DbXrefTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,4 +18,5 @@ public interface DbXrefDAO extends DAO<DbXrefTO> {
     
     List<DbXrefTO> findByIds(Set<Integer> ids);
     
+    Map<Integer, Set<DbXrefTO>> findByArticleIds(Set<Integer> articleIds);
 }
