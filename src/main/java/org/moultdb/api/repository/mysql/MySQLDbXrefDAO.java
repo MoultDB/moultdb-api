@@ -1,7 +1,6 @@
 package org.moultdb.api.repository.mysql;
 
 import org.moultdb.api.repository.dao.DbXrefDAO;
-import org.moultdb.api.repository.dto.ArticleTO;
 import org.moultdb.api.repository.dto.DataSourceTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TransfertObject;
@@ -13,14 +12,11 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Valentine Rech de Laval
@@ -57,26 +53,12 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
                     new MapSqlParameterSource().addValue("ids", ids), new DbXrefRowMapper());
     }
     
-    @Override
-    public Map<Integer, Set<DbXrefTO>> findByArticleIds(Set<Integer> articleIds) {
-        if (articleIds == null || articleIds.size() == 0 || articleIds.stream().anyMatch(Objects::isNull)) {
-            throw new IllegalArgumentException("An ID can not be null");
-        }
-        return template.query(SELECT_STATEMENT +
-                        "INNER JOIN article_db_xref adx ON adx.db_xref_id = x.id " +
-                        "WHERE adx.article_id IN (:ids)",
-                new MapSqlParameterSource().addValue("ids", articleIds), new ArticleDbXrefRowMapper()).stream()
-                       .collect(Collectors.toMap(e -> e.getKey(),
-                               e -> new HashSet<>(Arrays.asList(e.getValue())),
-                               (v1, v2) -> { v1.addAll(v2); return v1; }));
-    }
-    
-    private static class DbXrefRowMapper implements RowMapper<DbXrefTO> {
+    protected static class DbXrefRowMapper implements RowMapper<DbXrefTO> {
         @Override
         public DbXrefTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"),
                     new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("description"),
-                            rs.getString("ds.base_url"), rs.getDate("ds.release_date"), rs.getString("ds.release_version")));
+                            rs.getString("ds.base_url"), rs.getDate("ds.last_import_date"), rs.getString("ds.release_version")));
         }
     }
     
@@ -86,8 +68,7 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
             return new AbstractMap.SimpleEntry<>(rs.getInt("adx.article_id"),
                     new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"),
                             new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("description"),
-                                    rs.getString("ds.base_url"), rs.getDate("ds.release_date"), rs.getString("ds.release_version"))));
+                                    rs.getString("ds.base_url"), rs.getDate("ds.last_import_date"), rs.getString("ds.release_version"))));
         }
     }
-    
 }

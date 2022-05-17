@@ -1,0 +1,23 @@
+package org.moultdb.api.model.moutldbenum;
+
+/**
+ * @author Valentine Rech de Laval
+ * @since 2022-04-05
+ */
+public enum MoultingVariability implements MoutldbEnum {
+    
+    NONE("none"),
+    SOME("some"),
+    LOTS("lots");
+    
+    private final String stringRepresentation;
+    
+    MoultingVariability(String stringRepresentation) {
+        this.stringRepresentation = stringRepresentation;
+    }
+    
+    @Override
+    public String getStringRepresentation() {
+        return this.stringRepresentation;
+    }
+}

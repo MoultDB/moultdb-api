@@ -52,7 +52,8 @@ public class MySQLUserDAO implements UserDAO {
     private static class UserRowMapper implements RowMapper<UserTO> {
         @Override
         public UserTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new UserTO(rs.getInt("id"), rs.getString("name"));
+            return new UserTO(rs.getInt("id"), rs.getString("name"),
+                    rs.getString("email"), rs.getString("orcidId"));
         }
     }
 }

@@ -1,32 +1,41 @@
 package org.moultdb.api.service;
 
+import org.moultdb.api.model.AnatEntity;
 import org.moultdb.api.model.Article;
 import org.moultdb.api.model.Condition;
 import org.moultdb.api.model.DataSource;
 import org.moultdb.api.model.DbXref;
+import org.moultdb.api.model.DevStage;
 import org.moultdb.api.model.GeologicalAge;
-import org.moultdb.api.model.Individual;
 import org.moultdb.api.model.MoultingCharacters;
 import org.moultdb.api.model.MoultingStep;
-import org.moultdb.api.model.Sample;
+import org.moultdb.api.model.SampleSet;
 import org.moultdb.api.model.Taxon;
+import org.moultdb.api.model.TaxonAnnotation;
+import org.moultdb.api.model.Term;
+import org.moultdb.api.model.TimePeriod;
 import org.moultdb.api.model.User;
 import org.moultdb.api.model.Version;
+import org.moultdb.api.model.moutldbenum.EgressDirection;
+import org.moultdb.api.model.moutldbenum.ExuviaeConsumption;
+import org.moultdb.api.model.moutldbenum.ExuviaePosition;
+import org.moultdb.api.model.moutldbenum.LifeHistoryStyle;
+import org.moultdb.api.model.moutldbenum.MoultingPhase;
+import org.moultdb.api.model.moutldbenum.MoultingVariability;
+import org.moultdb.api.model.moutldbenum.Reabsorption;
 import org.moultdb.api.repository.dto.ArticleTO;
-import org.moultdb.api.repository.dto.ArticleToDbXrefTO;
 import org.moultdb.api.repository.dto.ConditionTO;
 import org.moultdb.api.repository.dto.DataSourceTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.GeologicalAgeTO;
-import org.moultdb.api.repository.dto.IndividualTO;
 import org.moultdb.api.repository.dto.MoultingCharactersTO;
-import org.moultdb.api.repository.dto.SampleTO;
+import org.moultdb.api.repository.dto.SampleSetTO;
+import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.TaxonTO;
+import org.moultdb.api.repository.dto.TermTO;
 import org.moultdb.api.repository.dto.VersionTO;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,44 +48,58 @@ public interface Service {
     
     static DataSource mapFromTO(DataSourceTO dataSourceTO) {
         return new DataSource(dataSourceTO.getName(), dataSourceTO.getDescription(),
-                dataSourceTO.getBaseURL(), dataSourceTO.getReleaseDate(), dataSourceTO.getReleaseVersion());
+                dataSourceTO.getBaseURL(), dataSourceTO.getLastImportDate(),
+                dataSourceTO.getReleaseVersion());
     }
     
-    static Individual mapFromTO(IndividualTO individualTO,
-                                Collection<ArticleTO> sampleArticleTOs,
-                                Map<Integer, Set<DbXrefTO>> dbXrefTOsByArticleIds,
-                                Map<Integer, VersionTO> sampleAndIndividualVersionTOMap,
-                                Map<Integer, DbXrefTO> taxonDbXrefTOsById) {
-        
-        Version individualVersion = Service.mapFromTO(sampleAndIndividualVersionTOMap.get(individualTO.getVersionId()));
-        
-        Taxon taxon = mapFromTO(individualTO.getTaxonTO(), taxonDbXrefTOsById);
-    
-        SampleTO sampleTO = individualTO.getSampleTO();
-        
-        return new Individual(taxon,
-                mapFromTO(sampleTO, sampleArticleTOs, dbXrefTOsByArticleIds, sampleAndIndividualVersionTOMap),
-                mapFromTO(individualTO.getConditionTO()),
-                mapFromTO(individualTO.getMoultingCharactersTO()),
-                individualVersion);
+    static Term mapFromTO(TermTO termTO) {
+        return new Term(termTO.getId(), termTO.getName(), termTO.getDescription());
     }
     
-    static Sample mapFromTO(SampleTO sampleTO,
-                            Collection<ArticleTO> articleTOs,
-                            Map<Integer, Set<DbXrefTO>> dbXrefTOsByArticleIds,
-                            Map<Integer, VersionTO> versionTOsById) {
-        return new Sample(
-                mapFromTO(sampleTO.getGeologicalAgeTO()),
-                sampleTO.getCollectionLocationName(),
-                sampleTO.getStorageAccession(),
-                sampleTO.getStorageLocationName(),
-                sampleTO.getCollector(),
-                articleTOs.stream().map(to -> mapFromTO(to, dbXrefTOsByArticleIds)).collect(Collectors.toSet()),
-                mapFromTO(versionTOsById.get(sampleTO.getVersionId())));
+    static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO,
+                                     SampleSetTO sampleSetTO,
+                                     MoultingCharactersTO moultingCharactersTO,
+                                     Map<Integer, VersionTO> versionTOByIds) {
+        // TODO first check if TaxonAnnotation is updated
+        Version taxonAnnotVersion = Service.mapFromTO(
+                versionTOByIds.get(taxonAnnotationTO.getVersionId()));
+        
+        Article article = mapFromTO(taxonAnnotationTO.getArticleTO());
+
+        return new TaxonAnnotation(
+                mapFromTO(taxonAnnotationTO.getTaxonTO()),
+                taxonAnnotationTO.getAnnotatedSpeciesName(),
+                mapFromTO(sampleSetTO, versionTOByIds),
+                mapFromTO(taxonAnnotationTO.getConditionTO()),
+                mapFromTO(moultingCharactersTO),
+                article,
+                mapFromTO(taxonAnnotationTO.getEcoTO()),
+                mapFromTO(taxonAnnotationTO.getCioTO()),
+                taxonAnnotVersion);
+    }
+    
+    static SampleSet mapFromTO(SampleSetTO sampleSetTO, Map<Integer, VersionTO> versionTOsById) {
+        TimePeriod timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
+                mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
+        return new SampleSet(
+                timePeriod,
+                sampleSetTO.getCollectionLocationNames(),
+                sampleSetTO.getStorageAccessions(), sampleSetTO.getStorageLocationNames(),
+                sampleSetTO.getGeologicalFormations(), sampleSetTO.getFossilPreservationTypes(),
+                sampleSetTO.getEnvironments(), sampleSetTO.getSpecimenTypes(),
+                sampleSetTO.getSpecimenCount(),
+                mapFromTO(versionTOsById.get(sampleSetTO.getVersionId())));
     }
     
     static Condition mapFromTO(ConditionTO conditionTO) {
-        return new Condition(conditionTO.getDevStageId(), conditionTO.getAnatomicalEntityId(), conditionTO.getSexId(),
+        DevStage devStage = new DevStage(conditionTO.getDevStageTO().getId(),
+                conditionTO.getDevStageTO().getName(), conditionTO.getDevStageTO().getDescription(),
+                conditionTO.getDevStageTO().getLeftBound(), conditionTO.getDevStageTO().getRightBound());
+        
+        AnatEntity anatEntity = new AnatEntity(conditionTO.getAnatomicalEntityTO().getId(),
+                conditionTO.getAnatomicalEntityTO().getName(), conditionTO.getAnatomicalEntityTO().getDescription());
+
+        return new Condition(devStage, anatEntity, conditionTO.getSex(),
                 MoultingStep.valueOf(conditionTO.getMoultingStep()));
     }
     
@@ -84,42 +107,50 @@ public interface Service {
         return new DbXref(dbXrefTO.getAccession(), mapFromTO(dbXrefTO.getDataSourceTO()));
     }
     
-    static MoultingCharacters mapFromTO(MoultingCharactersTO charactersTO) {
-        return new MoultingCharacters(charactersTO.getHemimetabolous(),
-                charactersTO.getMoultCount(), charactersTO.getSizeIncrease(), charactersTO.getHasAdultStage(),
-                charactersTO.getAnamorphic(), charactersTO.getHasFixedMoultNumber(), charactersTO.getSutureLocation(),
-                charactersTO.getEgressDirection(), charactersTO.getFragmentedExuviae(), charactersTO.getMonoPhasicMoulting(),
-                charactersTO.getHasExoskeletalMaterialReabsorption(), charactersTO.getHasExuviaeConsumed(),
-                charactersTO.getRepairExtent(), charactersTO.getMassMoulting(), charactersTO.getMatingLinked(),
-                charactersTO.getHormoneRegulation());
+    static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
+        return dbXrefTOs.stream()
+                        .map(Service::mapFromTO)
+                        .collect(Collectors.toSet());
+    }
+    
+    
+    static MoultingCharacters mapFromTO(MoultingCharactersTO mcTO) {
+        return new MoultingCharacters(LifeHistoryStyle.valueOf(mcTO.getLifeHistoryStyle()), mcTO.getHasTerminalAdultStage(),
+                mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSpecimenCount(),
+                mcTO.getSegmentAdditionMode(), mcTO.getBodySegmentsCountPerMoultStage(), mcTO.getBodySegmentsCountInAdults(),
+                mcTO.getBodyLengthAverage(), mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyLengthIncreaseAveragePerMoult(),
+                mcTO.getMeasurementUnit(), mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
+                mcTO.getResultingNamedMoultingConfiguration(), EgressDirection.valueOf(mcTO.getEgressDirection()),
+                ExuviaePosition.valueOf(mcTO.getPositionExuviaeFoundIn()), MoultingPhase.valueOf(mcTO.getMoultingPhase()),
+                MoultingVariability.valueOf(mcTO.getMoultingVariability()), mcTO.getJuvenileMoultingBehaviours(),
+                mcTO.getJuvenileSutureLocation(), mcTO.getJuvenileCephalicSutureLocation(),
+                mcTO.getJuvenilePostCephalicSutureLocation(), mcTO.getJuvenileResultingNamedMoultingConfiguration(),
+                mcTO.getOtherBehaviour(), ExuviaeConsumption.valueOf(mcTO.getExuviaeConsumed()), Reabsorption.valueOf(mcTO.getExoskeletalMaterialReabsorption()),
+                mcTO.getFossilExuviaeQuality());
     }
     
     static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {
-        return new GeologicalAge(geologicalAgeTO.getName(), geologicalAgeTO.getSymbol(),
-                geologicalAgeTO.getYoungerBound(), geologicalAgeTO.getOlderBound());
+        return new GeologicalAge(geologicalAgeTO.getNotation(), geologicalAgeTO.getName(), geologicalAgeTO.getRank(),
+                geologicalAgeTO.getYoungerBound(), geologicalAgeTO.getYoungerBoundImprecision(),
+                geologicalAgeTO.getOlderBound(), geologicalAgeTO.getOlderBoundImprecision(), geologicalAgeTO.getSynonyms());
     }
     
-    static Taxon mapFromTO(TaxonTO taxonTO, Map<Integer, DbXrefTO> dbXrefTOsById) {
-        return new Taxon(taxonTO.getName(), taxonTO.getCommonName(), mapFromTO(dbXrefTOsById.get(taxonTO.getDbXrefId())),
-                taxonTO.getTaxonRank(), taxonTO.getParentTaxonId(), taxonTO.isExtinct(), taxonTO.getPath(), null);
+    static Taxon mapFromTO(TaxonTO taxonTO) {
+        return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(), taxonTO.getRank(),
+                taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs()));
     }
     
-    static Taxon mapFromTO(TaxonTO taxonTO, Map<Integer, DbXrefTO> dbXrefTOsById, Set<Article> articles) {
-        return new Taxon(taxonTO.getName(), taxonTO.getCommonName(), mapFromTO(dbXrefTOsById.get(taxonTO.getDbXrefId())),
-                taxonTO.getTaxonRank(), taxonTO.getParentTaxonId(), taxonTO.isExtinct(), taxonTO.getPath(),
-                articles);
-    }
-    
-    static Article mapFromTO(ArticleTO articleTO, Map<Integer, Set<DbXrefTO>> dbXrefTOsByArticleIds) {
-        Set<DbXref> dbXrefs = dbXrefTOsByArticleIds == null || dbXrefTOsByArticleIds.size() == 0?
-                new HashSet<>() :
-                dbXrefTOsByArticleIds.get(articleTO.getId()).stream().map(Service::mapFromTO).collect(Collectors.toSet());
-        return new Article(articleTO.getTitle(), articleTO.getAuthors(), dbXrefs);
+    static Article mapFromTO(ArticleTO articleTO) {
+        return new Article(articleTO.getCitation() , articleTO.getTitle(), articleTO.getAuthors(), mapFromTOs(articleTO.getDbXrefTOs()));
     }
     
     static Version mapFromTO(VersionTO versionTO) {
-        return new Version(new User(versionTO.getCreationUserTO().getName()),
-                versionTO.getCreationDate(), new User(versionTO.getLastUpdateUserTO().getName()),
-                versionTO.getLastUpdateDate(), versionTO.getVersionNumber());
+        User creator = new User(versionTO.getCreationUserTO().getEmail(),
+                versionTO.getCreationUserTO().getName(), versionTO.getCreationUserTO().getOrcidId());
+        User lastUpdateUser = new User(versionTO.getLastUpdateUserTO().getEmail(),
+                versionTO.getLastUpdateUserTO().getName(), versionTO.getLastUpdateUserTO().getOrcidId());
+    
+        return new Version(creator, versionTO.getCreationDate(), lastUpdateUser, versionTO.getLastUpdateDate(),
+                versionTO.getVersionNumber());
     }
 }

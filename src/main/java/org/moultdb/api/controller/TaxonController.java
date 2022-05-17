@@ -40,7 +40,8 @@ public class TaxonController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    public ResponseEntity<Taxon> insertTaxon(@RequestBody Taxon taxon) {
+    //TODO: to be tested
+    public ResponseEntity<Taxon> insertTaxon(@RequestBody Taxon taxon, @RequestParam("pwd") String pwd) {
         taxonService.insertTaxon(taxon);
         
         return ResponseEntity.ok().body(taxon);

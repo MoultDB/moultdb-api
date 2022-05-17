@@ -1,70 +1,76 @@
 package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
  * @author Valentine Rech de Laval
  * @since 2021-10-18
  */
-public class TaxonTO extends NamedEntityTO {
+public class TaxonTO extends NamedEntityTO<String> {
     
     @Serial
     private static final long serialVersionUID = 1237027968081812208L;
     
     private final String commonName;
-    private final Integer dbXrefId;
-    private final Integer parentTaxonId;
-    private final String taxonRank;
-    private final Boolean extinct;
-    private final String path;
+    private final String parentTaxonPath;
+    private final String rank;
+    private final Boolean isExtincted;
+    private final Set<DbXrefTO> dbXrefTOs;
     
-    public TaxonTO(Integer id, String scientificName, String commonName, Integer dbXrefId, Integer parentTaxonId,
-                   String taxonRank, Boolean extinct, String path) {
-        super(id, scientificName);
+    public TaxonTO(String path, String scientificName, String commonName, String parentTaxonPath,
+                   String rank, Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs) {
+        super(path, scientificName, null);
         this.commonName = commonName;
-        this.dbXrefId = dbXrefId;
-        this.parentTaxonId = parentTaxonId;
-        this.taxonRank = taxonRank;
-        this.extinct = extinct;
-        this.path = path;
+        this.parentTaxonPath = parentTaxonPath;
+        this.rank = rank;
+        this.isExtincted = isExtincted;
+        this.dbXrefTOs = Collections.unmodifiableSet(dbXrefTOs == null ?
+                new HashSet<>(): new HashSet<>(dbXrefTOs));
+    }
+    
+    public String getPath() {
+        return getId();
+    }
+    
+    public String getScientificName() {
+        return getName();
     }
     
     public String getCommonName() {
         return commonName;
     }
     
-    public Integer getDbXrefId() {
-        return dbXrefId;
+    public String getParentTaxonPath() {
+        return parentTaxonPath;
     }
     
-    public Integer getParentTaxonId() {
-        return parentTaxonId;
+    public String getRank() {
+        return rank;
     }
     
-    public String getTaxonRank() {
-        return taxonRank;
+    public Boolean isExtincted() {
+        return isExtincted;
     }
     
-    public Boolean isExtinct() {
-        return extinct;
-    }
-    
-    public String getPath() {
-        return path;
+    public Set<DbXrefTO> getDbXrefTOs() {
+        return dbXrefTOs;
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", TaxonTO.class.getSimpleName() + "[", "]")
-                .add("id=" + getId())
-                .add("scientificName='" + getName() + "'")
+                .add("path=" + getPath())
+                .add("scientificName='" + getScientificName() + "'")
                 .add("commonName='" + commonName + "'")
-                .add("dbXrefId='" + dbXrefId + "'")
-                .add("parentTaxonId='" + parentTaxonId + "'")
-                .add("taxonRank='" + taxonRank + "'")
-                .add("extinct=" + extinct)
-                .add("path='" + path + "'")
+                .add("parentTaxonPath='" + parentTaxonPath + "'")
+                .add("rank='" + rank + "'")
+                .add("isExtincted=" + isExtincted)
+                .add("dbXrefTOs=" + dbXrefTOs)
                 .toString();
     }
 }

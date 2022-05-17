@@ -13,11 +13,11 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     
     List<TaxonTO> findAll();
     
-    List<TaxonTO> findByScientificName(String taxonScientificName);
+    TaxonTO findByScientificName(String taxonScientificName);
     
-    TaxonTO findById(int id);
+    TaxonTO findByPath(String id);
     
-    List<TaxonTO> findByIds(Set<Integer> taxonIds);
+    List<TaxonTO> findByPaths(Set<String> taxonIds);
     
     void insertTaxon(TaxonTO taxon);
 }

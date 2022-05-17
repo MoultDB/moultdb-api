@@ -1,44 +1,33 @@
 package org.moultdb.api.model;
 
-import java.util.Objects;
-
 /**
  * @author Valentine Rech de Laval
  * @since 2021-10-20
  */
-public abstract class NamedEntity {
+public abstract class NamedEntity<T extends Comparable<T>> extends Entity<T> {
     
     private final String name;
+    private final String description;
     
-    public NamedEntity(String name) throws IllegalArgumentException {
+    public NamedEntity(T id, String name) throws IllegalArgumentException {
+        this(id, name, null);
+    }
+    
+    public NamedEntity(T id, String name, String description) throws IllegalArgumentException {
+        super(id);
         if (name == null) {
             throw new IllegalArgumentException("the name provided cannot be blank.");
         }
         this.name = name;
+        this.description = description;
     }
     
     public String getName() {
-        return this.name;
+        return name;
     }
     
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        NamedEntity that = (NamedEntity) o;
-        return Objects.equals(name, that.name);
+    public String getDescription() {
+        return description;
     }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-    
-    @Override
-    public String toString() {
-        return "NamedEntity[name='" + name + "']";
-    }
-    
+
 }

@@ -1,6 +1,16 @@
 package org.moultdb.api.model;
 
+import org.moultdb.api.model.moutldbenum.EgressDirection;
+import org.moultdb.api.model.moutldbenum.ExuviaeConsumption;
+import org.moultdb.api.model.moutldbenum.ExuviaePosition;
+import org.moultdb.api.model.moutldbenum.LifeHistoryStyle;
+import org.moultdb.api.model.moutldbenum.MoultingPhase;
+import org.moultdb.api.model.moutldbenum.MoultingVariability;
+import org.moultdb.api.model.moutldbenum.Reabsorption;
+
+import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * @author Valentine Rech de Laval
@@ -9,165 +19,308 @@ import java.util.Objects;
 public class MoultingCharacters {
     
     /**
-     *  Define whether this insect is hemimetabolous (=true) or holometabolous (= false) (it's gradual or punctuated by metamorphosis)
+     * Define whether individuals of this species show direct development from juvenile to adulthood,
+     * or whether this development is punctuated by metamorphosis
      */
-    private final Boolean isHemimetabolous;
+    private final LifeHistoryStyle lifeHistoryStyle;
     
     /**
-     *  Define count of moults required to reach adult stage (indefinite/variable = -1)
+     * Define whether there is a terminal adult moult (=true) or it's a continued moulting (=false) during adult stage
      */
-    private final Integer moultCount;
+    private final Boolean hasTerminalAdultStage;
     
     /**
-     *  Define body size increase between each moulting phase
+     * Define the number of separate moult stages observed and described for this species' development (indefinite/variable = -1)
      */
-    private final Integer sizeIncrease;
+    private final Integer observedMoultCount;
     
     /**
-     *  Define whether there is a terminal adult moult (=true) or it's a continued moulting (=false) during adult stage
+     * Define the number of separate moult stages estimated for this species' development, if not all observed and described
      */
-    private final Boolean hasAdultStage;
-    
-    /**
-     *  Define whether the development is anamorphic (=true) vs. epimorphic (=false) (segments added/not added during moults)
-     */
-    private final Boolean isAnamorphic;
-    
-    /**
-     *  Define whether the number of moults is fixed  (=true) or variable (=false) within one species
-     */
-    private final Boolean hasFixedMoultNumber;
+    private final Integer estimatedMoultCount;
 
+    /**
+     * Define the number of specimen at each moult stage
+     */
+    private final Integer specimenCount;
+    
+    /**
+     * Define the mode in which the species adds segments through its life history
+     */
+    private final String segmentAdditionMode;
+    
+    /**
+     * Define the number of body segments added by individuals of the species at each moult stage
+     */
+    private final Integer bodySegmentsCountPerMoultStage;
+    
+    /**
+     * Define the number of body segments in adult individuals of the species
+     */
+    private final Integer bodySegmentsCountInAdults;
+    
+    /**
+     * Define the average body length of individuals at this defined and observed moult stage
+     */
+    private final Integer bodyLengthAverage;
+    
+    /**
+     * Define the average body size increase with the previous moult stage
+     */
+    private final Integer bodyLengthIncreaseAverage;
+    
+    /**
+     * Define the average quantity by which total body length increases with each moult stage in this species
+     */
+    private final BigDecimal bodyLengthIncreaseAveragePerMoult;
+    
+    /**
+     * Define the unit of body length measurements
+     */
+    private final String measurementUnit;
+    
+    /**
+     * Define location of moulting suture opened in adult specimens of this species in order to moult
+     */
     private final String sutureLocation;
     
-    private final String egressDirection;
+    /**
+     * Define the locations of cephalic sutures if cephalic moulting sutures are used
+     */
+    private final String cephalicSutureLocation;
     
     /**
-     *  Define whether exuviae is fragmented (=true) or retained (=false) as a single empty unit
+     * Define the locations of post-cephalic sutures if post-cephalic moulting is used
      */
-    private final Boolean isFragmentedExuviae;
+    private final String postCephalicSutureLocation;
     
     /**
-     *  Define whether entire exoskeleton moulted during one phase (=true), or biphasic moulting (=false)
+     * Define the moult configurations resulting from a moulting event in the species formally described and named
      */
-    private final Boolean isMonoPhasicMoulting;
+    private final String resultingNamedMoultingConfiguration;
     
     /**
-     *  Define whether there is a presence (=true) or absence (=false) of exoskeletal material reabsorption before moulting
+     * Define the direction in which individuals of this species exist their exuviae
      */
-    private final Boolean hasExoskeletalMaterialReabsorption;
+    private final EgressDirection egressDirection;
     
     /**
-     *  Define whether there is a presence (=true) or absence (=false) of consumption of exuviae after moulting
+     * Define the position in which moults of this species are found in - prone (dorsum-up) or supine (ventrum-up), or both
      */
-    private final Boolean hasExuviaeConsumed;
+    private final ExuviaePosition positionExuviaeFoundIn;
     
     /**
-     *  Extent of repair of exoskeleton damages occurring with each moult
+     * Define whether individuals of this species moult all parts of the exoskeleton in one go, or in multiple phases
      */
-    private final Integer repairExtent;
+    private final MoultingPhase moultingPhase;
     
     /**
-     *  Define whether moulting of individuals is synchronous (=true) or asynchronous (=false)
+     * Define whether individuals of this species vary in the ways they moult their exoskeletons? Such as whether different individuals use different moulting sutures, or produce a variety of resulting moulting configurations
      */
-    private final Boolean massMoulting;
+    private final MoultingVariability moultingVariability;
     
     /**
-     *  Define whether moulting events are linked to mating events (=true) or not (=false)
+     * Define whether juvenile moulting behaviours in same as in adults (=true) or different to in adults (=false)
      */
-    private final Boolean isMatingLinked;
+    private final Boolean juvenileMoultingBehaviours;
     
     /**
-     *  E.g. ecdysone and juvenile hormone signalling and regulation
+     * Define the location of moulting suture opened in juvenile specimens of this species in order to moult
      */
-    private final String hormoneRegulation;
+    private final String juvenileSutureLocation;
     
-    public MoultingCharacters(Boolean isHemimetabolous, Integer moultCount, Integer sizeIncrease,
-                              Boolean hasAdultStage, Boolean isAnamorphic, Boolean hasFixedMoultNumber,
-                              String sutureLocation, String egressDirection,Boolean isFragmentedExuviae,
-                              Boolean isMonoPhasicMoulting, Boolean hasExoskeletalMaterialReabsorption,
-                              Boolean hasExuviaeConsumed, Integer repairExtent, Boolean massMoulting,
-                              Boolean isMatingLinked, String hormoneRegulation) {
-        this.isHemimetabolous = isHemimetabolous;
-        this.moultCount = moultCount;
-        this.sizeIncrease = sizeIncrease;
-        this.hasAdultStage = hasAdultStage;
-        this.isAnamorphic = isAnamorphic;
-        this.hasFixedMoultNumber = hasFixedMoultNumber;
+    /**
+     * Define, if cephalic moulting sutures are used, the locations of these cephalic sutures in juvenile specimens
+     */
+    private final String juvenileCephalicSutureLocation;
+    
+    /**
+     * Define, if post-cephalic moulting is used, the locations of these post-cephalic sutures in juvenile specimens
+     */
+    private final String juvenilePostCephalicSutureLocation;
+    
+    /**
+     * Define the moult configurations resulting from a moulting event in juvenile specimens in the species formally described and named
+     */
+    private final String juvenileResultingNamedMoultingConfiguration;
+    
+    /**
+     * Define other notable behaviours, excepting methods of moulting itself, that the species shows in conjunction with individual moulting events
+     */
+    private final String otherBehaviour;
+    
+    /**
+     * Define whether individuals of this species are known to consume any of their moulted exoskeletons
+     */
+    private final ExuviaeConsumption exuviaeConsumption;
+    /**
+     * Define whether  individuals of this species are known to reabsorb any of their previous exoskeleton during moulting
+     */
+    private final Reabsorption reabsorption;
+    
+    /**
+     * Define preservational quality of fossil moults for the sample
+     */
+    private final String fossilExuviaeQuality;
+    
+    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, Boolean hasTerminalAdultStage, Integer observedMoultCount,
+                              Integer estimatedMoultCount, Integer specimenCount, String segmentAdditionMode,
+                              Integer bodySegmentsCountPerMoultStage, Integer bodySegmentsCountInAdults,
+                              Integer bodyLengthAverage, Integer bodyLengthIncreaseAverage,
+                              BigDecimal bodyLengthIncreaseAveragePerMoult, String measurementUnit, String sutureLocation,
+                              String cephalicSutureLocation, String postCephalicSutureLocation,
+                              String resultingNamedMoultingConfiguration, EgressDirection egressDirection,
+                              ExuviaePosition positionExuviaeFoundIn, MoultingPhase moultingPhase,
+                              MoultingVariability moultingVariability, Boolean juvenileMoultingBehaviours,
+                              String juvenileSutureLocation, String juvenileCephalicSutureLocation,
+                              String juvenilePostCephalicSutureLocation, String juvenileResultingNamedMoultingConfiguration,
+                              String otherBehaviour, ExuviaeConsumption exuviaeConsumption, Reabsorption reabsorption,
+                              String fossilExuviaeQuality) {
+        this.lifeHistoryStyle = lifeHistoryStyle;
+        this.hasTerminalAdultStage = hasTerminalAdultStage;
+        this.observedMoultCount = observedMoultCount;
+        this.estimatedMoultCount = estimatedMoultCount;
+        this.specimenCount = specimenCount;
+        this.segmentAdditionMode = segmentAdditionMode;
+        this.bodySegmentsCountPerMoultStage = bodySegmentsCountPerMoultStage;
+        this.bodySegmentsCountInAdults = bodySegmentsCountInAdults;
+        this.bodyLengthAverage = bodyLengthAverage;
+        this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
+        this.bodyLengthIncreaseAveragePerMoult = bodyLengthIncreaseAveragePerMoult;
+        this.measurementUnit = measurementUnit;
         this.sutureLocation = sutureLocation;
+        this.cephalicSutureLocation = cephalicSutureLocation;
+        this.postCephalicSutureLocation = postCephalicSutureLocation;
+        this.resultingNamedMoultingConfiguration = resultingNamedMoultingConfiguration;
         this.egressDirection = egressDirection;
-        this.isFragmentedExuviae = isFragmentedExuviae;
-        this.isMonoPhasicMoulting = isMonoPhasicMoulting;
-        this.hasExoskeletalMaterialReabsorption = hasExoskeletalMaterialReabsorption;
-        this.hasExuviaeConsumed = hasExuviaeConsumed;
-        this.repairExtent = repairExtent;
-        this.massMoulting = massMoulting;
-        this.isMatingLinked = isMatingLinked;
-        this.hormoneRegulation = hormoneRegulation;
+        this.positionExuviaeFoundIn = positionExuviaeFoundIn;
+        this.moultingPhase = moultingPhase;
+        this.moultingVariability = moultingVariability;
+        this.juvenileMoultingBehaviours = juvenileMoultingBehaviours;
+        this.juvenileSutureLocation = juvenileSutureLocation;
+        this.juvenileCephalicSutureLocation = juvenileCephalicSutureLocation;
+        this.juvenilePostCephalicSutureLocation = juvenilePostCephalicSutureLocation;
+        this.juvenileResultingNamedMoultingConfiguration = juvenileResultingNamedMoultingConfiguration;
+        this.otherBehaviour = otherBehaviour;
+        this.exuviaeConsumption = exuviaeConsumption;
+        this.reabsorption = reabsorption;
+        this.fossilExuviaeQuality = fossilExuviaeQuality;
     }
     
-    public Boolean getHemimetabolous() {
-        return isHemimetabolous;
+    public LifeHistoryStyle getLifeHistoryStyle() {
+        return lifeHistoryStyle;
     }
     
-    public Integer getMoultCount() {
-        return moultCount;
+    public Boolean getHasTerminalAdultStage() {
+        return hasTerminalAdultStage;
     }
     
-    public Integer getSizeIncrease() {
-        return sizeIncrease;
+    public Integer getObservedMoultCount() {
+        return observedMoultCount;
     }
     
-    public Boolean getHasAdultStage() {
-        return hasAdultStage;
+    public Integer getEstimatedMoultCount() {
+        return estimatedMoultCount;
     }
     
-    public Boolean getAnamorphic() {
-        return isAnamorphic;
+    public Integer getSpecimenCount() {
+        return specimenCount;
     }
     
-    public Boolean getHasFixedMoultNumber() {
-        return hasFixedMoultNumber;
+    public String getSegmentAdditionMode() {
+        return segmentAdditionMode;
+    }
+    
+    public Integer getBodySegmentsCountPerMoultStage() {
+        return bodySegmentsCountPerMoultStage;
+    }
+    
+    public Integer getBodySegmentsCountInAdults() {
+        return bodySegmentsCountInAdults;
+    }
+    
+    public Integer getBodyLengthAverage() {
+        return bodyLengthAverage;
+    }
+    
+    public Integer getBodyLengthIncreaseAverage() {
+        return bodyLengthIncreaseAverage;
+    }
+    
+    public BigDecimal getBodyLengthIncreaseAveragePerMoult() {
+        return bodyLengthIncreaseAveragePerMoult;
+    }
+    
+    public String getMeasurementUnit() {
+        return measurementUnit;
     }
     
     public String getSutureLocation() {
         return sutureLocation;
     }
     
-    public String getEgressDirection() {
+    public String getCephalicSutureLocation() {
+        return cephalicSutureLocation;
+    }
+    
+    public String getPostCephalicSutureLocation() {
+        return postCephalicSutureLocation;
+    }
+    
+    public String getResultingNamedMoultingConfiguration() {
+        return resultingNamedMoultingConfiguration;
+    }
+    
+    public EgressDirection getEgressDirection() {
         return egressDirection;
     }
     
-    public Boolean getFragmentedExuviae() {
-        return isFragmentedExuviae;
+    public ExuviaePosition getPositionExuviaeFoundIn() {
+        return positionExuviaeFoundIn;
     }
     
-    public Boolean getMonoPhasicMoulting() {
-        return isMonoPhasicMoulting;
+    public MoultingPhase getMoultingPhase() {
+        return moultingPhase;
     }
     
-    public Boolean getHasExoskeletalMaterialReabsorption() {
-        return hasExoskeletalMaterialReabsorption;
+    public MoultingVariability getMoultingVariability() {
+        return moultingVariability;
     }
     
-    public Boolean getHasExuviaeConsumed() {
-        return hasExuviaeConsumed;
+    public Boolean getJuvenileMoultingBehaviours() {
+        return juvenileMoultingBehaviours;
     }
     
-    public Integer getRepairExtent() {
-        return repairExtent;
+    public String getJuvenileSutureLocation() {
+        return juvenileSutureLocation;
     }
     
-    public Boolean getMassMoulting() {
-        return massMoulting;
+    public String getJuvenileCephalicSutureLocation() {
+        return juvenileCephalicSutureLocation;
     }
     
-    public Boolean getMatingLinked() {
-        return isMatingLinked;
+    public String getJuvenilePostCephalicSutureLocation() {
+        return juvenilePostCephalicSutureLocation;
     }
     
-    public String getHormoneRegulation() {
-        return hormoneRegulation;
+    public String getJuvenileResultingNamedMoultingConfiguration() {
+        return juvenileResultingNamedMoultingConfiguration;
+    }
+    
+    public String getOtherBehaviour() {
+        return otherBehaviour;
+    }
+    
+    public ExuviaeConsumption getExuviaeConsumption() {
+        return exuviaeConsumption;
+    }
+    
+    public Reabsorption getReabsorption() {
+        return reabsorption;
+    }
+    
+    public String getFossilExuviaeQuality() {
+        return fossilExuviaeQuality;
     }
     
     @Override
@@ -177,29 +330,80 @@ public class MoultingCharacters {
         if (o == null || getClass() != o.getClass())
             return false;
         MoultingCharacters that = (MoultingCharacters) o;
-        return Objects.equals(isHemimetabolous, that.isHemimetabolous)
-                && Objects.equals(moultCount, that.moultCount)
-                && Objects.equals(sizeIncrease, that.sizeIncrease)
-                && Objects.equals(hasAdultStage, that.hasAdultStage)
-                && Objects.equals(isAnamorphic, that.isAnamorphic)
-                && Objects.equals(hasFixedMoultNumber, that.hasFixedMoultNumber)
+        return lifeHistoryStyle == that.lifeHistoryStyle
+                && Objects.equals(hasTerminalAdultStage, that.hasTerminalAdultStage)
+                && Objects.equals(observedMoultCount, that.observedMoultCount)
+                && Objects.equals(estimatedMoultCount, that.estimatedMoultCount)
+                && Objects.equals(specimenCount, that.specimenCount)
+                && Objects.equals(segmentAdditionMode, that.segmentAdditionMode)
+                && Objects.equals(bodySegmentsCountPerMoultStage, that.bodySegmentsCountPerMoultStage)
+                && Objects.equals(bodySegmentsCountInAdults, that.bodySegmentsCountInAdults)
+                && Objects.equals(bodyLengthAverage, that.bodyLengthAverage)
+                && Objects.equals(bodyLengthIncreaseAverage, that.bodyLengthIncreaseAverage)
+                && Objects.equals(bodyLengthIncreaseAveragePerMoult, that.bodyLengthIncreaseAveragePerMoult)
+                && Objects.equals(measurementUnit, that.measurementUnit)
                 && Objects.equals(sutureLocation, that.sutureLocation)
-                && Objects.equals(egressDirection, that.egressDirection)
-                && Objects.equals(isFragmentedExuviae, that.isFragmentedExuviae)
-                && Objects.equals(isMonoPhasicMoulting, that.isMonoPhasicMoulting)
-                && Objects.equals(hasExoskeletalMaterialReabsorption, that.hasExoskeletalMaterialReabsorption)
-                && Objects.equals(hasExuviaeConsumed, that.hasExuviaeConsumed)
-                && Objects.equals(repairExtent, that.repairExtent)
-                && Objects.equals(massMoulting, that.massMoulting)
-                && Objects.equals(isMatingLinked, that.isMatingLinked)
-                && Objects.equals(hormoneRegulation, that.hormoneRegulation);
+                && Objects.equals(cephalicSutureLocation, that.cephalicSutureLocation)
+                && Objects.equals(postCephalicSutureLocation, that.postCephalicSutureLocation)
+                && Objects.equals(resultingNamedMoultingConfiguration, that.resultingNamedMoultingConfiguration)
+                && egressDirection == that.egressDirection
+                && positionExuviaeFoundIn == that.positionExuviaeFoundIn
+                && moultingPhase == that.moultingPhase
+                && moultingVariability == that.moultingVariability
+                && Objects.equals(juvenileMoultingBehaviours, that.juvenileMoultingBehaviours)
+                && Objects.equals(juvenileSutureLocation, that.juvenileSutureLocation)
+                && Objects.equals(juvenileCephalicSutureLocation, that.juvenileCephalicSutureLocation)
+                && Objects.equals(juvenilePostCephalicSutureLocation, that.juvenilePostCephalicSutureLocation)
+                && Objects.equals(juvenileResultingNamedMoultingConfiguration, that.juvenileResultingNamedMoultingConfiguration)
+                && Objects.equals(otherBehaviour, that.otherBehaviour)
+                && exuviaeConsumption == that.exuviaeConsumption
+                && reabsorption == that.reabsorption
+                && Objects.equals(fossilExuviaeQuality, that.fossilExuviaeQuality);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(isHemimetabolous, moultCount, sizeIncrease, hasAdultStage, isAnamorphic,
-                hasFixedMoultNumber, sutureLocation, egressDirection, isFragmentedExuviae, isMonoPhasicMoulting,
-                hasExoskeletalMaterialReabsorption, hasExuviaeConsumed, repairExtent, massMoulting, isMatingLinked,
-                hormoneRegulation);
+        return Objects.hash(lifeHistoryStyle, hasTerminalAdultStage, observedMoultCount, estimatedMoultCount, specimenCount,
+                segmentAdditionMode, bodySegmentsCountPerMoultStage, bodySegmentsCountInAdults, bodyLengthAverage,
+                bodyLengthIncreaseAverage, bodyLengthIncreaseAveragePerMoult, measurementUnit, sutureLocation,
+                cephalicSutureLocation, postCephalicSutureLocation, resultingNamedMoultingConfiguration, egressDirection,
+                positionExuviaeFoundIn, moultingPhase, moultingVariability, juvenileMoultingBehaviours, juvenileSutureLocation,
+                juvenileCephalicSutureLocation, juvenilePostCephalicSutureLocation, juvenileResultingNamedMoultingConfiguration,
+                otherBehaviour, exuviaeConsumption, reabsorption, fossilExuviaeQuality);
+    }
+    
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", MoultingCharacters.class.getSimpleName() + "[", "]")
+                .add("lifeHistoryStyle=" + lifeHistoryStyle)
+                .add("hasTerminalAdultStage=" + hasTerminalAdultStage)
+                .add("observedMoultCount=" + observedMoultCount)
+                .add("estimatedMoultCount=" + estimatedMoultCount)
+                .add("specimenCount=" + specimenCount)
+                .add("segmentAdditionMode='" + segmentAdditionMode + "'")
+                .add("bodySegmentsCountPerMoultStage=" + bodySegmentsCountPerMoultStage)
+                .add("bodySegmentsCountInAdults=" + bodySegmentsCountInAdults)
+                .add("bodyLengthAverage=" + bodyLengthAverage)
+                .add("bodyLengthIncreaseAverage=" + bodyLengthIncreaseAverage)
+                .add("bodyLengthIncreaseAveragePerMoult=" + bodyLengthIncreaseAveragePerMoult)
+                .add("measurementUnit=" + measurementUnit)
+                .add("sutureLocation='" + sutureLocation + "'")
+                .add("cephalicSutureLocation='" + cephalicSutureLocation + "'")
+                .add("postCephalicSutureLocation='" + postCephalicSutureLocation + "'")
+                .add("resultingNamedMoultingConfiguration='" + resultingNamedMoultingConfiguration + "'")
+                .add("egressDirection=" + egressDirection)
+                .add("positionExuviaeFoundIn=" + positionExuviaeFoundIn)
+                .add("moultingPhase=" + moultingPhase)
+                .add("moultingVariability=" + moultingVariability)
+                .add("juvenileMoultingBehaviours=" + juvenileMoultingBehaviours)
+                .add("juvenileSutureLocation='" + juvenileSutureLocation + "'")
+                .add("juvenileCephalicSutureLocation='" + juvenileCephalicSutureLocation + "'")
+                .add("juvenilePostCephalicSutureLocation='" + juvenilePostCephalicSutureLocation + "'")
+                .add("juvenileResultingNamedMoultingConfiguration='" + juvenileResultingNamedMoultingConfiguration + "'")
+                .add("otherBehaviour='" + otherBehaviour + "'")
+                .add("exuviaeConsumption=" + exuviaeConsumption)
+                .add("reabsorption=" + reabsorption)
+                .add("fossilExuviaeQuality='" + fossilExuviaeQuality + "'")
+                .toString();
     }
 }

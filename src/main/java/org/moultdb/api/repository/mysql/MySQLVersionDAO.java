@@ -29,7 +29,7 @@ public class MySQLVersionDAO implements VersionDAO {
     }
     
     private static final String SELECT_STATEMENT =
-            "SELECT v.*, u1.name, u2.name " +
+            "SELECT v.*, u1.*, u2.* " +
             "FROM version v " +
             "INNER JOIN user u1 ON (u1.id = v.creation_user_id) " +
             "INNER JOIN user u2 ON (u2.id = v.last_update_user_id) ";
@@ -54,9 +54,11 @@ public class MySQLVersionDAO implements VersionDAO {
         @Override
         public VersionTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new VersionTO(rs.getInt("id"),
-                    new UserTO(rs.getInt("creation_user_id"), rs.getString("u1.name")),
+                    new UserTO(rs.getInt("creation_user_id"), rs.getString("u1.name"),
+                            rs.getString("u1.email"), rs.getString("u1.orcidId")),
                     rs.getTimestamp("creation_date"),
-                    new UserTO(rs.getInt("last_update_user_id"), rs.getString("u2.name")),
+                    new UserTO(rs.getInt("last_update_user_id"), rs.getString("u2.name"),
+                            rs.getString("u2.email"), rs.getString("u2.orcidId")),
                     rs.getTimestamp("last_update_date"), rs.getInt("version_number"));
         }
     }

@@ -24,8 +24,17 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT * FROM moulting_characters gmc " +
+            "INNER JOIN segment_addition_mode sam ON gmc.segment_addition_mode_id = sam.id " +
             "INNER JOIN suture_location sl ON gmc.suture_location_id = sl.id " +
-            "INNER JOIN egress_direction ed ON gmc.egress_direction_id = ed.id ";
+            "INNER JOIN suture_location jsl ON gmc.juvenile_suture_location_id = jsl.id " +
+            "INNER JOIN cephalic_suture_location csl ON gmc.cephalic_suture_location_id = csl.id " +
+            "INNER JOIN cephalic_suture_location jcsl ON gmc.juvenile_cephalic_suture_location_id = jcsl.id " +
+            "INNER JOIN post_cephalic_suture_location pcsl ON gmc.post_cephalic_suture_location_id = pcsl.id " +
+            "INNER JOIN post_cephalic_suture_location jpcsl ON gmc.post_cephalic_suture_location_id = jpcsl.id " +
+            "INNER JOIN resulting_named_moulting_configuration rnmc ON gmc.resulting_named_moulting_configuration_id = rnmc.id " +
+            "INNER JOIN resulting_named_moulting_configuration jrnmc ON gmc.juvenile_resulting_named_moulting_configuration_id = jrnmc.id " +
+            "INNER JOIN other_behaviour ob ON gmc.other_behaviour_id = ob.id " +
+            "INNER JOIN fossil_exuviae_quality feq ON gmc.fossil_exuviae_quality_id = feq.id ";
     
     public MySQLMoultingCharactersDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -50,13 +59,18 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     private static class GeneralMoultingCharactersRowMapper implements RowMapper<MoultingCharactersTO> {
         @Override
         public MoultingCharactersTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new MoultingCharactersTO(rs.getInt("gmc.id"), rs.getBoolean("gmc.life_history"),
-                    rs.getInt("gmc.moult_count"), rs.getInt("gmc.size_increase"), rs.getBoolean("gmc.adult_stage"),
-                    rs.getBoolean("gmc.segment_addition_mode"), rs.getBoolean("gmc.variability"),
-                    rs.getString("sl.name"), rs.getString("ed.name"), rs.getBoolean("gmc.exuviae_state"),
-                    rs.getBoolean("gmc.moulting_phase"), rs.getBoolean("gmc.reabsorption"), rs.getBoolean("gmc.exuviae_consumed"),
-                    rs.getInt("gmc.repair"), rs.getBoolean("gmc.mass_moulting"), rs.getBoolean("gmc.mating"),
-                    rs.getString("gmc.hormone_regulation"));
+
+            return new MoultingCharactersTO(rs.getInt("gmc.id"), rs.getString("gmc.life_history_style"),
+                    rs.getBoolean("gmc.terminal_adult_stage"), rs.getInt("gmc.observed_moult_stage_count"),
+                    rs.getInt("gmc.estimated_moult_count"), rs.getInt("gmc.specimen_count"), rs.getString("sam.name"),
+                    rs.getInt("gmc.body_segments_count_per_moult_stage"), rs.getInt("gmc.body_segments_count_in_adults"),
+                    rs.getInt("gmc.body_length_average"), rs.getInt("gmc.body_length_increase_average"),
+                    rs.getBigDecimal("gmc.body_length_increase_average_per_moult"), rs.getString("gmc.measurement_unit"),
+                    rs.getString("sl.name"), rs.getString("csl.name"), rs.getString("pcsl.name"), rs.getString("rnmc.name"),
+                    rs.getString("gmc.egress_direction"), rs.getString("gmc.position_exuviae_found_in"), rs.getString("gmc.moulting_phase"),
+                    rs.getString("gmc.moulting_variability"), rs.getBoolean("gmc.juvenile_moulting_behaviours"), rs.getString("jsl.name"),
+                    rs.getString("jcsl.name"), rs.getString("jpcsl.name"), rs.getString("jrnmc.name"), rs.getString("ob.name"),
+                    rs.getString("gmc.exuviae_consumed"), rs.getString("gmc.exoskeletal_reabsorption"), rs.getString("feq.name"));
         }
     }
 }

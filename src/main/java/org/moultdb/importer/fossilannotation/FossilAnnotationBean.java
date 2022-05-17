@@ -1,5 +1,6 @@
 package org.moultdb.importer.fossilannotation;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -11,7 +12,8 @@ public class FossilAnnotationBean {
     
     private String order;
     private String taxon;
-    private String publishedReference;
+    private String publishedReferenceText;
+    private String publishedReferenceAcc;
     private String museumCollection;
     private String museumAccession;
     private String location;
@@ -20,6 +22,7 @@ public class FossilAnnotationBean {
     private String fossilPreservationType;
     private String environment;
     private Integer specimenCount;
+    private Integer specimenCountPerMoultStage;
     private String specimenType;
     private String lifeHistoryStyle;
     private Boolean adultStageMoulting;
@@ -28,9 +31,10 @@ public class FossilAnnotationBean {
     private Integer estimatedMoultStagesCount;
     private String segmentAdditionMode;
     private String bodySegmentsCountPerMoultStage;
-    private String bodySegmentsCountInAdult;
+    private Integer bodySegmentsCountInAdult;
     private String bodyLengthIncreaseAveragePerMoult;
-    private String bodyLengthAverageAtEachMoultStage;
+    private BigDecimal bodyLengthAverageAtEachMoultStage;
+    private String unitOfMeasurement;
     private String moultingSutureLocation;
     private String cephalicSutureLocation;
     private String postCephalicSutureLocation;
@@ -70,12 +74,24 @@ public class FossilAnnotationBean {
         this.taxon = taxon;
     }
     
-    public String getPublishedReference() {
-        return publishedReference;
+    public String getScientificName() {
+        return order + " " + taxon;
     }
     
-    public void setPublishedReference(String publishedReference) {
-        this.publishedReference = publishedReference;
+    public String getPublishedReferenceText() {
+        return publishedReferenceText;
+    }
+    
+    public void setPublishedReferenceText(String publishedReferenceText) {
+        this.publishedReferenceText = publishedReferenceText;
+    }
+    
+    public String getPublishedReferenceAcc() {
+        return publishedReferenceAcc;
+    }
+    
+    public void setPublishedReferenceAcc(String publishedReferenceAcc) {
+        this.publishedReferenceAcc = publishedReferenceAcc;
     }
     
     public String getMuseumCollection() {
@@ -142,6 +158,14 @@ public class FossilAnnotationBean {
         this.specimenCount = specimenCount;
     }
     
+    public Integer getSpecimenCountPerMoultStage() {
+        return specimenCountPerMoultStage;
+    }
+    
+    public void setSpecimenCountPerMoultStage(Integer specimenCountPerMoultStage) {
+        this.specimenCountPerMoultStage = specimenCountPerMoultStage;
+    }
+    
     public String getSpecimenType() {
         return specimenType;
     }
@@ -206,11 +230,11 @@ public class FossilAnnotationBean {
         this.bodySegmentsCountPerMoultStage = bodySegmentsCountPerMoultStage;
     }
     
-    public String getBodySegmentsCountInAdult() {
+    public Integer getBodySegmentsCountInAdult() {
         return bodySegmentsCountInAdult;
     }
     
-    public void setBodySegmentsCountInAdult(String bodySegmentsCountInAdult) {
+    public void setBodySegmentsCountInAdult(Integer bodySegmentsCountInAdult) {
         this.bodySegmentsCountInAdult = bodySegmentsCountInAdult;
     }
     
@@ -222,12 +246,20 @@ public class FossilAnnotationBean {
         this.bodyLengthIncreaseAveragePerMoult = bodyLengthIncreaseAveragePerMoult;
     }
     
-    public String getBodyLengthAverageAtEachMoultStage() {
+    public BigDecimal getBodyLengthAverageAtEachMoultStage() {
         return bodyLengthAverageAtEachMoultStage;
     }
     
-    public void setBodyLengthAverageAtEachMoultStage(String bodyLengthAverageAtEachMoultStage) {
+    public void setBodyLengthAverageAtEachMoultStage(BigDecimal bodyLengthAverageAtEachMoultStage) {
         this.bodyLengthAverageAtEachMoultStage = bodyLengthAverageAtEachMoultStage;
+    }
+    
+    public String getUnitOfMeasurement() {
+        return unitOfMeasurement;
+    }
+    
+    public void setUnitOfMeasurement(String unitOfMeasurement) {
+        this.unitOfMeasurement = unitOfMeasurement;
     }
     
     public String getMoultingSutureLocation() {
@@ -391,7 +423,8 @@ public class FossilAnnotationBean {
         FossilAnnotationBean that = (FossilAnnotationBean) o;
         return Objects.equals(order, that.order)
                 && Objects.equals(taxon, that.taxon)
-                && Objects.equals(publishedReference, that.publishedReference)
+                && Objects.equals(publishedReferenceText, that.publishedReferenceText)
+                && Objects.equals(publishedReferenceAcc, that.publishedReferenceAcc)
                 && Objects.equals(museumCollection, that.museumCollection)
                 && Objects.equals(museumAccession, that.museumAccession)
                 && Objects.equals(location, that.location)
@@ -400,6 +433,7 @@ public class FossilAnnotationBean {
                 && Objects.equals(fossilPreservationType, that.fossilPreservationType)
                 && Objects.equals(environment, that.environment)
                 && Objects.equals(specimenCount, that.specimenCount)
+                && Objects.equals(specimenCountPerMoultStage, that.specimenCountPerMoultStage)
                 && Objects.equals(specimenType, that.specimenType)
                 && Objects.equals(lifeHistoryStyle, that.lifeHistoryStyle)
                 && Objects.equals(adultStageMoulting, that.adultStageMoulting)
@@ -411,6 +445,7 @@ public class FossilAnnotationBean {
                 && Objects.equals(bodySegmentsCountInAdult, that.bodySegmentsCountInAdult)
                 && Objects.equals(bodyLengthIncreaseAveragePerMoult, that.bodyLengthIncreaseAveragePerMoult)
                 && Objects.equals(bodyLengthAverageAtEachMoultStage, that.bodyLengthAverageAtEachMoultStage)
+                && Objects.equals(unitOfMeasurement, that.unitOfMeasurement)
                 && Objects.equals(moultingSutureLocation, that.moultingSutureLocation)
                 && Objects.equals(cephalicSutureLocation, that.cephalicSutureLocation)
                 && Objects.equals(postCephalicSutureLocation, that.postCephalicSutureLocation)
@@ -434,12 +469,12 @@ public class FossilAnnotationBean {
     
     @Override
     public int hashCode() {
-        return Objects.hash(order, taxon, publishedReference, museumCollection, museumAccession, location,
-                geologicalFormation, geologicalAge, fossilPreservationType, environment, specimenCount, specimenType,
-                lifeHistoryStyle, adultStageMoulting, observedMoultStagesCount, observedMoultStages,
+        return Objects.hash(order, taxon, publishedReferenceText, publishedReferenceAcc, museumCollection, museumAccession, location,
+                geologicalFormation, geologicalAge, fossilPreservationType, environment, specimenCount, specimenCountPerMoultStage,
+                specimenType, lifeHistoryStyle, adultStageMoulting, observedMoultStagesCount, observedMoultStages,
                 estimatedMoultStagesCount, segmentAdditionMode, bodySegmentsCountPerMoultStage,
                 bodySegmentsCountInAdult, bodyLengthIncreaseAveragePerMoult, bodyLengthAverageAtEachMoultStage,
-                moultingSutureLocation, cephalicSutureLocation, postCephalicSutureLocation,
+                unitOfMeasurement, moultingSutureLocation, cephalicSutureLocation, postCephalicSutureLocation,
                 resultingNamedMoultingConfigurations, egressDirectionDuringMoulting, positionExuviaeFoundIn,
                 moultingPhase, moultingVariability, juvenileMoultingBehaviours, juvenileMoultingSutureLocation,
                 juvenileCephalicSutureLocation, juvenilePostCephalicSutureLocation,
@@ -452,7 +487,8 @@ public class FossilAnnotationBean {
         return new StringJoiner(", ", FossilAnnotationBean.class.getSimpleName() + "[", "]")
                 .add("order='" + order + "'")
                 .add("taxon='" + taxon + "'")
-                .add("publishedReference='" + publishedReference + "'")
+                .add("publishedReferenceText='" + publishedReferenceText + "'")
+                .add("publishedReferenceAcc='" + publishedReferenceAcc + "'")
                 .add("museumCollection='" + museumCollection + "'")
                 .add("museumAccession='" + museumAccession + "'")
                 .add("location='" + location + "'")
@@ -461,6 +497,7 @@ public class FossilAnnotationBean {
                 .add("fossilPreservationType='" + fossilPreservationType + "'")
                 .add("environment='" + environment + "'")
                 .add("specimenCount=" + specimenCount)
+                .add("specimenCountPerMoultStage=" + specimenCountPerMoultStage)
                 .add("specimenType='" + specimenType + "'")
                 .add("lifeHistoryStyle='" + lifeHistoryStyle + "'")
                 .add("adultStageMoulting='" + adultStageMoulting + "'")
@@ -472,6 +509,7 @@ public class FossilAnnotationBean {
                 .add("bodySegmentsCountInAdult='" + bodySegmentsCountInAdult + "'")
                 .add("bodyLengthIncreaseAveragePerMoult='" + bodyLengthIncreaseAveragePerMoult + "'")
                 .add("bodyLengthAverageAtEachMoultStage='" + bodyLengthAverageAtEachMoultStage + "'")
+                .add("unitOfMeasurement='" + unitOfMeasurement + "'")
                 .add("moultingSutureLocation='" + moultingSutureLocation + "'")
                 .add("cephalicSutureLocation='" + cephalicSutureLocation + "'")
                 .add("postCephalicSutureLocation='" + postCephalicSutureLocation + "'")
