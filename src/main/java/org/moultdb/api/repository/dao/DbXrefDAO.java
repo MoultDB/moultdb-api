@@ -16,4 +16,12 @@ public interface DbXrefDAO extends DAO<DbXrefTO> {
     DbXrefTO findById(Integer id);
     
     List<DbXrefTO> findByIds(Set<Integer> ids);
+    
+    DbXrefTO findByAccessionAndDatasource(String accession, Integer dataSourceId);
+    
+    int insert(DbXrefTO dbXrefTO);
+    
+    int[] batchUpdate(Set<DbXrefTO> dbXrefTOs);
+    
+    Integer getLastId();
 }

@@ -25,8 +25,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
                              Integer moultingCharactersId, Integer sampleSetId,
                              ConditionTO conditionTO, ArticleTO articleTO,
-                             TermTO ecoTO, TermTO cioTO, Integer versionId)
-            throws IllegalArgumentException {
+                             TermTO ecoTO, TermTO cioTO, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
         this.moultingCharactersId = moultingCharactersId;

@@ -3,6 +3,7 @@ package org.moultdb.api.repository.dao;
 import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Valentine Rech de Laval
@@ -13,5 +14,11 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     List<TaxonAnnotationTO> findAll();
     
     List<TaxonAnnotationTO> findByTaxonId(int id);
+    
+    Integer getLastId();
+    
+    int insert(TaxonAnnotationTO taxonAnnotationTO);
+    
+    int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs);
     
 }

@@ -8,21 +8,46 @@ import java.util.Set;
  */
 public class FossilAnnotationImportTO {
     
+    Set<TaxonAnnotationTO> taxonAnnotationTOs;
+    Set<MoultingCharactersTO> moultingCharactersTOs;
+    Set<SampleSetTO> sampleSetTOs;
+    Set<ConditionTO> conditionTOs;
     Set<ArticleTO> articleTOs;
-//    Set<ArticleToDbXrefTO> articleToDbXrefTOs;
-//    Set<ArticleToSampleTO> articleToSampleTOs;
-//    Set<ArticleToTaxonTO> articleToTaxonTOS;
-//    Set<CollectionLocationTO> collectionLocationTOS;
-    Set<ConditionTO> conditionTOS;
-    Set<DataSourceTO> dataSourceTOS;
-    Set<DbXrefTO> dbXrefTOS;
-    Set<EntityTO> entityTOS;
-    Set<GeologicalAgeTO> geologicalAgeTOS;
-    Set<TaxonAnnotationTO> taxonAnnotationTOS;
-    Set<MoultingCharactersTO> moultingCharactersTOS;
-    Set<NamedEntityTO> namedEntityTOS;
-    Set<SampleSetTO> sampleSetTOS;
-    Set<StorageLocationTO> storageLocationTOS;
+    Set<DbXrefTO> dbXrefTOs;
+    Set<StorageLocationTO> storageLocationTOs;
+    Set<CollectionLocationTO> collectionLocationTOs;
+    
+    public Set<TaxonAnnotationTO> getTaxonAnnotationTOs() {
+        return taxonAnnotationTOs;
+    }
+    
+    public void setTaxonAnnotationTOs(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
+        this.taxonAnnotationTOs = taxonAnnotationTOs;
+    }
+    
+    public Set<MoultingCharactersTO> getMoultingCharactersTOs() {
+        return moultingCharactersTOs;
+    }
+    
+    public void setMoultingCharactersTOs(Set<MoultingCharactersTO> moultingCharactersTOs) {
+        this.moultingCharactersTOs = moultingCharactersTOs;
+    }
+    
+    public Set<SampleSetTO> getSampleSetTOs() {
+        return sampleSetTOs;
+    }
+    
+    public void setSampleSetTOs(Set<SampleSetTO> sampleSetTOs) {
+        this.sampleSetTOs = sampleSetTOs;
+    }
+    
+    public Set<ConditionTO> getConditionTOs() {
+        return conditionTOs;
+    }
+    
+    public void setConditionTOs(Set<ConditionTO> conditionTOs) {
+        this.conditionTOs = conditionTOs;
+    }
     
     public Set<ArticleTO> getArticleTOs() {
         return articleTOs;
@@ -32,115 +57,27 @@ public class FossilAnnotationImportTO {
         this.articleTOs = articleTOs;
     }
     
-//    public Set<ArticleToDbXrefTO> getArticleToDbXrefTOs() {
-//        return articleToDbXrefTOs;
-//    }
-//
-//    public void setArticleToDbXrefTOs(Set<ArticleToDbXrefTO> articleToDbXrefTOs) {
-//        this.articleToDbXrefTOs = articleToDbXrefTOs;
-//    }
-//
-//    public Set<ArticleToSampleTO> getArticleToSampleTOs() {
-//        return articleToSampleTOs;
-//    }
-//
-//    public void setArticleToSampleTOs(Set<ArticleToSampleTO> articleToSampleTOs) {
-//        this.articleToSampleTOs = articleToSampleTOs;
-//    }
-//
-//    public Set<ArticleToTaxonTO> getArticleToTaxonTOS() {
-//        return articleToTaxonTOS;
-//    }
-//
-//    public void setArticleToTaxonTOS(Set<ArticleToTaxonTO> articleToTaxonTOS) {
-//        this.articleToTaxonTOS = articleToTaxonTOS;
-//    }
-//
-//    public Set<CollectionLocationTO> getCollectionLocationTOS() {
-//        return collectionLocationTOS;
-//    }
-//
-//    public void setCollectionLocationTOS(Set<CollectionLocationTO> collectionLocationTOS) {
-//        this.collectionLocationTOS = collectionLocationTOS;
-//    }
-//
-    public Set<ConditionTO> getConditionTOS() {
-        return conditionTOS;
+    public Set<DbXrefTO> getDbXrefTOs() {
+        return dbXrefTOs;
     }
     
-    public void setConditionTOS(Set<ConditionTO> conditionTOS) {
-        this.conditionTOS = conditionTOS;
+    public void setDbXrefTOs(Set<DbXrefTO> dbXrefTOs) {
+        this.dbXrefTOs = dbXrefTOs;
     }
     
-    public Set<DataSourceTO> getDataSourceTOS() {
-        return dataSourceTOS;
+    public Set<StorageLocationTO> getStorageLocationTOs() {
+        return storageLocationTOs;
     }
     
-    public void setDataSourceTOS(Set<DataSourceTO> dataSourceTOS) {
-        this.dataSourceTOS = dataSourceTOS;
+    public void setStorageLocationTOs(Set<StorageLocationTO> storageLocationTOs) {
+        this.storageLocationTOs = storageLocationTOs;
     }
     
-    public Set<DbXrefTO> getDbXrefTOS() {
-        return dbXrefTOS;
+    public Set<CollectionLocationTO> getCollectionLocationTOs() {
+        return collectionLocationTOs;
     }
     
-    public void setDbXrefTOS(Set<DbXrefTO> dbXrefTOS) {
-        this.dbXrefTOS = dbXrefTOS;
-    }
-    
-    public Set<EntityTO> getEntityTOS() {
-        return entityTOS;
-    }
-    
-    public void setEntityTOS(Set<EntityTO> entityTOS) {
-        this.entityTOS = entityTOS;
-    }
-    
-    public Set<GeologicalAgeTO> getGeologicalAgeTOS() {
-        return geologicalAgeTOS;
-    }
-    
-    public void setGeologicalAgeTOS(Set<GeologicalAgeTO> geologicalAgeTOS) {
-        this.geologicalAgeTOS = geologicalAgeTOS;
-    }
-    
-    public Set<TaxonAnnotationTO> getIndividualTOS() {
-        return taxonAnnotationTOS;
-    }
-    
-    public void setIndividualTOS(Set<TaxonAnnotationTO> taxonAnnotationTOS) {
-        this.taxonAnnotationTOS = taxonAnnotationTOS;
-    }
-    
-    public Set<MoultingCharactersTO> getMoultingCharactersTOS() {
-        return moultingCharactersTOS;
-    }
-    
-    public void setMoultingCharactersTOS(Set<MoultingCharactersTO> moultingCharactersTOS) {
-        this.moultingCharactersTOS = moultingCharactersTOS;
-    }
-    
-    public Set<NamedEntityTO> getNamedEntityTOS() {
-        return namedEntityTOS;
-    }
-    
-    public void setNamedEntityTOS(Set<NamedEntityTO> namedEntityTOS) {
-        this.namedEntityTOS = namedEntityTOS;
-    }
-    
-    public Set<SampleSetTO> getSampleTOS() {
-        return sampleSetTOS;
-    }
-    
-    public void setSampleTOS(Set<SampleSetTO> sampleSetTOS) {
-        this.sampleSetTOS = sampleSetTOS;
-    }
-    
-    public Set<StorageLocationTO> getStorageLocationTOS() {
-        return storageLocationTOS;
-    }
-    
-    public void setStorageLocationTOS(Set<StorageLocationTO> storageLocationTOS) {
-        this.storageLocationTOS = storageLocationTOS;
+    public void setCollectionLocationTOs(Set<CollectionLocationTO> collectionLocationTOs) {
+        this.collectionLocationTOs = collectionLocationTOs;
     }
 }

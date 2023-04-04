@@ -3,7 +3,6 @@ package org.moultdb.api.service.impl;
 import org.moultdb.api.model.Taxon;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.TaxonTO;
-import org.moultdb.api.repository.dto.TransfertObject;
 import org.moultdb.api.service.TaxonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class TaxonServiceImpl implements TaxonService {
     
     @Override
     public void insertTaxon(Taxon taxon) {
-        taxonDAO.insertTaxon(convertToDto(taxon));
+        taxonDAO.insert(convertToDto(taxon));
     }
     
     private static TaxonTO convertToDto(Taxon taxon) {

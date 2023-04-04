@@ -1,14 +1,25 @@
 package org.moultdb.api.repository.mysql;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.SampleSetDAO;
+import org.moultdb.api.repository.dto.CollectionLocationTO;
+import org.moultdb.api.repository.dto.EnvironmentTO;
+import org.moultdb.api.repository.dto.FossilPreservationTypeTO;
+import org.moultdb.api.repository.dto.GeologicalFormationTO;
+import org.moultdb.api.repository.dto.NamedEntityTO;
 import org.moultdb.api.repository.dto.SampleSetTO;
+import org.moultdb.api.repository.dto.SpecimenTypeTO;
 import org.moultdb.api.repository.dto.TransfertObject;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -29,12 +41,14 @@ import java.util.stream.Collectors;
 @Repository
 public class MySQLSampleSetDAO implements SampleSetDAO {
     
+    private final static Logger logger = LogManager.getLogger(MySQLSampleSetDAO.class.getName());
+    
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT s.*, gaf.*, gat.*, sl.*, cl.*, fpt.*, e.*, gf.*, st.* " +
             "FROM sample_set s " +
-            "INNER JOIN geological_age gaf ON (gaf.id = s.from_geological_age_id) " +
-            "INNER JOIN geological_age gat ON (gat.id = s.to_geological_age_id) " +
+            "INNER JOIN geological_age gaf ON (gaf.notation = s.from_geological_age_notation) " +
+            "INNER JOIN geological_age gat ON (gat.notation = s.to_geological_age_notation) " +
             "INNER JOIN sample_set_storage_location sssl ON (sssl.sample_set_id = s.id) " +
             "INNER JOIN storage_location sl ON (sl.id = sssl.storage_location_id) " +
             "INNER JOIN sample_set_collection_location sscl ON (sscl.sample_set_id = s.id) " +
@@ -66,6 +80,141 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     public List<SampleSetTO> findByIds(Set<Integer> samplesIds) {
         return template.query(SELECT_STATEMENT + "WHERE s.id IN (:ids)",
                 new MapSqlParameterSource().addValue("ids", samplesIds), new SampleSetResultSetExtractor());
+    }
+    
+    @Override
+    public int insert(SampleSetTO sampleSetTO) {
+        int[] ints = batchUpdate(Collections.singleton(sampleSetTO));
+        return ints[0];
+    }
+    
+//    @Transactional
+    @Override
+    public int[] batchUpdate(Set<SampleSetTO> sampleSetTOs) {
+        String insertStmt = "INSERT INTO sample_set (id, museum_accessions, from_geological_age_notation," +
+                " to_geological_age_notation, specimen_count) " +
+                "VALUES (:id, :museum_accessions, :from_geological_age_notation, :to_geological_age_notation, :specimen_count) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE museum_accessions = new.museum_accessions, " +
+                " from_geological_age_notation = new.from_geological_age_notation, " +
+                " to_geological_age_notation = new.to_geological_age_notation, " +
+                " specimen_count = new.specimen_count";
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (SampleSetTO sampleSetTO : sampleSetTOs) {
+            MapSqlParameterSource source = new MapSqlParameterSource();
+            source.addValue("id", sampleSetTO.getId());
+            source.addValue("museum_accessions", String.join(";", sampleSetTO.getStorageAccessions()));
+            source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO().getNotation());
+            source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO().getNotation());
+            source.addValue("specimen_count", sampleSetTO.getSpecimenCount());
+            params.add(source);
+        }
+        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'sample_set' table.");
+    
+        insertInOtherTable(sampleSetTOs, SampleSetTO::getStorageLocationNames,
+                "storage_location", "sample_set_storage_location", "storage_location_id",
+                new MySQLStorageLocationDAO.StorageLocationRowMapper());
+        insertInOtherTable(sampleSetTOs, SampleSetTO::getCollectionLocationNames,
+                "collection_location", "sample_set_collection_location", "collection_location_id",
+                new CollectionLocationRowMapper());
+        insertInOtherTable(sampleSetTOs, SampleSetTO::getGeologicalFormations,
+                "geological_formation", "sample_set_geological_formation", "geological_formation_id",
+                new GeologicalFormationRowMapper());
+    
+        insertInAssociationTable(sampleSetTOs, SampleSetTO::getFossilPreservationTypes,
+                "fossil_preservation_type", "sample_set_fossil_preservation_type",
+                "fossil_preservation_type_id",
+                new FossilPreservationTypeRowMapper());
+        insertInAssociationTable(sampleSetTOs, SampleSetTO::getEnvironments,
+                "environment", "sample_set_environment", "environment_id",
+                new EnvironmentRowMapper());
+        insertInAssociationTable(sampleSetTOs, SampleSetTO::getSpecimenTypes,
+                "specimen_type", "sample_set_specimen_type", "specimen_type_id",
+                new SpecimenTypeRowMapper());
+    
+        return null;
+    }
+    
+    private <T extends NamedEntityTO> void insertInOtherTable(
+            Set<SampleSetTO> sampleSetTOs, Function<SampleSetTO, Set<String>> func,
+            String otherTableName, String associationTableName, String associationFieldName,
+            RowMapper<T> mapper) {
+        
+        String stmt = "INSERT INTO " + otherTableName + " (name) VALUES (:name) AS new " +
+                "ON DUPLICATE KEY UPDATE name = new.name ";
+        
+        // todo Remove duplicates in names ?
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (SampleSetTO sampleSetTO : sampleSetTOs) {
+            for (String name: func.apply(sampleSetTO)) {
+                MapSqlParameterSource source = new MapSqlParameterSource();
+                source.addValue("name", name);
+                params.add(source);
+            }
+        }
+        int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(ints).sum()+ " new row(s) in '" + otherTableName + "'  table.");
+    
+        insertInAssociationTable(sampleSetTOs, func, otherTableName, associationTableName,
+                associationFieldName, mapper);
+    }
+    
+    private <T extends NamedEntityTO> void insertInAssociationTable (
+            Set<SampleSetTO> sampleSetTOs, Function<SampleSetTO, Set<String>> func,
+            String otherTableName, String associationTableName, String associationFieldName,
+            RowMapper<T> mapper) {
+        
+        Set<String> names = new HashSet<>();
+        for (SampleSetTO sampleSetTO : sampleSetTOs) {
+            Set<String> apply = func.apply(sampleSetTO);
+            if (apply != null) {
+                names.addAll(apply);
+            }
+        }
+        if (names.isEmpty()) {
+            return;
+        }
+    
+        String sql = "SELECT * FROM " + otherTableName +
+                " WHERE name IN (" + names.stream().collect(Collectors.joining("', '", "'", "'")) + ")";
+        List<T> namedEntityTOs = template.query(sql, mapper);
+  
+        if (namedEntityTOs.size() != names.size()) {
+            throw new IllegalStateException("Not all names were found with query: SELECT * FROM " + otherTableName +
+                    " WHERE name IN (" + names.stream().collect(Collectors.joining("', '", "'", "'")) + ")");
+        }
+        Map<String, NamedEntityTO> namedEntityTOsByName =
+                namedEntityTOs.stream()
+                              .collect(Collectors.toMap(NamedEntityTO::getName, Function.identity()));
+        
+        String stmt = "INSERT INTO " + associationTableName + " (sample_set_id, " + associationFieldName + ") " +
+                "VALUES (:sample_set_id, :association_id) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE sample_set_id = new.sample_set_id ";
+        
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (SampleSetTO sampleSetTO : sampleSetTOs) {
+            for (String name: func.apply(sampleSetTO)) {
+                MapSqlParameterSource source = new MapSqlParameterSource();
+                source.addValue("sample_set_id", sampleSetTO.getId());
+                source.addValue("association_id", namedEntityTOsByName.get(name).getId());
+                params.add(source);
+            }
+        }
+        int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(ints).sum()+ " new row(s) in '" + associationTableName + "' table.");
+    }
+    
+    @Override
+    public Integer getLastId() {
+        String sql = "SELECT id FROM sample_set ORDER BY id DESC LIMIT 1";
+        try {
+            return template.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            logger.debug("No record found in 'sample_set' table");
+            return 0;
+        }
     }
     
     private static class SampleSetResultSetExtractor implements ResultSetExtractor<List<SampleSetTO>> {
@@ -107,6 +256,41 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             }
             previousValues.add(value);
             return values;
+        }
+    }
+    
+    private static class CollectionLocationRowMapper implements RowMapper<CollectionLocationTO> {
+        @Override
+        public CollectionLocationTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new CollectionLocationTO(rs.getInt("id"), rs.getString("name"));
+        }
+    }
+    
+    private static class GeologicalFormationRowMapper implements RowMapper<GeologicalFormationTO> {
+        @Override
+        public GeologicalFormationTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new GeologicalFormationTO(rs.getInt("id"), rs.getString("name"));
+        }
+    }
+    
+    private static class FossilPreservationTypeRowMapper implements RowMapper<FossilPreservationTypeTO> {
+        @Override
+        public FossilPreservationTypeTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new FossilPreservationTypeTO(rs.getInt("id"), rs.getString("name"));
+        }
+    }
+    
+    private static class SpecimenTypeRowMapper implements RowMapper<SpecimenTypeTO> {
+        @Override
+        public SpecimenTypeTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new SpecimenTypeTO(rs.getInt("id"), rs.getString("name"));
+        }
+    }
+    
+    private static class EnvironmentRowMapper implements RowMapper<EnvironmentTO> {
+        @Override
+        public EnvironmentTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new EnvironmentTO(rs.getInt("id"), rs.getString("name"));
         }
     }
 }

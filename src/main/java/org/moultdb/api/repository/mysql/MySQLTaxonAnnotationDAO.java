@@ -1,5 +1,7 @@
 package org.moultdb.api.repository.mysql;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
 import org.moultdb.api.repository.dto.AnatEntityTO;
 import org.moultdb.api.repository.dto.ArticleTO;
@@ -8,13 +10,17 @@ import org.moultdb.api.repository.dto.DevStageTO;
 import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.TaxonTO;
 import org.moultdb.api.repository.dto.TermTO;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Valentine Rech de Laval
@@ -23,11 +29,13 @@ import java.util.List;
 @Repository
 public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
+    private final static Logger logger = LogManager.getLogger(MySQLTaxonAnnotationDAO.class.getName());
+    
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, c.*, ds.*, ae.*, a.*, eco.*, cio.* " +
             "FROM taxon_annotation ta " +
-            "INNER JOIN taxon t ON t.id = ta.taxon_id " +
+            "INNER JOIN taxon t ON t.path = ta.taxon_path " +
             "INNER JOIN cond c ON c.id = ta.condition_id " +
             "INNER JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
             "INNER JOIN anatomical_entity ae ON ae.id = c.dev_stage_id " +
@@ -48,6 +56,29 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     public List<TaxonAnnotationTO> findByTaxonId(int id) {
         return null;
     }
+    
+    @Override
+    public Integer getLastId() {
+        String sql = "SELECT id FROM taxon_annotation ORDER BY id DESC LIMIT 1";
+        try {
+            return template.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            logger.debug("No record found in 'taxon_annotation' table");
+            return 0;
+        }
+    }
+    
+    @Override
+    public int insert(TaxonAnnotationTO taxonAnnotationTO) {
+        return 0;
+    }
+    
+    @Transactional
+    @Override
+    public int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
+        return new int[0];
+    }
+    
     
     private static class TaxonAnnotationRowMapper implements RowMapper<TaxonAnnotationTO> {
         @Override

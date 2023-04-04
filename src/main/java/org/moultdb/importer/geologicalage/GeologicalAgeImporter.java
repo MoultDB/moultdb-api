@@ -134,7 +134,7 @@ public class GeologicalAgeImporter {
         BigDecimal youngerBoundImprecision = null;
         List<CommentItem> comments = fromJson.getResult().getPrimaryTopic().getComment();
         for (CommentItem commentItem: comments) {
-            Pattern pattern = Pattern.compile("^-([0-9]+[\\.0-9]*)( \\+\\|-([0-9]+[\\.0-9]*))? Ma$"); // ex: older bound -541.0 +|-1.0 Ma
+            Pattern pattern = Pattern.compile("^-?([0-9]+[\\.0-9]*)( \\+\\|-([0-9]+[\\.0-9]*))? Ma$"); // ex: older bound -541.0 +|-1.0 Ma
             
             if (commentItem.getValue().startsWith("older bound")) {
                 Matcher matcher = pattern.matcher(commentItem.getValue().substring(12));
@@ -158,19 +158,15 @@ public class GeologicalAgeImporter {
         }
         String notation = fromJson.getResult().getPrimaryTopic().getNotation();
         
-        
         GeologicalAgeTO geologicalAgeTO = new GeologicalAgeTO(notation, prefLabels.get(0), rank,
                 youngerBound, youngerBoundImprecision, olderBound, olderBoundImprecision,
                 altLabelStrings.size() == 0 ? null : altLabelStrings);
         if (geologicalAgeTO.getNotation() == null || geologicalAgeTO.getName() == null
                 || geologicalAgeTO.getRank() == null|| geologicalAgeTO.getYoungerBound() == null
                 || geologicalAgeTO.getOlderBound() == null) {
-            throw new IllegalArgumentException("Notation, name, rank, younger bound or older bound cannot be null");
+            throw new IllegalArgumentException("Notation, name, rank, younger bound or older bound cannot be null: " + geologicalAgeTO);
         }
-        
         geologicalAgeTOs.add(geologicalAgeTO);
-    
-        
 
         logger.debug(notation + "\t" + currentLabel
                 + "\t" + (altLabelStrings.size() == 0? null : String.join(";", altLabelStrings))

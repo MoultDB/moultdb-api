@@ -38,7 +38,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
     NamedParameterJdbcTemplate template;
     
     private final static String SELECT_STATEMENT = "SELECT ga.*, gas.* FROM geological_age ga " +
-            "INNER JOIN geological_age_synonym gas ON ga.notation = gas.geological_age_notation ";
+            "LEFT JOIN geological_age_synonym gas ON ga.notation = gas.geological_age_notation ";
     
     public MySQLGeologicalAgeDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -102,7 +102,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
         }
         int[] ints = template.batchUpdate(geoAgeSql, params.toArray(MapSqlParameterSource[]::new));
         int newGeoAgeCount = Arrays.stream(ints).sum();
-        logger.info(newGeoAgeCount + " new geo age(s) has been inserted.");
+        logger.info(newGeoAgeCount + " new row(s) in 'geological_age' table.");
     
         String synonymSql = "INSERT INTO geological_age_synonym (geological_age_notation, synonym) " +
                 "VALUES (:geological_age_notation, :synonym) " +
@@ -118,8 +118,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
             }
         }
         ints = template.batchUpdate(synonymSql, params.toArray(MapSqlParameterSource[]::new));
-    
-        logger.info(Arrays.stream(ints).sum() + " new synonym(s) has been inserted.");
+        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'geological_age_synonym' table.");
         
         return newGeoAgeCount;
     }

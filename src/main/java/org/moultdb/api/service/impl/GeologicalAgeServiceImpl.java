@@ -47,14 +47,14 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     public Integer updateGeologicalAges(String pwd) {
         checkPassword(pwd);
     
-        logger.info("Start data import...");
+        logger.info("Start geological ages import...");
     
         GeologicalAgeImporter importer = new GeologicalAgeImporter();
         Set<GeologicalAgeTO> geologicalAgeTOs = importer.getGeologicalAgeTOs();
     
         Integer newGeoAgeCount = geologicalAgeDAO.batchUpdate(geologicalAgeTOs);
     
-        logger.info("End data import.");
+        logger.info("End geological ages import.");
     
         return newGeoAgeCount;
     }

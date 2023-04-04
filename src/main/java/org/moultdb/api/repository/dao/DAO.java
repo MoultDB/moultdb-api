@@ -11,6 +11,8 @@ import java.sql.SQLException;
  * @author Valentine Rech de Laval
  * @since 2021-10-26
  */
+// TODO create EntityDAO with methods T findById(U id), List<T> findByIds(Set<U> ids), U getLastId();
+// TODO add findAll() to force method implementation in implementation classes
 public interface DAO<T extends TransfertObject> {
     
     static GeologicalAgeTO mapToGeologicalAgeTO(ResultSet rs, String geoAgeTableAlias)

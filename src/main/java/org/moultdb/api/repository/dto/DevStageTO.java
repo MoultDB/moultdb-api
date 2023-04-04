@@ -12,20 +12,20 @@ public class DevStageTO extends NamedEntityTO<String> {
     @Serial
     private static final long serialVersionUID = 3036045739159225675L;
     
-    private final int leftBound;
-    private final int rightBound;
+    private final Integer leftBound;
+    private final Integer rightBound;
     
-    public DevStageTO(String id, String name, String description, int leftBound, int rightBound) throws IllegalArgumentException {
+    public DevStageTO(String id, String name, String description, Integer leftBound, Integer rightBound) throws IllegalArgumentException {
         super(id, name, description);
         this.leftBound = leftBound;
         this.rightBound = rightBound;
     }
     
-    public int getLeftBound() {
+    public Integer getLeftBound() {
         return leftBound;
     }
     
-    public int getRightBound() {
+    public Integer getRightBound() {
         return rightBound;
     }
     

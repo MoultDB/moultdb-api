@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,11 +32,17 @@ public class TaxonAnnotationController {
         return taxonAnnotationService.getAllTaxonAnnotations();
     }
     
-//    @CrossOrigin
-//    @GetMapping(value = "/create")
-//    public ResponseEntity<Integer> insertTaxonAnnotations(@RequestParam("pwd") String pwd) {
-//        Integer integer = taxonAnnotationService.updateGeologicalAges(pwd);
-//        return ResponseEntity.ok().body(integer);
-//    }
+    @PostMapping("/import")
+    public ResponseEntity<Integer> insertTaxonAnnotations(@RequestParam("file") MultipartFile file,
+                                                          @RequestParam("pwd") String pwd) {
+        Integer integer = null;
+        try {
+            integer = taxonAnnotationService.importTaxonAnnotations(file, pwd);
+        } catch (IOException e) {
+            e.printStackTrace();
+            ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().body(integer);
+    }
 
 }

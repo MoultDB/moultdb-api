@@ -1,18 +1,34 @@
 package org.moultdb.api.service.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.TaxonAnnotation;
+import org.moultdb.api.repository.dao.ArticleDAO;
+import org.moultdb.api.repository.dao.ArticleToDbXrefDAO;
+import org.moultdb.api.repository.dao.ConditionDAO;
+import org.moultdb.api.repository.dao.DataSourceDAO;
+import org.moultdb.api.repository.dao.DbXrefDAO;
+import org.moultdb.api.repository.dao.GeologicalAgeDAO;
 import org.moultdb.api.repository.dao.MoultingCharactersDAO;
 import org.moultdb.api.repository.dao.SampleSetDAO;
 import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
+import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dao.VersionDAO;
 import org.moultdb.api.repository.dto.MoultingCharactersTO;
 import org.moultdb.api.repository.dto.SampleSetTO;
 import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.VersionTO;
 import org.moultdb.api.service.TaxonAnnotationService;
+import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
+import org.moultdb.importer.fossilannotation.FossilImporter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,21 +42,36 @@ import java.util.stream.Collectors;
 @Service
 public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
-    @Autowired
-    private MoultingCharactersDAO moultingCharactersDAO;
+    private final static Logger logger = LogManager.getLogger(TaxonAnnotationServiceImpl.class.getName());
     
-    @Autowired
-    private SampleSetDAO sampleSetDAO;
+    @Autowired ArticleDAO articleDAO;
+    @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
+    @Autowired ConditionDAO conditionDAO;
+    @Autowired DbXrefDAO dbXrefDAO;
+    @Autowired DataSourceDAO dataSourceDAO;
+    @Autowired GeologicalAgeDAO geologicalAgeDAO;
+    @Autowired MoultingCharactersDAO moultingCharactersDAO;
+    @Autowired SampleSetDAO sampleSetDAO;
+    @Autowired TaxonDAO taxonDAO;
+    @Autowired TaxonAnnotationDAO taxonAnnotationDAO;
+    @Autowired VersionDAO versionDAO;
     
-    @Autowired
-    private TaxonAnnotationDAO taxonAnnotationDAO;
+    @Value("${import.password}")
+    final String password = null;
     
-    @Autowired
-    private VersionDAO versionDAO;
+    void checkPassword(String pwd) {
+        if (pwd == null || !pwd.equals(password)) {
+            throw new MoultDBException("Wrong password");
+        }
+    }
     
     @Override
     public List<TaxonAnnotation> getAllTaxonAnnotations() {
         List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findAll();
+        
+        if (taxonAnnotationTOs.isEmpty()) {
+            return new ArrayList<>();
+        }
     
         // Get SampleSetTOs
         Set<Integer> sampleIds = taxonAnnotationTOs.stream()
@@ -77,5 +108,24 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                                          charactersTOsbyIds.get(to.getMoultingCharactersId()),
                                          versionTOsByIds))
                                  .collect(Collectors.toList());
+    }
+    
+    @Override
+    public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file, String pwd) {
+    
+        checkPassword(pwd);
+    
+        logger.info("Start taxon annotations import...");
+    
+        FossilImporter importer = new FossilImporter();
+
+        List<FossilAnnotationBean> fossilAnnotationBeans = importer.parseFossilAnnotation(file);
+    
+        importer.insertFossilAnnotation(fossilAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO, dataSourceDAO,
+                dbXrefDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO, taxonDAO, taxonAnnotationDAO);
+    
+        logger.info("End taxon annotations import.");
+    
+        return null;
     }
 }

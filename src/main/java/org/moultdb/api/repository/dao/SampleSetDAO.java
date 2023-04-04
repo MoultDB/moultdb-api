@@ -16,4 +16,10 @@ public interface SampleSetDAO extends DAO<SampleSetTO> {
     SampleSetTO findById(Integer id);
     
     List<SampleSetTO> findByIds(Set<Integer> sampleIds);
+    
+    int insert(SampleSetTO sampleSetTO);
+    
+    int[] batchUpdate(Set<SampleSetTO> sampleSetTOs);
+    
+    Integer getLastId();
 }

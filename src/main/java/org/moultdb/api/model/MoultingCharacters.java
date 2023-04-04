@@ -50,29 +50,24 @@ public class MoultingCharacters {
     private final String segmentAdditionMode;
     
     /**
-     * Define the number of body segments added by individuals of the species at each moult stage
+     * Define the number of body segments added by individuals of the species at each moult stage (can be two values)
      */
-    private final Integer bodySegmentsCountPerMoultStage;
+    private final String bodySegmentsCountPerMoultStage;
     
     /**
-     * Define the number of body segments in adult individuals of the species
+     * Define the number of body segments in adult individuals of the species (can be two values ar a range)
      */
-    private final Integer bodySegmentsCountInAdults;
+    private final String bodySegmentsCountInAdults;
     
     /**
      * Define the average body length of individuals at this defined and observed moult stage
      */
-    private final Integer bodyLengthAverage;
+    private final BigDecimal bodyLengthAverage;
     
     /**
-     * Define the average body size increase with the previous moult stage
+     * Define the average body length increase with the previous moult stage (can be a range)
      */
-    private final Integer bodyLengthIncreaseAverage;
-    
-    /**
-     * Define the average quantity by which total body length increases with each moult stage in this species
-     */
-    private final BigDecimal bodyLengthIncreaseAveragePerMoult;
+    private final String bodyLengthIncreaseAverage;
     
     /**
      * Define the unit of body length measurements
@@ -120,31 +115,6 @@ public class MoultingCharacters {
     private final MoultingVariability moultingVariability;
     
     /**
-     * Define whether juvenile moulting behaviours in same as in adults (=true) or different to in adults (=false)
-     */
-    private final Boolean juvenileMoultingBehaviours;
-    
-    /**
-     * Define the location of moulting suture opened in juvenile specimens of this species in order to moult
-     */
-    private final String juvenileSutureLocation;
-    
-    /**
-     * Define, if cephalic moulting sutures are used, the locations of these cephalic sutures in juvenile specimens
-     */
-    private final String juvenileCephalicSutureLocation;
-    
-    /**
-     * Define, if post-cephalic moulting is used, the locations of these post-cephalic sutures in juvenile specimens
-     */
-    private final String juvenilePostCephalicSutureLocation;
-    
-    /**
-     * Define the moult configurations resulting from a moulting event in juvenile specimens in the species formally described and named
-     */
-    private final String juvenileResultingNamedMoultingConfiguration;
-    
-    /**
      * Define other notable behaviours, excepting methods of moulting itself, that the species shows in conjunction with individual moulting events
      */
     private final String otherBehaviour;
@@ -165,17 +135,14 @@ public class MoultingCharacters {
     
     public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, Boolean hasTerminalAdultStage, Integer observedMoultCount,
                               Integer estimatedMoultCount, Integer specimenCount, String segmentAdditionMode,
-                              Integer bodySegmentsCountPerMoultStage, Integer bodySegmentsCountInAdults,
-                              Integer bodyLengthAverage, Integer bodyLengthIncreaseAverage,
-                              BigDecimal bodyLengthIncreaseAveragePerMoult, String measurementUnit, String sutureLocation,
+                              String bodySegmentsCountPerMoultStage, String bodySegmentsCountInAdults,
+                              BigDecimal bodyLengthAverage, String bodyLengthIncreaseAverage,
+                              String measurementUnit, String sutureLocation,
                               String cephalicSutureLocation, String postCephalicSutureLocation,
                               String resultingNamedMoultingConfiguration, EgressDirection egressDirection,
                               ExuviaePosition positionExuviaeFoundIn, MoultingPhase moultingPhase,
-                              MoultingVariability moultingVariability, Boolean juvenileMoultingBehaviours,
-                              String juvenileSutureLocation, String juvenileCephalicSutureLocation,
-                              String juvenilePostCephalicSutureLocation, String juvenileResultingNamedMoultingConfiguration,
-                              String otherBehaviour, ExuviaeConsumption exuviaeConsumption, Reabsorption reabsorption,
-                              String fossilExuviaeQuality) {
+                              MoultingVariability moultingVariability, String otherBehaviour, ExuviaeConsumption exuviaeConsumption,
+                              Reabsorption reabsorption, String fossilExuviaeQuality) {
         this.lifeHistoryStyle = lifeHistoryStyle;
         this.hasTerminalAdultStage = hasTerminalAdultStage;
         this.observedMoultCount = observedMoultCount;
@@ -186,7 +153,6 @@ public class MoultingCharacters {
         this.bodySegmentsCountInAdults = bodySegmentsCountInAdults;
         this.bodyLengthAverage = bodyLengthAverage;
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
-        this.bodyLengthIncreaseAveragePerMoult = bodyLengthIncreaseAveragePerMoult;
         this.measurementUnit = measurementUnit;
         this.sutureLocation = sutureLocation;
         this.cephalicSutureLocation = cephalicSutureLocation;
@@ -196,11 +162,6 @@ public class MoultingCharacters {
         this.positionExuviaeFoundIn = positionExuviaeFoundIn;
         this.moultingPhase = moultingPhase;
         this.moultingVariability = moultingVariability;
-        this.juvenileMoultingBehaviours = juvenileMoultingBehaviours;
-        this.juvenileSutureLocation = juvenileSutureLocation;
-        this.juvenileCephalicSutureLocation = juvenileCephalicSutureLocation;
-        this.juvenilePostCephalicSutureLocation = juvenilePostCephalicSutureLocation;
-        this.juvenileResultingNamedMoultingConfiguration = juvenileResultingNamedMoultingConfiguration;
         this.otherBehaviour = otherBehaviour;
         this.exuviaeConsumption = exuviaeConsumption;
         this.reabsorption = reabsorption;
@@ -231,24 +192,20 @@ public class MoultingCharacters {
         return segmentAdditionMode;
     }
     
-    public Integer getBodySegmentsCountPerMoultStage() {
+    public String getBodySegmentsCountPerMoultStage() {
         return bodySegmentsCountPerMoultStage;
     }
     
-    public Integer getBodySegmentsCountInAdults() {
+    public String getBodySegmentsCountInAdults() {
         return bodySegmentsCountInAdults;
     }
     
-    public Integer getBodyLengthAverage() {
+    public BigDecimal getBodyLengthAverage() {
         return bodyLengthAverage;
     }
     
-    public Integer getBodyLengthIncreaseAverage() {
+    public String getBodyLengthIncreaseAverage() {
         return bodyLengthIncreaseAverage;
-    }
-    
-    public BigDecimal getBodyLengthIncreaseAveragePerMoult() {
-        return bodyLengthIncreaseAveragePerMoult;
     }
     
     public String getMeasurementUnit() {
@@ -287,26 +244,6 @@ public class MoultingCharacters {
         return moultingVariability;
     }
     
-    public Boolean getJuvenileMoultingBehaviours() {
-        return juvenileMoultingBehaviours;
-    }
-    
-    public String getJuvenileSutureLocation() {
-        return juvenileSutureLocation;
-    }
-    
-    public String getJuvenileCephalicSutureLocation() {
-        return juvenileCephalicSutureLocation;
-    }
-    
-    public String getJuvenilePostCephalicSutureLocation() {
-        return juvenilePostCephalicSutureLocation;
-    }
-    
-    public String getJuvenileResultingNamedMoultingConfiguration() {
-        return juvenileResultingNamedMoultingConfiguration;
-    }
-    
     public String getOtherBehaviour() {
         return otherBehaviour;
     }
@@ -340,7 +277,6 @@ public class MoultingCharacters {
                 && Objects.equals(bodySegmentsCountInAdults, that.bodySegmentsCountInAdults)
                 && Objects.equals(bodyLengthAverage, that.bodyLengthAverage)
                 && Objects.equals(bodyLengthIncreaseAverage, that.bodyLengthIncreaseAverage)
-                && Objects.equals(bodyLengthIncreaseAveragePerMoult, that.bodyLengthIncreaseAveragePerMoult)
                 && Objects.equals(measurementUnit, that.measurementUnit)
                 && Objects.equals(sutureLocation, that.sutureLocation)
                 && Objects.equals(cephalicSutureLocation, that.cephalicSutureLocation)
@@ -350,11 +286,6 @@ public class MoultingCharacters {
                 && positionExuviaeFoundIn == that.positionExuviaeFoundIn
                 && moultingPhase == that.moultingPhase
                 && moultingVariability == that.moultingVariability
-                && Objects.equals(juvenileMoultingBehaviours, that.juvenileMoultingBehaviours)
-                && Objects.equals(juvenileSutureLocation, that.juvenileSutureLocation)
-                && Objects.equals(juvenileCephalicSutureLocation, that.juvenileCephalicSutureLocation)
-                && Objects.equals(juvenilePostCephalicSutureLocation, that.juvenilePostCephalicSutureLocation)
-                && Objects.equals(juvenileResultingNamedMoultingConfiguration, that.juvenileResultingNamedMoultingConfiguration)
                 && Objects.equals(otherBehaviour, that.otherBehaviour)
                 && exuviaeConsumption == that.exuviaeConsumption
                 && reabsorption == that.reabsorption
@@ -365,10 +296,9 @@ public class MoultingCharacters {
     public int hashCode() {
         return Objects.hash(lifeHistoryStyle, hasTerminalAdultStage, observedMoultCount, estimatedMoultCount, specimenCount,
                 segmentAdditionMode, bodySegmentsCountPerMoultStage, bodySegmentsCountInAdults, bodyLengthAverage,
-                bodyLengthIncreaseAverage, bodyLengthIncreaseAveragePerMoult, measurementUnit, sutureLocation,
+                bodyLengthIncreaseAverage, measurementUnit, sutureLocation,
                 cephalicSutureLocation, postCephalicSutureLocation, resultingNamedMoultingConfiguration, egressDirection,
-                positionExuviaeFoundIn, moultingPhase, moultingVariability, juvenileMoultingBehaviours, juvenileSutureLocation,
-                juvenileCephalicSutureLocation, juvenilePostCephalicSutureLocation, juvenileResultingNamedMoultingConfiguration,
+                positionExuviaeFoundIn, moultingPhase, moultingVariability,
                 otherBehaviour, exuviaeConsumption, reabsorption, fossilExuviaeQuality);
     }
     
@@ -385,7 +315,6 @@ public class MoultingCharacters {
                 .add("bodySegmentsCountInAdults=" + bodySegmentsCountInAdults)
                 .add("bodyLengthAverage=" + bodyLengthAverage)
                 .add("bodyLengthIncreaseAverage=" + bodyLengthIncreaseAverage)
-                .add("bodyLengthIncreaseAveragePerMoult=" + bodyLengthIncreaseAveragePerMoult)
                 .add("measurementUnit=" + measurementUnit)
                 .add("sutureLocation='" + sutureLocation + "'")
                 .add("cephalicSutureLocation='" + cephalicSutureLocation + "'")
@@ -395,11 +324,6 @@ public class MoultingCharacters {
                 .add("positionExuviaeFoundIn=" + positionExuviaeFoundIn)
                 .add("moultingPhase=" + moultingPhase)
                 .add("moultingVariability=" + moultingVariability)
-                .add("juvenileMoultingBehaviours=" + juvenileMoultingBehaviours)
-                .add("juvenileSutureLocation='" + juvenileSutureLocation + "'")
-                .add("juvenileCephalicSutureLocation='" + juvenileCephalicSutureLocation + "'")
-                .add("juvenilePostCephalicSutureLocation='" + juvenilePostCephalicSutureLocation + "'")
-                .add("juvenileResultingNamedMoultingConfiguration='" + juvenileResultingNamedMoultingConfiguration + "'")
                 .add("otherBehaviour='" + otherBehaviour + "'")
                 .add("exuviaeConsumption=" + exuviaeConsumption)
                 .add("reabsorption=" + reabsorption)

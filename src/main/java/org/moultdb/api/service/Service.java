@@ -113,19 +113,16 @@ public interface Service {
                         .collect(Collectors.toSet());
     }
     
-    
     static MoultingCharacters mapFromTO(MoultingCharactersTO mcTO) {
         return new MoultingCharacters(LifeHistoryStyle.valueOf(mcTO.getLifeHistoryStyle()), mcTO.getHasTerminalAdultStage(),
                 mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSpecimenCount(),
                 mcTO.getSegmentAdditionMode(), mcTO.getBodySegmentsCountPerMoultStage(), mcTO.getBodySegmentsCountInAdults(),
-                mcTO.getBodyLengthAverage(), mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyLengthIncreaseAveragePerMoult(),
+                mcTO.getBodyLengthAverage(), mcTO.getBodyLengthIncreaseAverage(),
                 mcTO.getMeasurementUnit(), mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
                 mcTO.getResultingNamedMoultingConfiguration(), EgressDirection.valueOf(mcTO.getEgressDirection()),
                 ExuviaePosition.valueOf(mcTO.getPositionExuviaeFoundIn()), MoultingPhase.valueOf(mcTO.getMoultingPhase()),
-                MoultingVariability.valueOf(mcTO.getMoultingVariability()), mcTO.getJuvenileMoultingBehaviours(),
-                mcTO.getJuvenileSutureLocation(), mcTO.getJuvenileCephalicSutureLocation(),
-                mcTO.getJuvenilePostCephalicSutureLocation(), mcTO.getJuvenileResultingNamedMoultingConfiguration(),
-                mcTO.getOtherBehaviour(), ExuviaeConsumption.valueOf(mcTO.getExuviaeConsumed()), Reabsorption.valueOf(mcTO.getExoskeletalMaterialReabsorption()),
+                MoultingVariability.valueOf(mcTO.getMoultingVariability()), mcTO.getOtherBehaviour(),
+                ExuviaeConsumption.valueOf(mcTO.getExuviaeConsumed()), Reabsorption.valueOf(mcTO.getExoskeletalMaterialReabsorption()),
                 mcTO.getFossilExuviaeQuality());
     }
     

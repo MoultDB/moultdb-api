@@ -19,11 +19,10 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private final Integer estimatedMoultStageCount;
     private final Integer specimenCount;
     private final String segmentAdditionMode;
-    private final Integer bodySegmentsCountPerMoultStage;
-    private final Integer bodySegmentsCountInAdults;
-    private final Integer bodyLengthAverage;
-    private final Integer bodyLengthIncreaseAverage;
-    private final BigDecimal bodyLengthIncreaseAveragePerMoult;
+    private final String bodySegmentsCountPerMoultStage;
+    private final String bodySegmentsCountInAdults;
+    private final BigDecimal bodyLengthAverage;
+    private final String bodyLengthIncreaseAverage;
     private final String measurementUnit;
     private final String sutureLocation;
     private final String cephalicSutureLocation;
@@ -33,11 +32,6 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private final String positionExuviaeFoundIn;
     private final String moultingPhase;
     private final String moultingVariability;
-    private final Boolean juvenileMoultingBehaviours;
-    private final String juvenileSutureLocation;
-    private final String juvenileCephalicSutureLocation;
-    private final String juvenilePostCephalicSutureLocation;
-    private final String juvenileResultingNamedMoultingConfiguration;
     private final String otherBehaviour;
     private final String exuviaeConsumed;
     private final String exoskeletalMaterialReabsorption;
@@ -45,15 +39,13 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     
     public MoultingCharactersTO(Integer id, String lifeHistoryStyle, Boolean hasTerminalAdultStage,
                                 Integer observedMoultStageCount, Integer estimatedMoultStageCount, Integer specimenCount,
-                                String segmentAdditionMode, Integer bodySegmentsCountPerMoultStage,
-                                Integer bodySegmentsCountInAdults, Integer bodyLengthAverage,
-                                Integer bodyLengthIncreaseAverage, BigDecimal bodyLengthIncreaseAveragePerMoult,
+                                String segmentAdditionMode, String bodySegmentsCountPerMoultStage,
+                                String bodySegmentsCountInAdults, BigDecimal bodyLengthAverage,
+                                String bodyLengthIncreaseAverage,
                                 String measurementUnit, String sutureLocation, String cephalicSutureLocation,
                                 String postCephalicSutureLocation, String resultingNamedMoultingConfiguration,
                                 String egressDirection, String positionExuviaeFoundIn, String moultingPhase,
-                                String moultingVariability, Boolean juvenileMoultingBehaviours, String juvenileSutureLocation,
-                                String juvenileCephalicSutureLocation, String juvenilePostCephalicSutureLocation,
-                                String juvenileResultingNamedMoultingConfiguration, String otherBehaviour,
+                                String moultingVariability, String otherBehaviour,
                                 String exuviaeConsumed, String exoskeletalMaterialReabsorption, String fossilExuviaeQuality)
             throws IllegalArgumentException {
         super(id);
@@ -67,7 +59,6 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         this.bodySegmentsCountInAdults = bodySegmentsCountInAdults;
         this.bodyLengthAverage = bodyLengthAverage;
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
-        this.bodyLengthIncreaseAveragePerMoult = bodyLengthIncreaseAveragePerMoult;
         this.measurementUnit = measurementUnit;
         this.sutureLocation = sutureLocation;
         this.cephalicSutureLocation = cephalicSutureLocation;
@@ -77,11 +68,6 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         this.positionExuviaeFoundIn = positionExuviaeFoundIn;
         this.moultingPhase = moultingPhase;
         this.moultingVariability = moultingVariability;
-        this.juvenileMoultingBehaviours = juvenileMoultingBehaviours;
-        this.juvenileSutureLocation = juvenileSutureLocation;
-        this.juvenileCephalicSutureLocation = juvenileCephalicSutureLocation;
-        this.juvenilePostCephalicSutureLocation = juvenilePostCephalicSutureLocation;
-        this.juvenileResultingNamedMoultingConfiguration = juvenileResultingNamedMoultingConfiguration;
         this.otherBehaviour = otherBehaviour;
         this.exuviaeConsumed = exuviaeConsumed;
         this.exoskeletalMaterialReabsorption = exoskeletalMaterialReabsorption;
@@ -112,24 +98,20 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return segmentAdditionMode;
     }
     
-    public Integer getBodySegmentsCountPerMoultStage() {
+    public String getBodySegmentsCountPerMoultStage() {
         return bodySegmentsCountPerMoultStage;
     }
     
-    public Integer getBodySegmentsCountInAdults() {
+    public String getBodySegmentsCountInAdults() {
         return bodySegmentsCountInAdults;
     }
     
-    public Integer getBodyLengthAverage() {
+    public BigDecimal getBodyLengthAverage() {
         return bodyLengthAverage;
     }
     
-    public Integer getBodyLengthIncreaseAverage() {
+    public String getBodyLengthIncreaseAverage() {
         return bodyLengthIncreaseAverage;
-    }
-    
-    public BigDecimal getBodyLengthIncreaseAveragePerMoult() {
-        return bodyLengthIncreaseAveragePerMoult;
     }
     
     public String getMeasurementUnit() {
@@ -168,26 +150,6 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return moultingVariability;
     }
     
-    public Boolean getJuvenileMoultingBehaviours() {
-        return juvenileMoultingBehaviours;
-    }
-    
-    public String getJuvenileSutureLocation() {
-        return juvenileSutureLocation;
-    }
-    
-    public String getJuvenileCephalicSutureLocation() {
-        return juvenileCephalicSutureLocation;
-    }
-    
-    public String getJuvenilePostCephalicSutureLocation() {
-        return juvenilePostCephalicSutureLocation;
-    }
-    
-    public String getJuvenileResultingNamedMoultingConfiguration() {
-        return juvenileResultingNamedMoultingConfiguration;
-    }
-    
     public String getOtherBehaviour() {
         return otherBehaviour;
     }
@@ -218,7 +180,6 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
                 .add("bodySegmentsCountInAdults=" + bodySegmentsCountInAdults)
                 .add("bodyLengthAverage=" + bodyLengthAverage)
                 .add("bodyLengthIncreaseAverage=" + bodyLengthIncreaseAverage)
-                .add("bodyLengthIncreaseAveragePerMoult=" + bodyLengthIncreaseAveragePerMoult)
                 .add("measurementUnit='" + measurementUnit + "'")
                 .add("sutureLocation='" + sutureLocation + "'")
                 .add("cephalicSutureLocation='" + cephalicSutureLocation + "'")
@@ -228,11 +189,6 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
                 .add("positionExuviaeFoundIn='" + positionExuviaeFoundIn + "'")
                 .add("moultingPhase='" + moultingPhase + "'")
                 .add("moultingVariability='" + moultingVariability + "'")
-                .add("juvenileMoultingBehaviours=" + juvenileMoultingBehaviours)
-                .add("juvenileSutureLocation='" + juvenileSutureLocation + "'")
-                .add("juvenileCephalicSutureLocation='" + juvenileCephalicSutureLocation + "'")
-                .add("juvenilePostCephalicSutureLocation='" + juvenilePostCephalicSutureLocation + "'")
-                .add("juvenileResultingNamedMoultingConfiguration='" + juvenileResultingNamedMoultingConfiguration + "'")
                 .add("otherBehaviour='" + otherBehaviour + "'")
                 .add("exuviaeConsumed='" + exuviaeConsumed + "'")
                 .add("exoskeletalMaterialReabsorption='" + exoskeletalMaterialReabsorption + "'")
