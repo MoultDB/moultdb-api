@@ -33,11 +33,10 @@ public class TaxonAnnotationController {
     }
     
     @PostMapping("/import")
-    public ResponseEntity<Integer> insertTaxonAnnotations(@RequestParam("file") MultipartFile file,
-                                                          @RequestParam("pwd") String pwd) {
+    public ResponseEntity<Integer> insertTaxonAnnotations(@RequestParam("file") MultipartFile file) {
         Integer integer = null;
         try {
-            integer = taxonAnnotationService.importTaxonAnnotations(file, pwd);
+            integer = taxonAnnotationService.importTaxonAnnotations(file);
         } catch (IOException e) {
             e.printStackTrace();
             ResponseEntity.internalServerError().build();

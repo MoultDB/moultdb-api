@@ -15,6 +15,6 @@ public interface TaxonAnnotationService extends Service {
     
     public List<TaxonAnnotation> getAllTaxonAnnotations();
     
-    public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file, String pwd) throws IOException;
+    public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) throws IOException;
     
 }

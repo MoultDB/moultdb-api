@@ -2,14 +2,12 @@ package org.moultdb.api.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.GeologicalAge;
 import org.moultdb.api.repository.dao.GeologicalAgeDAO;
 import org.moultdb.api.repository.dto.GeologicalAgeTO;
 import org.moultdb.api.service.GeologicalAgeService;
 import org.moultdb.importer.geologicalage.GeologicalAgeImporter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -29,15 +27,6 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     @Autowired
     private GeologicalAgeDAO geologicalAgeDAO;
     
-    @Value("${import.password}")
-    final String password = null;
-    
-     void checkPassword(String pwd) {
-        if (pwd == null || !pwd.equals(password)) {
-            throw new MoultDBException("Wrong password");
-        }
-    }
-    
     @Override
     public List<GeologicalAge> getAllGeologicalAges() {
         return getGeologicalAges(geologicalAgeDAO.findAll());
@@ -45,8 +34,6 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     
     @Override
     public Integer updateGeologicalAges(String pwd) {
-        checkPassword(pwd);
-    
         logger.info("Start geological ages import...");
     
         GeologicalAgeImporter importer = new GeologicalAgeImporter();

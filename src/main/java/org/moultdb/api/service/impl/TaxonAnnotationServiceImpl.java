@@ -2,7 +2,6 @@ package org.moultdb.api.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dao.ArticleToDbXrefDAO;
@@ -23,7 +22,6 @@ import org.moultdb.api.service.TaxonAnnotationService;
 import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
 import org.moultdb.importer.fossilannotation.FossilImporter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,15 +53,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     @Autowired TaxonDAO taxonDAO;
     @Autowired TaxonAnnotationDAO taxonAnnotationDAO;
     @Autowired VersionDAO versionDAO;
-    
-    @Value("${import.password}")
-    final String password = null;
-    
-    void checkPassword(String pwd) {
-        if (pwd == null || !pwd.equals(password)) {
-            throw new MoultDBException("Wrong password");
-        }
-    }
     
     @Override
     public List<TaxonAnnotation> getAllTaxonAnnotations() {
@@ -111,9 +100,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file, String pwd) {
-    
-        checkPassword(pwd);
+    public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) {
     
         logger.info("Start taxon annotations import...");
     
