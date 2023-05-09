@@ -16,4 +16,13 @@ public interface UserDAO extends DAO<UserTO> {
     UserTO findById(int id);
     
     List<UserTO> findByIds(Set<Integer> ids);
+    
+    UserTO findByEmailAndPassword(String email, String password);
+    
+    UserTO findByEmail(String email);
+    
+    int[] insertUser(UserTO userTO);
+    
+    int[] updateUserPassword(String email, String password);
+
 }

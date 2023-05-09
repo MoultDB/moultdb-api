@@ -54,9 +54,15 @@ public class MySQLVersionDAO implements VersionDAO {
         @Override
         public VersionTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new VersionTO(rs.getInt("id"),
-                    new UserTO(rs.getInt("creation_user_id"), rs.getString("u1.name")),
+                    new UserTO(rs.getInt("creation_user_id"),
+                            rs.getString("u1.name"), rs.getString("u1.email"),
+                            rs.getString("u1.roles"), rs.getString("u1.password"),
+                            rs.getString("u1.orcidId")),
                     rs.getTimestamp("creation_date"),
-                    new UserTO(rs.getInt("last_update_user_id"), rs.getString("u2.name")),
+                    new UserTO(rs.getInt("last_update_user_id"),
+                            rs.getString("u2.name"), rs.getString("u2.email"),
+                            rs.getString("u2.roles"), rs.getString("u2.password"),
+                            rs.getString("u2.orcidId")),
                     rs.getTimestamp("last_update_date"), rs.getInt("version_number"));
         }
     }
