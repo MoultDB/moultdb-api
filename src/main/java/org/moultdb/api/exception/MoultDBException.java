@@ -15,8 +15,8 @@ public class MoultDBException extends RuntimeException {
         super(e);
     }
     
-    public MoultDBException(String string) {
-        super(string);
+    public MoultDBException(String message) {
+        super(message);
     }
     
     public MoultDBException(String message, Exception e) {

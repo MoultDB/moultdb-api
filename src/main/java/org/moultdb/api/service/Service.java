@@ -1,5 +1,6 @@
 package org.moultdb.api.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.moultdb.api.model.AnatEntity;
 import org.moultdb.api.model.Article;
 import org.moultdb.api.model.Condition;
@@ -23,6 +24,7 @@ import org.moultdb.api.model.moutldbenum.LifeHistoryStyle;
 import org.moultdb.api.model.moutldbenum.MoultingPhase;
 import org.moultdb.api.model.moutldbenum.MoultingVariability;
 import org.moultdb.api.model.moutldbenum.Reabsorption;
+import org.moultdb.api.model.moutldbenum.Role;
 import org.moultdb.api.repository.dto.ArticleTO;
 import org.moultdb.api.repository.dto.ConditionTO;
 import org.moultdb.api.repository.dto.DataSourceTO;
@@ -33,8 +35,10 @@ import org.moultdb.api.repository.dto.SampleSetTO;
 import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.TaxonTO;
 import org.moultdb.api.repository.dto.TermTO;
+import org.moultdb.api.repository.dto.UserTO;
 import org.moultdb.api.repository.dto.VersionTO;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -142,12 +146,19 @@ public interface Service {
     }
     
     static Version mapFromTO(VersionTO versionTO) {
-        User creator = new User(versionTO.getCreationUserTO().getEmail(),
-                versionTO.getCreationUserTO().getName(), versionTO.getCreationUserTO().getOrcidId());
-        User lastUpdateUser = new User(versionTO.getLastUpdateUserTO().getEmail(),
-                versionTO.getLastUpdateUserTO().getName(), versionTO.getLastUpdateUserTO().getOrcidId());
-    
+        User creator = mapFromTO(versionTO.getCreationUserTO());
+        User lastUpdateUser = mapFromTO(versionTO.getLastUpdateUserTO());
         return new Version(creator, versionTO.getCreationDate(), lastUpdateUser, versionTO.getLastUpdateDate(),
                 versionTO.getVersionNumber());
+    }
+    
+    static User mapFromTO(UserTO userTO) {
+        Set<Role> roles = null;
+        if (StringUtils.isNotBlank(userTO.getRoles())) {
+            roles = Arrays.stream(userTO.getRoles().split(","))
+                          .map(Role::valueOf)
+                          .collect(Collectors.toSet());
+        }
+        return new User(userTO.getEmail(), userTO.getName(), roles, userTO.getOrcidId());
     }
 }
