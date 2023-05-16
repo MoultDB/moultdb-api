@@ -76,9 +76,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByNameAndPassword(String name, String password) throws UserNotFoundException {
         UserTO userTO = userDAO.findByEmailAndPassword(name, password);
-        if (userTO == null) {
-            throw new UserNotFoundException();
-        }
         return org.moultdb.api.service.Service.mapFromTO(userTO);
     }
     

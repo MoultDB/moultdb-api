@@ -1,6 +1,7 @@
 package org.moultdb.api.controller;
 
 import io.micrometer.common.util.StringUtils;
+import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.UserNotFoundException;
 import org.moultdb.api.model.User;
 import org.moultdb.api.service.TokenGeneratorService;
@@ -39,29 +40,47 @@ public class UserController {
     public ResponseEntity<?> postUser(@RequestBody User user) {
         try {
             userService.saveUser(user);
-            return new ResponseEntity<>("User " + user.getName() + " created",  HttpStatus.CREATED);
+    
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "New user " + user.getName() + " created");
+    
+            return new ResponseEntity<>(response,  HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
         }
     }
     
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
-        try {
-            if (user.getEmail() == null || user.getPassword() == null) {
-                throw new UserNotFoundException("E-mail or password is empty");
-            }
-            User userData = userService.getUserByNameAndPassword(user.getEmail(), user.getPassword());
-            if (userData == null) {
-                throw new UserNotFoundException("E-mail or password is invalid");
-            }
-            Map<String, String> jwtTokenGen = new HashMap<>();
-            jwtTokenGen.put("token", tokenGeneratorService.generateLongExpirationToken(user));
-            jwtTokenGen.put("message", "New user token");
+    private static Map<String, String> getErrorResponse(Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "true");
+        response.put("message", e.getMessage());
+        return response;
+    }
     
-            return new ResponseEntity<>(jwtTokenGen, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> json) {
+        String email = json == null ? null : json.get("email");
+        String password = json == null ? null : json.get("password");
+        if (email == null || password == null) {
+            throw new IllegalArgumentException("E-mail or password is empty");
+        }
+        try {
+            User user = userService.getUserByNameAndPassword(email, password);
+    
+            Map<String, Object> userResp = new HashMap<>();
+            userResp.put("email", user.getEmail());
+            userResp.put("name", user.getName());
+            userResp.put("roles", user.getRoles());
+            userResp.put("orcidId", user.getOrcidId());
+            userResp.put("token", tokenGeneratorService.generateLongExpirationToken(user));
+    
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("data", userResp);
+            resp.put("message", "User logged in");
+    
+            return new ResponseEntity<>(resp, HttpStatus.OK);
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
         }
     }
     
@@ -84,7 +103,7 @@ public class UserController {
             
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
         }
     }
 
@@ -108,7 +127,7 @@ public class UserController {
             }
             
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
         }
     }
 }

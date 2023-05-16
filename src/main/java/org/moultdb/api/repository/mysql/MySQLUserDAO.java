@@ -65,7 +65,7 @@ public class MySQLUserDAO implements UserDAO {
             throw new IllegalArgumentException("An e-mail or a password can not be null");
         }
         UserTO userTO = findByEmail(email);
-        if (!passwordEncoder.matches(password, userTO.getPassword())) {
+        if (userTO == null || !passwordEncoder.matches(password, userTO.getPassword())) {
             throw new AuthenticationException("The e-mail or the password is incorrect");
         }
         return userTO;
