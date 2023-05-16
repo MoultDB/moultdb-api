@@ -41,6 +41,7 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
     
     private String generateToken(String email, long validity) {
         return Jwts.builder()
+                   .setHeaderParam("typ","JWT")
                    .setSubject(email)
                    .setIssuedAt(new Date(System.currentTimeMillis()))
                    .setExpiration(new Date(System.currentTimeMillis() + validity))
