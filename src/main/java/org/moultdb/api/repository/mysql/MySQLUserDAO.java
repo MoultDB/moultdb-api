@@ -73,6 +73,9 @@ public class MySQLUserDAO implements UserDAO {
     
     @Override
     public UserTO findByEmail(String email) {
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("E-mail is empty");
+        }
         return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE email = (:email)",
                 new MapSqlParameterSource().addValue("email", email), new UserRowMapper()));
     }
@@ -83,8 +86,8 @@ public class MySQLUserDAO implements UserDAO {
     @Override
     public int[] insertUser(UserTO userTO) {
     
-        String userSql = "INSERT INTO user(email, username, pwd, roles, orcidId) " +
-                "VALUES (:email, :name, :password, :roles, :orcidId)";
+        String userSql = "INSERT INTO user(email, username, pwd, roles, orcidId, verified) " +
+                "VALUES (:email, :name, :password, :roles, :orcidId, :verified)";
     
         List<MapSqlParameterSource> params = new ArrayList<>();
         MapSqlParameterSource userSource = new MapSqlParameterSource();
@@ -93,6 +96,7 @@ public class MySQLUserDAO implements UserDAO {
         userSource.addValue("password", passwordEncoder.encode(userTO.getPassword()));
         userSource.addValue("roles", userTO.getRoles());
         userSource.addValue("orcidId", userTO.getOrcidId());
+        userSource.addValue("verified", userTO.isVerified() == null? "0": userTO.isVerified());
         params.add(userSource);
         
         int[] ints = template.batchUpdate(userSql, params.toArray(MapSqlParameterSource[]::new));
@@ -118,13 +122,29 @@ public class MySQLUserDAO implements UserDAO {
         return ints;
     }
     
+    @Override
+    public int[] updateUserAsVerified(String email) {
+        String taxonSql = "UPDATE user " +
+                "SET user.verified = 1 " +
+                "WHERE user.email = :email";
+    
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        MapSqlParameterSource userSource = new MapSqlParameterSource();
+        userSource.addValue("email", email);
+        params.add(userSource);
+    
+        int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'user' table.");
+        return ints;
+    }
+    
     private static class UserRowMapper implements RowMapper<UserTO> {
         @Override
         public UserTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new UserTO(rs.getInt("id"),
                     rs.getString("username"), rs.getString("email"),
                     rs.getString("pwd"), rs.getString("roles"),
-                    rs.getString("orcidId"));
+                    rs.getString("orcidId"), rs.getBoolean("verified"));
         }
     }
 }

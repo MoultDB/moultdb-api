@@ -159,6 +159,6 @@ public interface Service {
                           .map(Role::valueOf)
                           .collect(Collectors.toSet());
         }
-        return new User(userTO.getEmail(), userTO.getName(), roles, userTO.getOrcidId());
+        return new User(userTO.getEmail(), userTO.getName(), roles, userTO.getOrcidId(), userTO.isVerified());
     }
 }

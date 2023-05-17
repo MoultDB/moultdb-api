@@ -8,7 +8,11 @@ import org.moultdb.api.model.User;
  */
 public interface TokenGeneratorService {
     
-    String generateLongExpirationToken(User user);
+    boolean validateToken(String email, String token);
+    
+    String generateLongExpirationToken(String email);
+    
+    String generateMiddleExpirationToken(String email);
     
     String generateShortExpirationToken(String email);
 }

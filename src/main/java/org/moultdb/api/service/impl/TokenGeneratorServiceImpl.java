@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.moultdb.api.model.User;
+import org.apache.commons.lang3.StringUtils;
 import org.moultdb.api.service.TokenGeneratorService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,13 +25,20 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
     @Value("${jwt.secret}")
     private String secret;
     
-    private static final long LONG_TOKEN_VALIDITY = 24 * 60 * 60 * 1000; // 24 h
+    private static final long LONG_TOKEN_VALIDITY = 7* 24 * 60 * 60 * 1000; // 7 jours
+    
+    private static final long MIDDLE_TOKEN_VALIDITY = 24 * 60 * 60 * 1000; // 24 h
     
     private static final long SHORT_TOKEN_VALIDITY = 10 * 60 * 1000; // 10 minutes
     
     @Override
-    public String generateLongExpirationToken(User user) {
-        return generateToken(user.getEmail(), LONG_TOKEN_VALIDITY);
+    public String generateLongExpirationToken(String email) {
+        return generateToken(email, LONG_TOKEN_VALIDITY);
+    }
+    
+    @Override
+    public String generateMiddleExpirationToken(String email) {
+        return generateToken(email, MIDDLE_TOKEN_VALIDITY);
     }
     
     @Override
@@ -59,15 +66,15 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
      * @param token A {@code String} that is the token to decode.
      * @return      The {@code String} that is the username represented by the token.
      */
-    public String getUsernameFromToken(String token) {
+    private String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
     
-    public Date getExpirationDateFromToken(String token) {
+    private Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
     
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+    private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
@@ -93,12 +100,27 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
         return expiration.before(new Date());
     }
     
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    @Override
+    public boolean validateToken(String email, String token) {
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("E-mail is empty");
+        }
+        if (StringUtils.isBlank(token)) {
+            throw new IllegalArgumentException("Token is empty");
+        }
         final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(email) && !isTokenExpired(token));
     }
     
     public static long getShortTokenValidity() {
         return SHORT_TOKEN_VALIDITY;
+    }
+    
+    public static long getMiddleTokenValidity() {
+        return MIDDLE_TOKEN_VALIDITY;
+    }
+    
+    public static long getLongTokenValidity() {
+        return LONG_TOKEN_VALIDITY;
     }
 }

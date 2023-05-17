@@ -18,14 +18,16 @@ public class UserTO extends NamedEntityTO<Integer> {
     private final String password;
     private final String orcidId;
     private final String roles;
+    private final Boolean verified;
     
-    public UserTO(Integer id, String name, String email, String password, String roles, String orcidId)
+    public UserTO(Integer id, String name, String email, String password, String roles, String orcidId, Boolean verified)
             throws IllegalArgumentException {
         super(id, name, null);
         this.email = email;
         this.password = password;
         this.orcidId = orcidId;
         this.roles = roles;
+        this.verified = verified;
     }
     
     public String getEmail() {
@@ -44,6 +46,10 @@ public class UserTO extends NamedEntityTO<Integer> {
         return orcidId;
     }
     
+    public Boolean isVerified() {
+        return verified;
+    }
+    
     @Override
     public String toString() {
         return new StringJoiner(", ", UserTO.class.getSimpleName() + "[", "]")
@@ -53,6 +59,7 @@ public class UserTO extends NamedEntityTO<Integer> {
                 .add("roles='" + roles + "'")
                 .add("password='" + (StringUtils.isNotBlank(password) ? "***" : "") + "'")
                 .add("orcidId='" + orcidId + "'")
+                .add("verified='" + verified + "'")
                 .toString();
     }
 }

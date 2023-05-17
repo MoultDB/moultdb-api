@@ -15,8 +15,12 @@ public interface UserService extends Service {
     
     public boolean updateUserPassword(String email, String password);
     
-    public User getUserByNameAndPassword(String name, String password) throws UserNotFoundException;
+    public boolean setUserAsVerified(String email, String token);
     
-    public void askNewPassword(String email);
+    public User getUser(String email, String password) throws UserNotFoundException;
+    
+    public void askNewPassword(String email, String urlSuffix);
+    
+    public void askEmailValidation(String email, String urlSuffix);
     
 }

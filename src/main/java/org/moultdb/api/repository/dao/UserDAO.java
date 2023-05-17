@@ -24,5 +24,7 @@ public interface UserDAO extends DAO<UserTO> {
     int[] insertUser(UserTO userTO);
     
     int[] updateUserPassword(String email, String password);
+    
+    int[] updateUserAsVerified(String email);
 
 }

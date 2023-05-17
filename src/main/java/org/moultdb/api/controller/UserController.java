@@ -1,7 +1,7 @@
 package org.moultdb.api.controller;
 
-import io.micrometer.common.util.StringUtils;
-import org.moultdb.api.exception.AuthenticationException;
+import org.apache.commons.lang3.StringUtils;
+import org.moultdb.api.exception.TokenExpiredException;
 import org.moultdb.api.exception.UserNotFoundException;
 import org.moultdb.api.model.User;
 import org.moultdb.api.service.TokenGeneratorService;
@@ -40,94 +40,125 @@ public class UserController {
     public ResponseEntity<?> postUser(@RequestBody User user) {
         try {
             userService.saveUser(user);
+            userService.askEmailValidation(user.getEmail(), "/user/validation");
     
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "New user " + user.getName() + " created");
-    
-            return new ResponseEntity<>(response,  HttpStatus.CREATED);
+            return getSimpleResponseEntity("New user " + user.getName() + " created." +
+                    "We have just sent an e-mail validation request. " +
+                    "Please check your e-mail inbox for a message from us that contains instructions " +
+                    "on how to validate your e-mail address. " +
+                    "If you do not see an e-mail from us in your inbox, please check your spam folder " +
+                    "or contact our support team for assistance. " +
+                    "Thank you, " +
+                    "The MoultDB team");
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
+            return getErrorResponseEntity(e);
         }
-    }
-    
-    private static Map<String, String> getErrorResponse(Exception e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "true");
-        response.put("message", e.getMessage());
-        return response;
     }
     
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> json) {
-        String email = json == null ? null : json.get("email");
-        String password = json == null ? null : json.get("password");
-        if (email == null || password == null) {
-            throw new IllegalArgumentException("E-mail or password is empty");
-        }
+        String email = getParam(json, "email");
+        String password = getParam(json, "password");
         try {
-            User user = userService.getUserByNameAndPassword(email, password);
-    
+            User user = userService.getUser(email, password);
             Map<String, Object> userResp = new HashMap<>();
             userResp.put("email", user.getEmail());
             userResp.put("name", user.getName());
             userResp.put("roles", user.getRoles());
             userResp.put("orcidId", user.getOrcidId());
-            userResp.put("token", tokenGeneratorService.generateLongExpirationToken(user));
+            userResp.put("token", tokenGeneratorService.generateMiddleExpirationToken(user.getEmail()));
     
             Map<String, Object> resp = new HashMap<>();
             resp.put("data", userResp);
             resp.put("message", "User logged in");
     
             return new ResponseEntity<>(resp, HttpStatus.OK);
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return getErrorResponseEntity(e);
         }
     }
     
     @GetMapping("/ask-password")
     public ResponseEntity<?> askNewPassword(@RequestParam String email) {
         try {
-            if (StringUtils.isBlank(email)) {
-                throw new UserNotFoundException("E-mail is empty");
-            }
-            userService.askNewPassword(email);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "We have just received a password reset request. " +
+            userService.askNewPassword(email, "/user/reset-password");
+            return getSimpleResponseEntity( "We have just received a password reset request. " +
                     "Please check your e-mail inbox for a message from us that contains instructions " +
                     "on how to create your new password. " +
                     "If you do not see an e-mail from us in your inbox, please check your spam folder " +
                     "or contact our support team for assistance. " +
                     "Thank you, " +
                     "The MoultDB team");
-            
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return getErrorResponseEntity(e);
         }
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody User user) {
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> json) {
+        String email = getParam(json, "email");
+        String password = getParam(json, "password");
         try {
-            if (user.getEmail() == null || user.getPassword() == null) {
-                throw new UserNotFoundException("E-mail or password is empty");
-            }
-            boolean isUpdated = userService.updateUserPassword(user.getEmail(), user.getPassword());
+            boolean isUpdated = userService.updateUserPassword(email, password);
     
             Map<String, String> response = new HashMap<>();
             if (isUpdated) {
-                response.put("message", "Your password has been updated.");
-                return new ResponseEntity<>(response, HttpStatus.OK);
-    
-            } else {
-                response.put("message", "An error occurs during the update of the password. " +
-                        "Please contact our support team for assistance.");
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+                return getSimpleResponseEntity("Your password has been updated.");
             }
-            
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(getErrorResponse(e), HttpStatus.CONFLICT);
+            return getErrorResponseEntity("An error occurs during the update of the password. " +
+                        "Please contact our support team for assistance.", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return getErrorResponseEntity(e);
         }
+    }
+    
+    @GetMapping("/email-validation")
+    public ResponseEntity<?> validateUser(@RequestParam String email, @RequestParam String token) {
+        try {
+            boolean isUpdated = userService.setUserAsVerified(email, token);
+            
+            if (isUpdated) {
+                return getSimpleResponseEntity("Your e-mail has been validated.");
+            }
+            return getErrorResponseEntity("An error occurs during the validation of the e-mail. " +
+                        "Please contact our support team for assistance.", HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        } catch (Exception e) {
+            return getErrorResponseEntity(e);
+        }
+    }
+    
+    @GetMapping("/check-token")
+    public ResponseEntity<?> checkToken(@RequestParam String email, @RequestParam String token) {
+        try {
+            boolean isValid = tokenGeneratorService.validateToken(email, token);
+            if (isValid) {
+                return getSimpleResponseEntity("Your token is valid.");
+            }
+            throw new TokenExpiredException("");
+        } catch (Exception e) {
+            return getErrorResponseEntity(e);
+        }
+    }
+    
+    private static ResponseEntity<Map<String, String>> getErrorResponseEntity(Exception e) {
+        return getErrorResponseEntity(e.getMessage(), HttpStatus.CONFLICT);
+    }
+    
+    private static ResponseEntity<Map<String, String>> getErrorResponseEntity(String msg, HttpStatus httpStatus) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "true");
+        response.put("message", msg);
+        return new ResponseEntity<>(response, httpStatus);
+    }
+    
+    private static ResponseEntity<Map<String, String>> getSimpleResponseEntity(String message) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", message);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
+    private static String getParam(Map<String, String> json, String paramKey) {
+        return json == null ? null : json.get(paramKey);
     }
 }
