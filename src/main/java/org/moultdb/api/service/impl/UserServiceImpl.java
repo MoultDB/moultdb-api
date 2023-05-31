@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.moultdb.api.service.impl.TokenGeneratorServiceImpl.getLongTokenValidity;
-import static org.moultdb.api.service.impl.TokenGeneratorServiceImpl.getMiddleTokenValidity;
 import static org.moultdb.api.service.impl.TokenGeneratorServiceImpl.getShortTokenValidity;
 
 /**
@@ -39,8 +38,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     MailService mailService;
     
-    @Value("${url.api}")
-    private String API_URL;
+    @Value("${url.webapp}")
+    private String WEBAPP_URL;
     
     @Override
     public void saveUser(User user) {
@@ -59,10 +58,14 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new IllegalArgumentException("User is empty");
         }
+        if (StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getName())
+                || StringUtils.isBlank(user.getPassword())) {
+            throw new IllegalArgumentException("E-mail, name or password is empty");
+        }
     
         try {
-            userDAO.insertUser(new UserTO(null, user.getName(), user.getEmail(), user.getPassword(), roles,
-                    user.getOrcidId(), false));
+            userDAO.insertUser(new UserTO(null, user.getName(), user.getEmail(), user.getPassword(),
+                    roles, user.getOrcidId(), false));
         } catch (Exception e) {
             Matcher m = Pattern.compile("Duplicate entry '(.*)' for key 'user\\.u_(.*)'")
                                .matcher(e.getCause().getLocalizedMessage());
@@ -112,7 +115,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void askNewPassword(String email, String urlSuffix) {
         if (StringUtils.isBlank(email) || StringUtils.isBlank(urlSuffix)) {
-            throw new IllegalArgumentException("E-amil or URL suffix is empty");
+            throw new IllegalArgumentException("E-mail or URL suffix is empty");
         }
         UserTO userTO = userDAO.findByEmail(email);
         if (userTO == null) {
@@ -124,7 +127,7 @@ public class UserServiceImpl implements UserService {
         int tokenValidityMin = (int) (getShortTokenValidity() / 60000);
     
         // Send e-mail with link to reset password
-        String resetPasswordLink = API_URL + urlSuffix +"?token=" + token;
+        String resetPasswordLink = WEBAPP_URL + urlSuffix +"?token=" + token;
         String message = "Dear " + userTO.getName() + ",\n\n" +
                 "We have just received a password reset request for " + userTO.getEmail() + ".\n\n" +
                 "Choose your new password to access your account using the link below (valid " + tokenValidityMin + " minutes):\n"+
@@ -138,7 +141,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void askEmailValidation(String email, String urlSuffix) {
         if (StringUtils.isBlank(email) || StringUtils.isBlank(urlSuffix)) {
-            throw new IllegalArgumentException("E-amil or URL suffix is empty");
+            throw new IllegalArgumentException("E-mail or URL suffix is empty");
         }
         UserTO userTO = userDAO.findByEmail(email);
         if (userTO == null) {
@@ -150,7 +153,7 @@ public class UserServiceImpl implements UserService {
         int tokenValidityMin = (int) (getLongTokenValidity() / 60000 / 1440);
         
         // Send e-mail with link to reset password
-        String validationLink = API_URL + urlSuffix +"?email=" + userTO.getEmail() + "&token=" + token;
+        String validationLink = WEBAPP_URL + urlSuffix +"?email=" + userTO.getEmail() + "&token=" + token;
         String message = "Dear " + userTO.getName() + ",\n\n" +
                 "To continue setting up your MoultDB account, please verify that this is your email address.\n\n" +
                 "Please validate your e-mail address using the link below (valid " + tokenValidityMin + " days):\n"+

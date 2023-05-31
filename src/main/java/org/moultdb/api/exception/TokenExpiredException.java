@@ -15,6 +15,10 @@ public class TokenExpiredException extends MoultDBException {
     @Serial
     private static final long serialVersionUID = 2051784091124865833L;
     
+    public TokenExpiredException() {
+        super("Token is expired");
+    }
+    
     public TokenExpiredException(String message) {
         super(message);
     }
