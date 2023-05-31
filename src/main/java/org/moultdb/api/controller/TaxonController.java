@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
+
 @RestController
 @RequestMapping(path="/taxon")
 public class TaxonController {
@@ -24,15 +26,14 @@ public class TaxonController {
 
     @CrossOrigin
     @GetMapping("/all")
-    public List<Taxon> getAllTaxa() {
-        return taxonService.getAllTaxa();
+    public ResponseEntity<List<Taxon>> getAllTaxa() {
+        return generateValidResponse(taxonService.getAllTaxa());
     }
     
     @CrossOrigin
     @GetMapping("/scientific-name")
     public ResponseEntity<Taxon> getByScientificName(@RequestParam String name) {
-        return ResponseEntity.ok().body(taxonService.getTaxonByScientificName(name));
-    
+        return generateValidResponse(taxonService.getTaxonByScientificName(name));
     }
     
     @CrossOrigin
@@ -43,7 +44,6 @@ public class TaxonController {
     //TODO: to be tested
     public ResponseEntity<Taxon> insertTaxon(@RequestBody Taxon taxon, @RequestParam("pwd") String pwd) {
         taxonService.insertTaxon(taxon);
-        
-        return ResponseEntity.ok().body(taxon);
+        return generateValidResponse(taxon);
     }
 }
