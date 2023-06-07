@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
 
 /**
@@ -24,7 +26,7 @@ public class GeologicalAgeController {
     
     @CrossOrigin
     @GetMapping(value = "/create")
-    public ResponseEntity<Integer> insertGeologicalAge(@RequestParam("pwd") String pwd) {
+    public ResponseEntity<Map<String, Integer>> insertGeologicalAge(@RequestParam("pwd") String pwd) {
         Integer integer = geologicalAgeService.updateGeologicalAges(pwd);
         return generateValidResponse(integer);
     }

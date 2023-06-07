@@ -36,8 +36,10 @@ public class ResponseHandler {
         return ResponseEntity.ok(response);
     }
     
-    public static <T> ResponseEntity<T> generateValidResponse(T responseObj) {
-        return ResponseEntity.ok(responseObj);
+    public static <T> ResponseEntity<Map<String, T>> generateValidResponse(T responseObj) {
+        Map<String, T> response = new HashMap<>();
+        response.put("data", responseObj);
+        return ResponseEntity.ok(response);
     }
     
 }

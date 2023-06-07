@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
 
@@ -26,13 +27,13 @@ public class TaxonController {
 
     @CrossOrigin
     @GetMapping("/all")
-    public ResponseEntity<List<Taxon>> getAllTaxa() {
+    public ResponseEntity<Map<String, List<Taxon>>> getAllTaxa() {
         return generateValidResponse(taxonService.getAllTaxa());
     }
     
     @CrossOrigin
     @GetMapping("/scientific-name")
-    public ResponseEntity<Taxon> getByScientificName(@RequestParam String name) {
+    public ResponseEntity<Map<String, Taxon>> getByScientificName(@RequestParam String name) {
         return generateValidResponse(taxonService.getTaxonByScientificName(name));
     }
     
@@ -41,8 +42,9 @@ public class TaxonController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE}
     )
+    
     //TODO: to be tested
-    public ResponseEntity<Taxon> insertTaxon(@RequestBody Taxon taxon, @RequestParam("pwd") String pwd) {
+    public ResponseEntity<Map<String, Taxon>> insertTaxon(@RequestBody Taxon taxon) {
         taxonService.insertTaxon(taxon);
         return generateValidResponse(taxon);
     }
