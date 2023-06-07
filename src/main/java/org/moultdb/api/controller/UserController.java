@@ -41,7 +41,7 @@ public class UserController {
     public ResponseEntity<?> postUser(@RequestBody User user) {
         try {
             userService.saveUser(user);
-            userService.askEmailValidation(user.getEmail(), "/user/validation");
+            userService.askEmailValidation(user.getEmail(), "/user/email-validation");
         } catch (Exception e) {
             return generateErrorResponse(e);
         }
