@@ -1,12 +1,12 @@
 package org.moultdb.api.service;
 
-import org.moultdb.api.model.User;
-
 /**
  * @author Valentine Rech de Laval
  * @since 2023-04-11
  */
-public interface TokenGeneratorService {
+public interface TokenService {
+    
+    String getUsernameFromToken(String token);
     
     boolean validateToken(String email, String token);
     

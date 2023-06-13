@@ -10,13 +10,13 @@ import java.util.StringJoiner;
  */
 public class Version {
     
-    public final User creationUser;
+    public final MoultDBUser creationUser;
     public final Timestamp creationDate;
-    public final User lastUpdateUser;
+    public final MoultDBUser lastUpdateUser;
     public final Timestamp lastUpdateDate;
     public final Integer versionNumber;
     
-    public Version(User creationUser, Timestamp creationDate, User lastUpdateUser, Timestamp lastUpdateDate,
+    public Version(MoultDBUser creationUser, Timestamp creationDate, MoultDBUser lastUpdateUser, Timestamp lastUpdateDate,
                    Integer versionNumber) {
         this.creationUser = creationUser;
         this.creationDate = creationDate;
@@ -25,7 +25,7 @@ public class Version {
         this.versionNumber = versionNumber;
     }
     
-    public User getCreationUser() {
+    public MoultDBUser getCreationUser() {
         return creationUser;
     }
     
@@ -33,7 +33,7 @@ public class Version {
         return creationDate;
     }
     
-    public User getLastUpdateUser() {
+    public MoultDBUser getLastUpdateUser() {
         return lastUpdateUser;
     }
     

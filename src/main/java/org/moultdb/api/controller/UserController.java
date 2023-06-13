@@ -1,8 +1,7 @@
 package org.moultdb.api.controller;
 
-import org.moultdb.api.exception.TokenExpiredException;
-import org.moultdb.api.model.User;
-import org.moultdb.api.service.TokenGeneratorService;
+import org.moultdb.api.model.MoultDBUser;
+import org.moultdb.api.service.TokenService;
 import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,15 +29,15 @@ public class UserController {
     
     private final UserService userService;
     
-    private final TokenGeneratorService tokenGeneratorService;
+    private final TokenService tokenService;
     
     @Autowired
-    public UserController(UserService userService, TokenGeneratorService tokenGeneratorService) {
+    public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
-        this.tokenGeneratorService = tokenGeneratorService;
+        this.tokenService = tokenService;
     }
     @PostMapping("/registration")
-    public ResponseEntity<?> postUser(@RequestBody User user) {
+    public ResponseEntity<?> postUser(@RequestBody MoultDBUser user) {
         try {
             userService.saveUser(user);
             userService.askEmailValidation(user.getEmail(), "/user/email-validation");
@@ -57,7 +56,7 @@ public class UserController {
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> json) {
         String email = getParam(json, "email");
         String password = getParam(json, "password");
-        User user;
+        MoultDBUser user;
         try {
             user = userService.getUser(email, password);
         } catch (Exception e) {
@@ -66,9 +65,9 @@ public class UserController {
         Map<String, Object> userResp = new HashMap<>();
         userResp.put("email", user.getEmail());
         userResp.put("name", user.getName());
-        userResp.put("roles", user.getRoles());
+        userResp.put("authorities", user.getAuthorities());
         userResp.put("orcidId", user.getOrcidId());
-        userResp.put("token", tokenGeneratorService.generateMiddleExpirationToken(user.getEmail()));
+        userResp.put("token", tokenService.generateMiddleExpirationToken(user.getEmail()));
     
         return generateValidResponse("User logged in", userResp);
     }
@@ -123,7 +122,7 @@ public class UserController {
     public ResponseEntity<?> checkToken(@RequestParam String email, @RequestParam String token) {
         boolean isValid = false;
         try {
-            isValid = tokenGeneratorService.validateToken(email, token);
+            isValid = tokenService.validateToken(email, token);
         } catch (Exception e) {
             return generateErrorResponse(e);
         }

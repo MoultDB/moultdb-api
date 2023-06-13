@@ -6,9 +6,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.apache.commons.lang3.StringUtils;
-import org.moultdb.api.service.TokenGeneratorService;
+import org.moultdb.api.service.TokenService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -20,7 +19,7 @@ import java.util.function.Function;
  * @since 2023-04-11
  */
 @Service
-public class TokenGeneratorServiceImpl implements TokenGeneratorService {
+public class TokenServiceImpl implements TokenService {
     
     @Value("${jwt.secret}")
     private String secret;
@@ -66,7 +65,8 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
      * @param token A {@code String} that is the token to decode.
      * @return      The {@code String} that is the username represented by the token.
      */
-    private String getUsernameFromToken(String token) {
+    @Override
+    public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
     
@@ -75,6 +75,9 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
     }
     
     private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+        if (StringUtils.isBlank(token)) {
+            return null;
+        }
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
@@ -86,7 +89,8 @@ public class TokenGeneratorServiceImpl implements TokenGeneratorService {
      * @return      The {@code Claims} from the token.
      */
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSecretKey()).build().parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(getSecretKey()).build()
+                   .parseClaimsJws(token.replace("Bearer ", "")).getBody();
     }
     
     /**

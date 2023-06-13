@@ -4,23 +4,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.RegistrationException;
 import org.moultdb.api.exception.UserNotFoundException;
-import org.moultdb.api.model.User;
+import org.moultdb.api.model.MoultDBUser;
 import org.moultdb.api.model.moutldbenum.Role;
 import org.moultdb.api.repository.dao.UserDAO;
 import org.moultdb.api.repository.dto.UserTO;
 import org.moultdb.api.service.MailService;
-import org.moultdb.api.service.TokenGeneratorService;
+import org.moultdb.api.service.TokenService;
 import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.moultdb.api.service.impl.TokenGeneratorServiceImpl.getLongTokenValidity;
-import static org.moultdb.api.service.impl.TokenGeneratorServiceImpl.getShortTokenValidity;
+import static org.moultdb.api.service.impl.TokenServiceImpl.getLongTokenValidity;
+import static org.moultdb.api.service.impl.TokenServiceImpl.getShortTokenValidity;
 
 /**
  * @author Valentine Rech de Laval
@@ -33,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private UserDAO userDAO;
     
     @Autowired
-    TokenGeneratorService tokenGeneratorService;
+    TokenService tokenService;
     
     @Autowired
     MailService mailService;
@@ -42,19 +45,19 @@ public class UserServiceImpl implements UserService {
     private String WEBAPP_URL;
     
     @Override
-    public void saveUser(User user) {
+    public void saveUser(MoultDBUser user) {
         saveUser(user, Role.ROLE_USER.getStringRepresentation());
     }
     
     @Override
-    public void saveAdmin(User user) {
-        String roles = user.getRoles().stream()
-                           .map(Role::getStringRepresentation)
+    public void saveAdmin(MoultDBUser user) {
+        String authorities = user.getAuthorities().stream()
+                           .map(GrantedAuthority::getAuthority)
                            .collect(Collectors.joining(","));
-        saveUser(user, roles);
+        saveUser(user, authorities);
     }
     
-    private void saveUser(User user, String roles) {
+    private void saveUser(MoultDBUser user, String roles) {
         if (user == null) {
             throw new IllegalArgumentException("User is empty");
         }
@@ -94,13 +97,13 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("E-mail or token is empty");
         }
         int[] ints = userDAO.updateUserAsVerified(email);
-        tokenGeneratorService.validateToken(email, token);
+        tokenService.validateToken(email, token);
         // Returns true if the user has been set to 'verified'
         return ints.length > 0 && ints[0] == 1;
     }
     
     @Override
-    public User getUser(String email, String password) throws UserNotFoundException {
+    public MoultDBUser getUser(String email, String password) throws UserNotFoundException {
         if (StringUtils.isBlank(email) || StringUtils.isBlank(password)) {
             throw new IllegalArgumentException("E-mail or password is empty");
         }
@@ -123,7 +126,7 @@ public class UserServiceImpl implements UserService {
         }
     
         // Get token with short validity
-        String token = tokenGeneratorService.generateShortExpirationToken(userTO.getEmail());
+        String token = tokenService.generateShortExpirationToken(userTO.getEmail());
         int tokenValidityMin = (int) (getShortTokenValidity() / 60000);
     
         // Send e-mail with link to reset password
@@ -149,7 +152,7 @@ public class UserServiceImpl implements UserService {
         }
     
         // Get token with long validity
-        String token = tokenGeneratorService.generateLongExpirationToken(userTO.getEmail());
+        String token = tokenService.generateLongExpirationToken(userTO.getEmail());
         int tokenValidityMin = (int) (getLongTokenValidity() / 60000 / 1440);
         
         // Send e-mail with link to reset password
@@ -162,5 +165,23 @@ public class UserServiceImpl implements UserService {
                 "Thank you,\n\n" +
                 "The MoultDB team";
         mailService.sendEmail(userTO.getEmail(), "[MoultDB] Verify email address", message);
+    }
+    
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("E-mail is empty");
+        }
+    
+        UserTO userTO = userDAO.findByEmail(email);
+        if (!userTO.isVerified()) {
+            throw new AuthenticationException("User not validated");
+        }
+        
+        return MoultDBUser.builder()
+                          .username(userTO.getEmail())
+                          .password(userTO.getPassword())
+                          .roles("USER")
+                          .build();
     }
 }
