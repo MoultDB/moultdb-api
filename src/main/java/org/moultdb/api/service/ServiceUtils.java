@@ -15,7 +15,7 @@ import org.moultdb.api.model.Taxon;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.model.Term;
 import org.moultdb.api.model.TimePeriod;
-import org.moultdb.api.model.User;
+import org.moultdb.api.model.MoultDBUser;
 import org.moultdb.api.model.Version;
 import org.moultdb.api.model.moutldbenum.EgressDirection;
 import org.moultdb.api.model.moutldbenum.ExuviaeConsumption;
@@ -48,24 +48,21 @@ import java.util.stream.Collectors;
  * @author Valentine Rech de Laval
  * @since 2021-10-27
  */
-public interface Service {
+public class ServiceUtils {
     
-    static DataSource mapFromTO(DataSourceTO dataSourceTO) {
+    public static DataSource mapFromTO(DataSourceTO dataSourceTO) {
         return new DataSource(dataSourceTO.getName(), dataSourceTO.getDescription(),
                 dataSourceTO.getBaseURL(), dataSourceTO.getLastImportDate(),
                 dataSourceTO.getReleaseVersion());
     }
     
-    static Term mapFromTO(TermTO termTO) {
+    public static Term mapFromTO(TermTO termTO) {
         return new Term(termTO.getId(), termTO.getName(), termTO.getDescription());
     }
     
-    static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO,
-                                     SampleSetTO sampleSetTO,
-                                     MoultingCharactersTO moultingCharactersTO,
-                                     Map<Integer, VersionTO> versionTOByIds) {
+    public static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO, SampleSetTO sampleSetTO, MoultingCharactersTO moultingCharactersTO, Map<Integer, VersionTO> versionTOByIds) {
         // TODO first check if TaxonAnnotation is updated
-        Version taxonAnnotVersion = Service.mapFromTO(
+        Version taxonAnnotVersion = ServiceUtils.mapFromTO(
                 versionTOByIds.get(taxonAnnotationTO.getVersionId()));
         
         Article article = mapFromTO(taxonAnnotationTO.getArticleTO());
@@ -82,7 +79,7 @@ public interface Service {
                 taxonAnnotVersion);
     }
     
-    static SampleSet mapFromTO(SampleSetTO sampleSetTO, Map<Integer, VersionTO> versionTOsById) {
+    public static SampleSet mapFromTO(SampleSetTO sampleSetTO, Map<Integer, VersionTO> versionTOsById) {
         TimePeriod timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
                 mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
         return new SampleSet(
@@ -95,7 +92,7 @@ public interface Service {
                 mapFromTO(versionTOsById.get(sampleSetTO.getVersionId())));
     }
     
-    static Condition mapFromTO(ConditionTO conditionTO) {
+    public static Condition mapFromTO(ConditionTO conditionTO) {
         DevStage devStage = new DevStage(conditionTO.getDevStageTO().getId(),
                 conditionTO.getDevStageTO().getName(), conditionTO.getDevStageTO().getDescription(),
                 conditionTO.getDevStageTO().getLeftBound(), conditionTO.getDevStageTO().getRightBound());
@@ -107,17 +104,17 @@ public interface Service {
                 MoultingStep.valueOf(conditionTO.getMoultingStep()));
     }
     
-    static DbXref mapFromTO(DbXrefTO dbXrefTO) {
+    public static DbXref mapFromTO(DbXrefTO dbXrefTO) {
         return new DbXref(dbXrefTO.getAccession(), mapFromTO(dbXrefTO.getDataSourceTO()));
     }
     
-    static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
+    public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
         return dbXrefTOs.stream()
-                        .map(Service::mapFromTO)
+                        .map(ServiceUtils::mapFromTO)
                         .collect(Collectors.toSet());
     }
     
-    static MoultingCharacters mapFromTO(MoultingCharactersTO mcTO) {
+    public static MoultingCharacters mapFromTO(MoultingCharactersTO mcTO) {
         return new MoultingCharacters(LifeHistoryStyle.valueOf(mcTO.getLifeHistoryStyle()), mcTO.getHasTerminalAdultStage(),
                 mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSpecimenCount(),
                 mcTO.getSegmentAdditionMode(), mcTO.getBodySegmentsCountPerMoultStage(), mcTO.getBodySegmentsCountInAdults(),
@@ -130,35 +127,36 @@ public interface Service {
                 mcTO.getFossilExuviaeQuality());
     }
     
-    static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {
+    public static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {
         return new GeologicalAge(geologicalAgeTO.getNotation(), geologicalAgeTO.getName(), geologicalAgeTO.getRank(),
                 geologicalAgeTO.getYoungerBound(), geologicalAgeTO.getYoungerBoundImprecision(),
                 geologicalAgeTO.getOlderBound(), geologicalAgeTO.getOlderBoundImprecision(), geologicalAgeTO.getSynonyms());
     }
     
-    static Taxon mapFromTO(TaxonTO taxonTO) {
+    public static Taxon mapFromTO(TaxonTO taxonTO) {
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(), taxonTO.getRank(),
                 taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs()));
     }
     
-    static Article mapFromTO(ArticleTO articleTO) {
+    public static Article mapFromTO(ArticleTO articleTO) {
         return new Article(articleTO.getCitation() , articleTO.getTitle(), articleTO.getAuthors(), mapFromTOs(articleTO.getDbXrefTOs()));
     }
     
-    static Version mapFromTO(VersionTO versionTO) {
-        User creator = mapFromTO(versionTO.getCreationUserTO());
-        User lastUpdateUser = mapFromTO(versionTO.getLastUpdateUserTO());
+    public static Version mapFromTO(VersionTO versionTO) {
+        MoultDBUser creator = mapFromTO(versionTO.getCreationUserTO());
+        MoultDBUser lastUpdateUser = mapFromTO(versionTO.getLastUpdateUserTO());
         return new Version(creator, versionTO.getCreationDate(), lastUpdateUser, versionTO.getLastUpdateDate(),
                 versionTO.getVersionNumber());
     }
     
-    static User mapFromTO(UserTO userTO) {
+    public static MoultDBUser mapFromTO(UserTO userTO) {
         Set<Role> roles = null;
         if (StringUtils.isNotBlank(userTO.getRoles())) {
             roles = Arrays.stream(userTO.getRoles().split(","))
                           .map(Role::valueOf)
                           .collect(Collectors.toSet());
         }
-        return new User(userTO.getEmail(), userTO.getName(), roles, userTO.getOrcidId(), userTO.isVerified());
+        return new MoultDBUser(userTO.getEmail(), userTO.getName(), userTO.getPassword(),
+                roles, userTO.isVerified(), userTO.getOrcidId());
     }
 }

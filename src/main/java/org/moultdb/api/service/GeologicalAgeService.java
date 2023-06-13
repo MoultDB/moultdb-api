@@ -8,7 +8,7 @@ import java.util.List;
  * @author Valentine Rech de Laval
  * @since 2022-05-10
  */
-public interface GeologicalAgeService extends Service {
+public interface GeologicalAgeService {
     
     public List<GeologicalAge> getAllGeologicalAges();
     

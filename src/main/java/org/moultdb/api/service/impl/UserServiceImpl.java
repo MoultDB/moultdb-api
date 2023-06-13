@@ -9,6 +9,7 @@ import org.moultdb.api.model.moutldbenum.Role;
 import org.moultdb.api.repository.dao.UserDAO;
 import org.moultdb.api.repository.dto.UserTO;
 import org.moultdb.api.service.MailService;
+import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TokenService;
 import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +113,7 @@ public class UserServiceImpl implements UserService {
         if (!userTO.isVerified()) {
             throw new AuthenticationException("User not validated");
         }
-        return org.moultdb.api.service.Service.mapFromTO(userTO);
+        return ServiceUtils.mapFromTO(userTO);
     }
     
     @Override

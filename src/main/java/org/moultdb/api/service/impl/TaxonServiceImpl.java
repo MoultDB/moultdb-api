@@ -3,6 +3,7 @@ package org.moultdb.api.service.impl;
 import org.moultdb.api.model.Taxon;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.TaxonTO;
+import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TaxonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class TaxonServiceImpl implements TaxonService {
     
     private List<Taxon> getTaxons(List<TaxonTO> taxonTOs) {
         return taxonTOs.stream()
-                       .map(org.moultdb.api.service.Service::mapFromTO)
+                       .map(ServiceUtils::mapFromTO)
                        .collect(Collectors.toList());
     }
     

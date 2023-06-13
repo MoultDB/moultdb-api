@@ -6,6 +6,7 @@ import org.moultdb.api.model.GeologicalAge;
 import org.moultdb.api.repository.dao.GeologicalAgeDAO;
 import org.moultdb.api.repository.dto.GeologicalAgeTO;
 import org.moultdb.api.service.GeologicalAgeService;
+import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.importer.geologicalage.GeologicalAgeImporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     
     private List<GeologicalAge> getGeologicalAges(List<GeologicalAgeTO> geologicalAgeTOs) {
         return geologicalAgeTOs.stream()
-                       .map(org.moultdb.api.service.Service::mapFromTO)
+                       .map(ServiceUtils::mapFromTO)
                        .collect(Collectors.toList());
     }
 }

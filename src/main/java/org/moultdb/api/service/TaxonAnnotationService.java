@@ -11,7 +11,7 @@ import java.util.List;
  * @author Valentine Rech de Laval
  * @since 2021-10-26
  */
-public interface TaxonAnnotationService extends Service {
+public interface TaxonAnnotationService {
     
     public List<TaxonAnnotation> getAllTaxonAnnotations();
     

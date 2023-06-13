@@ -18,6 +18,7 @@ import org.moultdb.api.repository.dto.MoultingCharactersTO;
 import org.moultdb.api.repository.dto.SampleSetTO;
 import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.VersionTO;
+import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TaxonAnnotationService;
 import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
 import org.moultdb.importer.fossilannotation.FossilImporter;
@@ -92,7 +93,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                           .collect(Collectors.toMap(VersionTO::getId, Function.identity()));
         
         return taxonAnnotationTOs.stream()
-                                 .map(to -> org.moultdb.api.service.Service.mapFromTO(to,
+                                 .map(to -> ServiceUtils.mapFromTO(to,
                                          sampleSetTOsbyIds.get(to.getSampleSetId()),
                                          charactersTOsbyIds.get(to.getMoultingCharactersId()),
                                          versionTOsByIds))
