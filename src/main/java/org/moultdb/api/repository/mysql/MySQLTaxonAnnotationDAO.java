@@ -37,7 +37,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, c.*, ds.*, ae.*, a.*, i.*, eco.*, cio.* " +
+    private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, c.*, ds.*, ae.*, a.*, i.*, eco.*, cio.*, v.*, uc.*, um.* " +
             "FROM taxon_annotation ta " +
             "LEFT JOIN taxon t ON t.path = ta.taxon_path " +
             "LEFT JOIN cond c ON c.id = ta.condition_id " +
@@ -46,7 +46,10 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             "LEFT JOIN article a ON a.id = ta.article_id " +
             "LEFT JOIN image i ON i.id = ta.image_id " +
             "LEFT JOIN eco ON eco.id = ta.eco_id " +
-            "LEFT JOIN cio ON cio.id = ta.cio_id ";
+            "LEFT JOIN cio ON cio.id = ta.cio_id " +
+            "LEFT JOIN version v ON ta.version_id = v.id " +
+            "LEFT JOIN user uc ON v.creation_user_id = uc.id " +
+            "LEFT JOIN user um ON v.last_update_user_id = um.id ";
     
     public MySQLTaxonAnnotationDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -58,8 +61,10 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public List<TaxonAnnotationTO> findByTaxonId(int id) {
-        return null;
+    public List<TaxonAnnotationTO> findByUser(String username) {
+        return template.query(SELECT_STATEMENT + "WHERE uc.username = :username",
+                new MapSqlParameterSource().addValue("username", username), new TaxonAnnotationRowMapper());
+        
     }
     
     @Override

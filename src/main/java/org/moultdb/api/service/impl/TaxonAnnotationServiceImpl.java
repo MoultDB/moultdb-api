@@ -58,11 +58,20 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     @Override
     public List<TaxonAnnotation> getAllTaxonAnnotations() {
         List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findAll();
-        
+        return getTaxonAnnotations(taxonAnnotationTOs);
+    }
+    
+    @Override
+    public List<TaxonAnnotation> getUserTaxonAnnotations(String username) {
+        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByUser(username);
+        return getTaxonAnnotations(taxonAnnotationTOs);
+    }
+    
+    private List<TaxonAnnotation> getTaxonAnnotations(List<TaxonAnnotationTO> taxonAnnotationTOs) {
         if (taxonAnnotationTOs.isEmpty()) {
             return new ArrayList<>();
         }
-    
+        
         // Get SampleSetTOs
         Set<Integer> sampleIds = taxonAnnotationTOs.stream()
                                                    .map(TaxonAnnotationTO::getSampleSetId)
@@ -71,28 +80,26 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                 sampleSetDAO.findByIds(sampleIds)
                             .stream()
                             .collect(Collectors.toMap(SampleSetTO::getId, Function.identity()));
-    
+        
         // Get MoultingCharactersTOs
         Set<Integer> charactersIds = taxonAnnotationTOs.stream()
-                                                   .map(TaxonAnnotationTO::getMoultingCharactersId)
-                                                   .collect(Collectors.toSet());
+                                                       .map(TaxonAnnotationTO::getMoultingCharactersId)
+                                                       .collect(Collectors.toSet());
         Map<Integer, MoultingCharactersTO> charactersTOsbyIds =
                 moultingCharactersDAO.findByIds(charactersIds)
-                            .stream()
-                            .collect(Collectors.toMap(MoultingCharactersTO::getId, Function.identity()));
-    
+                                     .stream()
+                                     .collect(Collectors.toMap(MoultingCharactersTO::getId, Function.identity()));
+        
         // Get VersionTOs for taxon annotations and sample sets
         Set<Integer> versionIds = taxonAnnotationTOs.stream()
                                                     .map(TaxonAnnotationTO::getVersionId)
                                                     .collect(Collectors.toSet());
         Map<Integer, VersionTO> versionTOsByIds = versionDAO.findByIds(versionIds).stream()
-                          .collect(Collectors.toMap(VersionTO::getId, Function.identity()));
+                                                            .collect(Collectors.toMap(VersionTO::getId, Function.identity()));
         
         return taxonAnnotationTOs.stream()
-                                 .map(to -> ServiceUtils.mapFromTO(to,
-                                         sampleSetTOsbyIds.get(to.getSampleSetId()),
-                                         charactersTOsbyIds.get(to.getMoultingCharactersId()),
-                                         versionTOsByIds))
+                                 .map(to -> ServiceUtils.mapFromTO(to, sampleSetTOsbyIds.get(to.getSampleSetId()),
+                                         charactersTOsbyIds.get(to.getMoultingCharactersId()), versionTOsByIds))
                                  .collect(Collectors.toList());
     }
     

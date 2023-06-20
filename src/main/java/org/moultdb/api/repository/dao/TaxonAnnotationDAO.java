@@ -13,7 +13,7 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     List<TaxonAnnotationTO> findAll();
     
-    List<TaxonAnnotationTO> findByTaxonId(int id);
+    List<TaxonAnnotationTO> findByUser(String username);
     
     Integer getLastId();
     

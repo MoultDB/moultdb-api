@@ -38,6 +38,11 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getAllTaxonAnnotations());
     }
     
+    @GetMapping("/user-specific")
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam("username") String username) {
+        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(username));
+    }
+    
     @PostMapping("/import-file")
     public
     ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam("file") MultipartFile file) {
