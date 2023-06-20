@@ -85,11 +85,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
         Set<Integer> versionIds = taxonAnnotationTOs.stream()
                                                     .map(TaxonAnnotationTO::getVersionId)
                                                     .collect(Collectors.toSet());
-        versionIds.addAll(sampleSetTOsbyIds.values().stream()
-                                           .map(SampleSetTO::getVersionId)
-                                           .collect(Collectors.toSet()));
-        Map<Integer, VersionTO> versionTOsByIds =
-                versionDAO.findByIds(versionIds).stream()
+        Map<Integer, VersionTO> versionTOsByIds = versionDAO.findByIds(versionIds).stream()
                           .collect(Collectors.toMap(VersionTO::getId, Function.identity()));
         
         return taxonAnnotationTOs.stream()

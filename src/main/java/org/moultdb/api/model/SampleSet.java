@@ -22,13 +22,12 @@ public class SampleSet {
     private final Set<String> environments;
     private final Set<String> specimenTypes;
     private final Integer specimenCount;
-    private final Version version;
     
     public SampleSet(TimePeriod timePeriod, Collection<String> collectionLocations,
                      Collection<String> storageAccessions, Collection<String> storageLocations,
                      Collection<String> geologicalFormations, Collection<String> fossilPreservationTypes,
                      Collection<String> environments, Collection<String> specimenTypes,
-                     Integer specimenCount, Version version) {
+                     Integer specimenCount) {
         this.timePeriod = timePeriod;
         this.collectionLocations = Collections.unmodifiableSet(collectionLocations == null ?
                 new HashSet<>(): new HashSet<>(collectionLocations));
@@ -45,7 +44,6 @@ public class SampleSet {
         this.specimenTypes = Collections.unmodifiableSet(specimenTypes == null ?
                 new HashSet<>(): new HashSet<>(specimenTypes));
         this.specimenCount = specimenCount;
-        this.version = version;
     }
     
     public TimePeriod getTimePeriod() {
@@ -84,10 +82,6 @@ public class SampleSet {
         return specimenCount;
     }
     
-    public Version getVersion() {
-        return version;
-    }
-    
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -118,7 +112,6 @@ public class SampleSet {
                 .add("specimenTypes=" + specimenTypes)
                 .add("environments=" + environments)
                 .add("specimenCount=" + specimenCount)
-                .add("version=" + version)
                 .toString();
     }
 }

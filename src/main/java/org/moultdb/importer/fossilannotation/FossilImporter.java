@@ -237,8 +237,7 @@ public class FossilImporter {
             SampleSetTO sampleSetTO = new SampleSetTO(ssNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
                     bean.getSpecimenCount(), extractValues(bean.getMuseumAccession()), extractValues(bean.getMuseumCollection()),
                     extractValues(bean.getLocation()), extractValues(bean.getFossilPreservationType()),
-                    extractValues(bean.getEnvironment()), extractValues(bean.getGeologicalFormation()), extractValues(bean.getSpecimenType()),
-                    null);
+                    extractValues(bean.getEnvironment()), extractValues(bean.getGeologicalFormation()), extractValues(bean.getSpecimenType()));
             sampleSetTOs.add(sampleSetTO);
             ssNextId ++;
             

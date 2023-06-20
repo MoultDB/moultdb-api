@@ -70,7 +70,7 @@ public class ServiceUtils {
         return new TaxonAnnotation(
                 mapFromTO(taxonAnnotationTO.getTaxonTO()),
                 taxonAnnotationTO.getAnnotatedSpeciesName(),
-                mapFromTO(sampleSetTO, versionTOByIds),
+                mapFromTO(sampleSetTO),
                 mapFromTO(taxonAnnotationTO.getConditionTO()),
                 mapFromTO(moultingCharactersTO),
                 article,
@@ -79,7 +79,7 @@ public class ServiceUtils {
                 taxonAnnotVersion);
     }
     
-    public static SampleSet mapFromTO(SampleSetTO sampleSetTO, Map<Integer, VersionTO> versionTOsById) {
+    public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {
         TimePeriod timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
                 mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
         return new SampleSet(
@@ -88,8 +88,7 @@ public class ServiceUtils {
                 sampleSetTO.getStorageAccessions(), sampleSetTO.getStorageLocationNames(),
                 sampleSetTO.getGeologicalFormations(), sampleSetTO.getFossilPreservationTypes(),
                 sampleSetTO.getEnvironments(), sampleSetTO.getSpecimenTypes(),
-                sampleSetTO.getSpecimenCount(),
-                mapFromTO(versionTOsById.get(sampleSetTO.getVersionId())));
+                sampleSetTO.getSpecimenCount());
     }
     
     public static Condition mapFromTO(ConditionTO conditionTO) {

@@ -23,13 +23,12 @@ public class SampleSetTO extends EntityTO<Integer> {
     private final Set<String> environments;
     private final Set<String> geologicalFormations;
     private final Set<String> specimenTypes;
-    private final Integer versionId;
     
     public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
                        Integer specimenCount, Set<String> storageAccessions, Set<String> storageLocationNames,
                        Set<String> collectionLocationNames, Set<String> fossilPreservationTypes,
-                       Set<String> environments, Set<String> geologicalFormations, Set<String> specimenTypes,
-                       Integer versionId) throws IllegalArgumentException {
+                       Set<String> environments, Set<String> geologicalFormations, Set<String> specimenTypes)
+            throws IllegalArgumentException {
         super(id);
         this.fromGeologicalAgeTO = fromGeologicalAgeTO;
         this.toGeologicalAgeTO = toGeologicalAgeTO;
@@ -41,7 +40,6 @@ public class SampleSetTO extends EntityTO<Integer> {
         this.environments = environments;
         this.geologicalFormations = geologicalFormations;
         this.specimenTypes = specimenTypes;
-        this.versionId = versionId;
     }
     
     public GeologicalAgeTO getFromGeologicalAgeTO() {
@@ -84,10 +82,6 @@ public class SampleSetTO extends EntityTO<Integer> {
         return specimenTypes;
     }
     
-    public Integer getVersionId() {
-        return versionId;
-    }
-    
     @Override
     public String toString() {
         return new StringJoiner(", ", SampleSetTO.class.getSimpleName() + "[", "]")
@@ -102,7 +96,6 @@ public class SampleSetTO extends EntityTO<Integer> {
                 .add("environments=" + environments)
                 .add("geologicalFormations=" + geologicalFormations)
                 .add("specimenTypes=" + specimenTypes)
-                .add("versionId=" + versionId)
                 .toString();
     }
 }
