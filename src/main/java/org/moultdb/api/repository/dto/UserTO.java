@@ -57,7 +57,7 @@ public class UserTO extends NamedEntityTO<Integer> {
                 .add("name='" + getName() + "'")
                 .add("email='" + email + "'")
                 .add("roles='" + roles + "'")
-                .add("password='" + (StringUtils.isNotBlank(password) ? "***" : "") + "'")
+                .add("password='" + (StringUtils.isNotBlank(password) ? "[PROTECTED]" : "") + "'")
                 .add("orcidId='" + orcidId + "'")
                 .add("verified='" + verified + "'")
                 .toString();

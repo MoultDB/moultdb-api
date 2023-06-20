@@ -1,5 +1,7 @@
 package org.moultdb.api.model;
 
+import org.moultdb.api.model.moutldbenum.MoultingStep;
+
 import java.util.StringJoiner;
 
 /**

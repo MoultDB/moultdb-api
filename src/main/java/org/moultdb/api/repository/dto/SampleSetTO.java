@@ -1,6 +1,12 @@
 package org.moultdb.api.repository.dto;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serial;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -23,6 +29,15 @@ public class SampleSetTO extends EntityTO<Integer> {
     private final Set<String> environments;
     private final Set<String> geologicalFormations;
     private final Set<String> specimenTypes;
+    
+    public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
+                       Integer specimenCount, String collectionLocationName) {
+        this(id, fromGeologicalAgeTO, toGeologicalAgeTO, specimenCount, null, null,
+                Collections.unmodifiableSet(StringUtils.isBlank(collectionLocationName) ?
+                        new HashSet<>() :
+                        new HashSet<>(List.of(collectionLocationName))),
+                null, null, null, null);
+    }
     
     public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
                        Integer specimenCount, Set<String> storageAccessions, Set<String> storageLocationNames,

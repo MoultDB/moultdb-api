@@ -38,14 +38,14 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getAllTaxonAnnotations());
     }
     
-    @PostMapping("/import")
+    @PostMapping("/import-file")
     public
     ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam("file") MultipartFile file) {
         Integer integer;
         try {
             integer = taxonAnnotationService.importTaxonAnnotations(file);
         } catch (IOException e) {
-            return generateErrorResponse("", HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Map<String, Object> resp = new HashMap<>();
         resp.put("count", integer);

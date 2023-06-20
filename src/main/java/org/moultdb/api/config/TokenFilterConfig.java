@@ -29,11 +29,11 @@ public class TokenFilterConfig {
         // Endpoints which needs to be restricted.
         // All Endpoints would be restricted if unspecified
         filter.addUrlPatterns("/geological-age/create");
-        filter.addUrlPatterns("/taxon-annotation/import");
+        filter.addUrlPatterns("/taxon-annotation/import-file");
         filter.addUrlPatterns("/taxon/create");
         filter.addUrlPatterns("/taxon/all");
         filter.addUrlPatterns("/user/reset-password");
-        filter.addUrlPatterns("/image/upload");
+        filter.addUrlPatterns("/image/import");
         return filter;
     }
 }

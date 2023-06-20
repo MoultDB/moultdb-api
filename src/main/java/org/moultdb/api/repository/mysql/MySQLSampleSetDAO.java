@@ -7,6 +7,7 @@ import org.moultdb.api.repository.dao.SampleSetDAO;
 import org.moultdb.api.repository.dto.CollectionLocationTO;
 import org.moultdb.api.repository.dto.EnvironmentTO;
 import org.moultdb.api.repository.dto.FossilPreservationTypeTO;
+import org.moultdb.api.repository.dto.GeologicalAgeTO;
 import org.moultdb.api.repository.dto.GeologicalFormationTO;
 import org.moultdb.api.repository.dto.NamedEntityTO;
 import org.moultdb.api.repository.dto.SampleSetTO;
@@ -83,6 +84,24 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     }
     
     @Override
+    public List<SampleSetTO> find(GeologicalAgeTO fromGeoAgeTO, GeologicalAgeTO toGeoAgeTO, String location) {
+        String sql = "SELECT s.*, gaf.*, gat.*, cl.* " +
+                "FROM sample_set s " +
+                "INNER JOIN geological_age gaf ON (gaf.notation = s.from_geological_age_notation) " +
+                "INNER JOIN geological_age gat ON (gat.notation = s.to_geological_age_notation) " +
+                "INNER JOIN sample_set_collection_location sscl ON (sscl.sample_set_id = s.id) " +
+                "INNER JOIN collection_location cl ON (cl.id = sscl.collection_location_id) " +
+                "WHERE gaf.notation = ':gaf' " +
+                "AND gat.notation = ':got' " +
+                "AND cl.name = ':location' ";
+        MapSqlParameterSource source = new MapSqlParameterSource()
+                .addValue("gaf", fromGeoAgeTO.getNotation())
+                .addValue("gat", toGeoAgeTO.getNotation())
+                .addValue("location", location);
+        return template.query(sql, source, new SampleSetResultSetExtractor());
+    }
+    
+    @Override
     public int insert(SampleSetTO sampleSetTO) {
         int[] ints = batchUpdate(Collections.singleton(sampleSetTO));
         return ints[0];
@@ -101,9 +120,13 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 " specimen_count = new.specimen_count";
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (SampleSetTO sampleSetTO : sampleSetTOs) {
+            String storageAccessions = null;
+            if (sampleSetTO.getStorageAccessions() != null) {
+                storageAccessions = String.join(";", sampleSetTO.getStorageAccessions());
+            }
             MapSqlParameterSource source = new MapSqlParameterSource();
             source.addValue("id", sampleSetTO.getId());
-            source.addValue("museum_accessions", String.join(";", sampleSetTO.getStorageAccessions()));
+            source.addValue("museum_accessions", storageAccessions);
             source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO().getNotation());
             source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO().getNotation());
             source.addValue("specimen_count", sampleSetTO.getSpecimenCount());
@@ -133,7 +156,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 "specimen_type", "sample_set_specimen_type", "specimen_type_id",
                 new SpecimenTypeRowMapper());
     
-        return null;
+        return ints;
     }
     
     private <T extends NamedEntityTO> void insertInOtherTable(
@@ -144,15 +167,24 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         String stmt = "INSERT INTO " + otherTableName + " (name) VALUES (:name) AS new " +
                 "ON DUPLICATE KEY UPDATE name = new.name ";
         
-        // todo Remove duplicates in names ?
-        List<MapSqlParameterSource> params = new ArrayList<>();
+        Set<MapSqlParameterSource> params = new HashSet<>();
         for (SampleSetTO sampleSetTO : sampleSetTOs) {
-            for (String name: func.apply(sampleSetTO)) {
-                MapSqlParameterSource source = new MapSqlParameterSource();
-                source.addValue("name", name);
-                params.add(source);
+            Set<String> values = func.apply(sampleSetTO);
+            if (values == null || values.isEmpty()) {
+                continue;
+            }
+            for (String name: values) {
+                if (name != null) {
+                    MapSqlParameterSource source = new MapSqlParameterSource();
+                    source.addValue("name", name);
+                    params.add(source);
+                }
             }
         }
+        if (params.isEmpty()) {
+            return;
+        }
+        
         int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
         logger.info(Arrays.stream(ints).sum()+ " new row(s) in '" + otherTableName + "'  table.");
     
@@ -242,7 +274,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 // Build SampleSetTO. Even if it already exists, we create a new one because it's an unmutable object
                 sampleSetTO = new SampleSetTO(rs.getInt("s.id"), DAO.mapToGeologicalAgeTO(rs, "gaf"),
                         DAO.mapToGeologicalAgeTO(rs, "gat"),  rs.getInt("s.specimen_count"), museumAccessions,
-                        slNames, clNames, fptNames, eNames, gfNames, stNames, null);
+                        slNames, clNames, fptNames, eNames, gfNames, stNames);
                 sampleSets.put(sampleSetId, sampleSetTO);
             }
             return new ArrayList<>(sampleSets.values());

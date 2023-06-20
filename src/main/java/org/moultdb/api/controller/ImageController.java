@@ -2,7 +2,6 @@ package org.moultdb.api.controller;
 
 import org.moultdb.api.model.ImageInfo;
 import org.moultdb.api.service.ImageService;
-import org.moultdb.api.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,10 +32,16 @@ public class ImageController {
     @Autowired
     ImageService imageService;
     
-    @PostMapping("/upload")
-    public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("file") MultipartFile file) {
+    @PostMapping("/import")
+    public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("file") MultipartFile file,
+                                                           @RequestParam("speciesName") String speciesName,
+                                                           @RequestParam("sex") String sex,
+                                                           @RequestParam("ageInDays") Integer ageInDays,
+                                                           @RequestParam("location") String location,
+                                                           @RequestParam("moultingStep") String moultingStep,
+                                                           @RequestParam("specimenCount") Integer specimenCount) {
         try {
-            imageService.saveImage(file);
+            imageService.saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount);
         } catch (Exception e) {
             return generateErrorResponse("Could not upload the image: " + file.getOriginalFilename() + ". Error: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);

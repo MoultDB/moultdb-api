@@ -51,19 +51,32 @@ import java.util.stream.Collectors;
 public class ServiceUtils {
     
     public static DataSource mapFromTO(DataSourceTO dataSourceTO) {
+        if (dataSourceTO == null) {
+            return null;
+        }
         return new DataSource(dataSourceTO.getName(), dataSourceTO.getDescription(),
                 dataSourceTO.getBaseURL(), dataSourceTO.getLastImportDate(),
                 dataSourceTO.getReleaseVersion());
     }
     
     public static Term mapFromTO(TermTO termTO) {
+        if (termTO == null) {
+            return null;
+        }
         return new Term(termTO.getId(), termTO.getName(), termTO.getDescription());
     }
     
-    public static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO, SampleSetTO sampleSetTO, MoultingCharactersTO moultingCharactersTO, Map<Integer, VersionTO> versionTOByIds) {
+    public static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO, SampleSetTO sampleSetTO,
+                                            MoultingCharactersTO moultingCharactersTO,
+                                            Map<Integer, VersionTO> versionTOByIds) {
         // TODO first check if TaxonAnnotation is updated
-        Version taxonAnnotVersion = ServiceUtils.mapFromTO(
-                versionTOByIds.get(taxonAnnotationTO.getVersionId()));
+        if (taxonAnnotationTO == null) {
+            return null;
+        }
+        Version taxonAnnotVersion = null;
+        if (versionTOByIds != null) {
+            taxonAnnotVersion = ServiceUtils.mapFromTO(versionTOByIds.get(taxonAnnotationTO.getVersionId()));
+        }
         
         Article article = mapFromTO(taxonAnnotationTO.getArticleTO());
 
@@ -80,6 +93,9 @@ public class ServiceUtils {
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {
+        if (sampleSetTO == null) {
+            return null;
+        }
         TimePeriod timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
                 mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
         return new SampleSet(
@@ -92,56 +108,92 @@ public class ServiceUtils {
     }
     
     public static Condition mapFromTO(ConditionTO conditionTO) {
-        DevStage devStage = new DevStage(conditionTO.getDevStageTO().getId(),
-                conditionTO.getDevStageTO().getName(), conditionTO.getDevStageTO().getDescription(),
-                conditionTO.getDevStageTO().getLeftBound(), conditionTO.getDevStageTO().getRightBound());
+        if (conditionTO == null) {
+            return null;
+        }
+        DevStage devStage = null;
+        if (conditionTO.getDevStageTO() != null) {
+            devStage = new DevStage(conditionTO.getDevStageTO().getId(),
+                    conditionTO.getDevStageTO().getName(), conditionTO.getDevStageTO().getDescription(),
+                    conditionTO.getDevStageTO().getLeftBound(), conditionTO.getDevStageTO().getRightBound());
+        }
         
-        AnatEntity anatEntity = new AnatEntity(conditionTO.getAnatomicalEntityTO().getId(),
-                conditionTO.getAnatomicalEntityTO().getName(), conditionTO.getAnatomicalEntityTO().getDescription());
-
-        return new Condition(devStage, anatEntity, conditionTO.getSex(),
-                MoultingStep.valueOf(conditionTO.getMoultingStep()));
+        AnatEntity anatEntity = null;
+        if (conditionTO.getAnatomicalEntityTO() != null) {
+            anatEntity = new AnatEntity(conditionTO.getAnatomicalEntityTO().getId(),
+                    conditionTO.getAnatomicalEntityTO().getName(), conditionTO.getAnatomicalEntityTO().getDescription());
+        }
+        
+        MoultingStep moultingStep = null;
+        if (conditionTO.getMoultingStep() != null) {
+            moultingStep = MoultingStep.valueOfByStringRepresentation(conditionTO.getMoultingStep());
+        }
+        
+        return new Condition(devStage, anatEntity, conditionTO.getSex(),moultingStep);
     }
     
     public static DbXref mapFromTO(DbXrefTO dbXrefTO) {
+        if (dbXrefTO == null) {
+            return null;
+        }
         return new DbXref(dbXrefTO.getAccession(), mapFromTO(dbXrefTO.getDataSourceTO()));
     }
     
     public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
+        if (dbXrefTOs == null) {
+            return null;
+        }
         return dbXrefTOs.stream()
                         .map(ServiceUtils::mapFromTO)
                         .collect(Collectors.toSet());
     }
     
     public static MoultingCharacters mapFromTO(MoultingCharactersTO mcTO) {
-        return new MoultingCharacters(LifeHistoryStyle.valueOf(mcTO.getLifeHistoryStyle()), mcTO.getHasTerminalAdultStage(),
-                mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSpecimenCount(),
-                mcTO.getSegmentAdditionMode(), mcTO.getBodySegmentsCountPerMoultStage(), mcTO.getBodySegmentsCountInAdults(),
-                mcTO.getBodyLengthAverage(), mcTO.getBodyLengthIncreaseAverage(),
+        if (mcTO == null) {
+            return null;
+        }
+        return new MoultingCharacters(LifeHistoryStyle.valueOfByStringRepresentation(mcTO.getLifeHistoryStyle()),
+                mcTO.getHasTerminalAdultStage(), mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(),
+                mcTO.getSpecimenCount(), mcTO.getSegmentAdditionMode(), mcTO.getBodySegmentsCountPerMoultStage(),
+                mcTO.getBodySegmentsCountInAdults(), mcTO.getBodyLengthAverage(), mcTO.getBodyLengthIncreaseAverage(),
                 mcTO.getMeasurementUnit(), mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
-                mcTO.getResultingNamedMoultingConfiguration(), EgressDirection.valueOf(mcTO.getEgressDirection()),
-                ExuviaePosition.valueOf(mcTO.getPositionExuviaeFoundIn()), MoultingPhase.valueOf(mcTO.getMoultingPhase()),
-                MoultingVariability.valueOf(mcTO.getMoultingVariability()), mcTO.getOtherBehaviour(),
-                ExuviaeConsumption.valueOf(mcTO.getExuviaeConsumed()), Reabsorption.valueOf(mcTO.getExoskeletalMaterialReabsorption()),
+                mcTO.getResultingNamedMoultingConfiguration(), EgressDirection.valueOfByStringRepresentation(mcTO.getEgressDirection()),
+                ExuviaePosition.valueOfByStringRepresentation(mcTO.getPositionExuviaeFoundIn()),
+                MoultingPhase.valueOfByStringRepresentation(mcTO.getMoultingPhase()),
+                MoultingVariability.valueOfByStringRepresentation(mcTO.getMoultingVariability()), mcTO.getOtherBehaviour(),
+                ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
+                Reabsorption.valueOfByStringRepresentation(mcTO.getExoskeletalMaterialReabsorption()),
                 mcTO.getFossilExuviaeQuality());
     }
     
     public static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {
+        if (geologicalAgeTO == null) {
+            return null;
+        }
         return new GeologicalAge(geologicalAgeTO.getNotation(), geologicalAgeTO.getName(), geologicalAgeTO.getRank(),
                 geologicalAgeTO.getYoungerBound(), geologicalAgeTO.getYoungerBoundImprecision(),
                 geologicalAgeTO.getOlderBound(), geologicalAgeTO.getOlderBoundImprecision(), geologicalAgeTO.getSynonyms());
     }
     
     public static Taxon mapFromTO(TaxonTO taxonTO) {
+        if (taxonTO == null) {
+            return null;
+        }
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(), taxonTO.getRank(),
                 taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs()));
     }
     
     public static Article mapFromTO(ArticleTO articleTO) {
+        if (articleTO == null) {
+            return null;
+        }
         return new Article(articleTO.getCitation() , articleTO.getTitle(), articleTO.getAuthors(), mapFromTOs(articleTO.getDbXrefTOs()));
     }
     
     public static Version mapFromTO(VersionTO versionTO) {
+        if (versionTO == null) {
+            return null;
+        }
         MoultDBUser creator = mapFromTO(versionTO.getCreationUserTO());
         MoultDBUser lastUpdateUser = mapFromTO(versionTO.getLastUpdateUserTO());
         return new Version(creator, versionTO.getCreationDate(), lastUpdateUser, versionTO.getLastUpdateDate(),
@@ -149,6 +201,9 @@ public class ServiceUtils {
     }
     
     public static MoultDBUser mapFromTO(UserTO userTO) {
+        if (userTO == null) {
+            return null;
+        }
         Set<Role> roles = null;
         if (StringUtils.isNotBlank(userTO.getRoles())) {
             roles = Arrays.stream(userTO.getRoles().split(","))

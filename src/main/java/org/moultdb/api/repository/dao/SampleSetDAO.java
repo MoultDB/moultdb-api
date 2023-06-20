@@ -1,5 +1,6 @@
 package org.moultdb.api.repository.dao;
 
+import org.moultdb.api.repository.dto.GeologicalAgeTO;
 import org.moultdb.api.repository.dto.SampleSetTO;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface SampleSetDAO extends DAO<SampleSetTO> {
     SampleSetTO findById(Integer id);
     
     List<SampleSetTO> findByIds(Set<Integer> sampleIds);
+    
+    List<SampleSetTO> find(GeologicalAgeTO fromGeoAgeTO, GeologicalAgeTO toGeoAgeTO, String location);
     
     int insert(SampleSetTO sampleSetTO);
     

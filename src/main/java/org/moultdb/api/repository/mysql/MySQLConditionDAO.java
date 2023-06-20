@@ -6,6 +6,7 @@ import org.moultdb.api.repository.dao.ConditionDAO;
 import org.moultdb.api.repository.dto.AnatEntityTO;
 import org.moultdb.api.repository.dto.ConditionTO;
 import org.moultdb.api.repository.dto.DevStageTO;
+import org.moultdb.api.repository.dto.TransfertObject;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -31,7 +32,7 @@ public class MySQLConditionDAO implements ConditionDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT c.*, ds.* FROM cond c " +
+    private static final String SELECT_STATEMENT = "SELECT c.*, ds.*, ae.* FROM cond c " +
             "INNER JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
             "INNER JOIN anatomical_entity ae ON ae.id = c.anatomical_entity_id ";
     
@@ -46,7 +47,21 @@ public class MySQLConditionDAO implements ConditionDAO {
     
     @Override
     public ConditionTO find(String devStageName, String anatEntityName, String sex, String moultingStep) {
-        return null;
+        String sql = SELECT_STATEMENT + "WHERE ds.name = ':dsName' AND ae.name =':aeName' AND c.sex = ':sex' AND c.moulting_step = ':ms' ";
+        MapSqlParameterSource source = new MapSqlParameterSource().addValue("dsName", devStageName)
+                                                                  .addValue("aeName", anatEntityName)
+                                                                  .addValue("sex", sex)
+                                                                  .addValue("ms", moultingStep);
+        return TransfertObject.getOneTO(template.query(sql, source, new MySQLConditionDAO.ConditionRowMapper()));
+    }
+    
+    @Override
+    public List<ConditionTO> find(Integer ageInDays, String sex, String moultingStep) {
+        String sql = SELECT_STATEMENT + "WHERE c.dev_stage_days = ':ageInDays' AND c.sex = ':sex' AND c.moulting_step = ':ms' ";
+        MapSqlParameterSource source = new MapSqlParameterSource().addValue("ageInDays", ageInDays)
+                                                                  .addValue("sex", sex)
+                                                                  .addValue("ms", moultingStep);
+        return template.query(sql, source, new MySQLConditionDAO.ConditionRowMapper());
     }
     
     @Override
@@ -57,18 +72,20 @@ public class MySQLConditionDAO implements ConditionDAO {
     
     @Override
     public int[] batchUpdate(Set<ConditionTO> conditionTOs) {
-        String insertStmt = "INSERT INTO cond (id, dev_stage_id, anatomical_entity_id, sex, moulting_step) " +
-                "VALUES (:id, :dev_stage_id, :anatomical_entity_id, :sex, :moulting_step) ";
+        String insertStmt = "INSERT INTO cond (id, dev_stage_id, dev_stage_days, anatomical_entity_id, sex, moulting_step) " +
+                "VALUES (:id, :dev_stage_id, :dev_stage_days, :anatomical_entity_id, :sex, :moulting_step) ";
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (ConditionTO conditionTO : conditionTOs) {
             MapSqlParameterSource source = new MapSqlParameterSource();
             source.addValue("id", conditionTO.getId());
-            source.addValue("dev_stage_id", conditionTO.getDevStageTO().getId());
-            source.addValue("anatomical_entity_id", conditionTO.getAnatomicalEntityTO().getId());
+            source.addValue("dev_stage_id", conditionTO.getDevStageTO() == null? null : conditionTO.getDevStageTO().getId());
+            source.addValue("dev_stage_days", conditionTO.getAgeInDays());
+            source.addValue("anatomical_entity_id", conditionTO.getAnatomicalEntityTO() == null? null : conditionTO.getAnatomicalEntityTO().getId());
             source.addValue("sex", conditionTO.getSex());
             source.addValue("moulting_step", conditionTO.getMoultingStep());
             params.add(source);
         }
+
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
         logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'cond' table.");
         return ints;

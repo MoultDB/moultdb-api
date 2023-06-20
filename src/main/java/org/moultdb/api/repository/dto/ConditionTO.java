@@ -13,14 +13,26 @@ public class ConditionTO extends EntityTO<Integer> {
     private static final long serialVersionUID = -5175216293842504409L;
     
     private final DevStageTO devStageTO;
+    private final Integer ageInDays;
     private final AnatEntityTO anatEntityTO;
     private final String sex;
     private final String moultingStep;
+    
+    public ConditionTO(Integer id, Integer ageInDays, String sex, String moultingStep)
+            throws IllegalArgumentException {
+        super(id);
+        this.devStageTO = null;
+        this.ageInDays = ageInDays;
+        this.anatEntityTO = null;
+        this.sex = sex;
+        this.moultingStep = moultingStep;
+    }
     
     public ConditionTO(Integer id, DevStageTO devStageTO, AnatEntityTO anatEntityTO, String sex, String moultingStep)
             throws IllegalArgumentException {
         super(id);
         this.devStageTO = devStageTO;
+        this.ageInDays = null;
         this.anatEntityTO = anatEntityTO;
         this.sex = sex;
         this.moultingStep = moultingStep;
@@ -28,6 +40,10 @@ public class ConditionTO extends EntityTO<Integer> {
     
     public DevStageTO getDevStageTO() {
         return devStageTO;
+    }
+    
+    public Integer getAgeInDays() {
+        return ageInDays;
     }
     
     public AnatEntityTO getAnatomicalEntityTO() {

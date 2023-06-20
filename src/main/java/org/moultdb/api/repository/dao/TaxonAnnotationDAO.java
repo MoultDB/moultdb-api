@@ -19,6 +19,8 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     int insert(TaxonAnnotationTO taxonAnnotationTO);
     
+    int insertImageTaxonAnnotation(TaxonAnnotationTO taxonAnnotationTO);
+    
     int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs);
     
 }

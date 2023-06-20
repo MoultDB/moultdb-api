@@ -14,7 +14,8 @@ public interface ImageService {
     
     public String getAbsolutePath();
     
-    public void saveImage(MultipartFile file);
+    public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
+                          String moultingStep, Integer specimenCount);
     
     public Resource getImage(String filename);
     

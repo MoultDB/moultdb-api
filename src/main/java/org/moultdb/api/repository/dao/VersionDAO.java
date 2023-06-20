@@ -17,4 +17,7 @@ public interface VersionDAO extends DAO<VersionTO> {
     
     List<VersionTO> findByIds(Set<Integer> ids);
     
+    int insert(VersionTO versionTO);
+    
+    Integer getLastId();
 }

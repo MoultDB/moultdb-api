@@ -251,7 +251,7 @@ public class FossilImporter {
             conditionNextId ++;
     
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, bean.getTaxon(), mcNextId,
-                    sampleSetTO.getId(), conditionTO, articleTO, null, null, null);
+                    sampleSetTO.getId(), conditionTO, articleTO, null, null, null, null);
             taxonAnnotationTOs.add(taxonAnnotationTO);
         }
         moultingCharactersDAO.batchUpdate(mcTOs);
