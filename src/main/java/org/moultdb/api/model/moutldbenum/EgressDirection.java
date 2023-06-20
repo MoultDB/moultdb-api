@@ -19,4 +19,8 @@ public enum EgressDirection implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static EgressDirection valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(EgressDirection.class, representation);
+    }
 }

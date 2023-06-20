@@ -20,4 +20,8 @@ public enum MoultingVariability implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static MoultingVariability valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(MoultingVariability.class, representation);
+    }
 }

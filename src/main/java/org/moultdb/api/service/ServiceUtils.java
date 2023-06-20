@@ -9,7 +9,7 @@ import org.moultdb.api.model.DbXref;
 import org.moultdb.api.model.DevStage;
 import org.moultdb.api.model.GeologicalAge;
 import org.moultdb.api.model.MoultingCharacters;
-import org.moultdb.api.model.MoultingStep;
+import org.moultdb.api.model.moutldbenum.MoultingStep;
 import org.moultdb.api.model.SampleSet;
 import org.moultdb.api.model.Taxon;
 import org.moultdb.api.model.TaxonAnnotation;

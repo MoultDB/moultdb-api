@@ -39,4 +39,18 @@ public interface MoutldbEnum {
                       .map(MoutldbEnum::getStringRepresentation)
                       .collect(Collectors.toList());
     }
+    
+    static <T extends Enum<T> & MoutldbEnum> T valueOfByStringRepresentation(Class<T> enumClass, String representation) throws IllegalArgumentException {
+        if (representation == null) {
+            return null;
+        }
+        for (T element: enumClass.getEnumConstants()) {
+            if (element.getStringRepresentation().equalsIgnoreCase(representation) ||
+                    element.name().equalsIgnoreCase(representation)) {
+                return element;
+            }
+        }
+        throw new IllegalArgumentException("'" + representation + "' is unknown for " + enumClass.getName() + ".");
+    }
+    
 }

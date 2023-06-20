@@ -21,4 +21,8 @@ public enum Reabsorption implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static Reabsorption valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(Reabsorption.class, representation);
+    }
 }

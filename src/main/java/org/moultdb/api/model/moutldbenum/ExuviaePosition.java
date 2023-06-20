@@ -20,4 +20,8 @@ public enum ExuviaePosition implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static ExuviaePosition valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(ExuviaePosition.class, representation);
+    }
 }

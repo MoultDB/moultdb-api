@@ -26,4 +26,8 @@ public enum Role implements MoutldbEnum, GrantedAuthority {
     public String getAuthority() {
         return getStringRepresentation();
     }
+    
+    public static Role valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(Role.class, representation);
+    }
 }

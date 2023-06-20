@@ -20,4 +20,8 @@ public enum ExuviaeConsumption implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static ExuviaeConsumption valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(ExuviaeConsumption.class, representation);
+    }
 }

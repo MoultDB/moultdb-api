@@ -20,4 +20,8 @@ public enum MoultingPhase implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static MoultingPhase valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(MoultingPhase.class, representation);
+    }
 }

@@ -21,4 +21,8 @@ public enum LifeHistoryStyle implements MoutldbEnum {
     public String getStringRepresentation() {
         return this.stringRepresentation;
     }
+    
+    public static LifeHistoryStyle valueOfByStringRepresentation(String representation) {
+        return MoutldbEnum.valueOfByStringRepresentation(LifeHistoryStyle.class, representation);
+    }
 }
