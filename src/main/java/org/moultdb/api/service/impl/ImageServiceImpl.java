@@ -5,22 +5,8 @@ import org.moultdb.api.controller.ImageController;
 import org.moultdb.api.exception.ImageUploadException;
 import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.ImageInfo;
-import org.moultdb.api.repository.dao.ConditionDAO;
-import org.moultdb.api.repository.dao.GeologicalAgeDAO;
-import org.moultdb.api.repository.dao.ImageDAO;
-import org.moultdb.api.repository.dao.SampleSetDAO;
-import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
-import org.moultdb.api.repository.dao.TaxonDAO;
-import org.moultdb.api.repository.dao.UserDAO;
-import org.moultdb.api.repository.dao.VersionDAO;
-import org.moultdb.api.repository.dto.ConditionTO;
-import org.moultdb.api.repository.dto.GeologicalAgeTO;
-import org.moultdb.api.repository.dto.ImageTO;
-import org.moultdb.api.repository.dto.SampleSetTO;
-import org.moultdb.api.repository.dto.TaxonAnnotationTO;
-import org.moultdb.api.repository.dto.TaxonTO;
-import org.moultdb.api.repository.dto.UserTO;
-import org.moultdb.api.repository.dto.VersionTO;
+import org.moultdb.api.repository.dao.*;
+import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +42,8 @@ import java.util.stream.Stream;
 public class ImageServiceImpl implements ImageService {
     
     @Autowired
+    AnatEntityDAO anatEntityDAO;
+    @Autowired
     ConditionDAO conditionDAO;
     @Autowired
     GeologicalAgeDAO geologicalAgeDAO;
@@ -89,10 +77,10 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
-                          String moultingStep, Integer specimenCount) {
+                          String providedMoultingStep, Integer specimenCount, Boolean isFossil) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
-            throw new IllegalArgumentException("Filename cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank.");
         }
         if (file.getSize() > FILE_MAX_SIZE) {
             throw new MaxUploadSizeExceededException(FILE_MAX_SIZE);
@@ -112,28 +100,54 @@ public class ImageServiceImpl implements ImageService {
         }
         
         TaxonTO taxonTO = taxonDAO.findByScientificName(speciesName);
+        if (taxonTO == null) {
+            throw new MoultDBException("Unknown species scientific name: " + speciesName);
+        }
         
-        GeologicalAgeTO currentGeoAgeTO = geologicalAgeDAO.findByNotation("a1.1.1.1.1.1"); // Meghalayan age (= current)
-        
+        GeologicalAgeTO fromGeologicalAgeTO;
+        GeologicalAgeTO toGeologicalAgeTO;
+        if (isFossil) {
+            fromGeologicalAgeTO = geologicalAgeDAO.findByNotation("a2"); // a2 Precambrian
+            toGeologicalAgeTO = geologicalAgeDAO.findByNotation("a1.1.1.1.1.2"); // a1.1.1.1.1.2 Northgrippian
+        } else {
+            GeologicalAgeTO currentGeoAgeTO = geologicalAgeDAO.findByNotation("a1.1.1.1.1.1"); // Meghalayan age (= current)
+            fromGeologicalAgeTO = currentGeoAgeTO;
+            toGeologicalAgeTO = currentGeoAgeTO;
+        }
+
         // To be able to update sample set and condition of a specific taxon annotation (as we have user annotations)
         // we should have 1 sample set and 1 condition for each taxon annotation.
         // So, we don't need to check if they already exist
         Integer sampleSetLastId = sampleSetDAO.getLastId();
         Integer sampleSetNextId = sampleSetLastId == null ? 1 : sampleSetLastId + 1;
-        SampleSetTO sampleSetTO = new SampleSetTO(sampleSetNextId, currentGeoAgeTO, currentGeoAgeTO, specimenCount, location);
+        SampleSetTO sampleSetTO = new SampleSetTO(sampleSetNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
+                specimenCount, location);
         sampleSetDAO.insert(sampleSetTO);
         
+
+        String anatEntityId = "UBERON:0013702"; // body proper
+        String moultingStep = providedMoultingStep;
+        if (providedMoultingStep.equalsIgnoreCase("exoskeleton")) {
+            anatEntityId = "UBERON:0006611"; // exoskeleton
+            moultingStep = "post-moult";
+        }
+        AnatEntityTO anatEntityTO = anatEntityDAO.findById(anatEntityId);
+        if (anatEntityTO == null) {
+            throw new MoultDBException("Missing anat. entity");
+        }
+
         Integer conditionLastId = conditionDAO.getLastId();
         Integer conditionNextId = conditionLastId == null ? 1 : conditionLastId + 1;
-        ConditionTO conditionTO = new ConditionTO(conditionNextId, ageInDays, sex, moultingStep);
+        ConditionTO conditionTO = new ConditionTO(conditionNextId, ageInDays, anatEntityTO, sex, moultingStep);
         conditionDAO.insert(conditionTO);
         
         Integer imageLastId = imageDAO.getLastId();
         Integer imageNextId = imageLastId == null ? 1 : imageLastId + 1;
         ImageTO imageTO = new ImageTO(imageNextId, fileName, null);
         imageDAO.insert(imageTO);
-        
-        UserTO userTO = userDAO.findByEmail("valdelaval@yahoo.fr");
+
+        // FIXME getuser
+        UserTO userTO = userDAO.findByEmail("");
         
         Integer versionLastId = versionDAO.getLastId();
         Integer versionNextId = versionLastId == null ? 1 : versionLastId + 1;

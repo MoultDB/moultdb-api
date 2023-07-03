@@ -47,7 +47,7 @@ public class MySQLConditionDAO implements ConditionDAO {
     
     @Override
     public ConditionTO find(String devStageName, String anatEntityName, String sex, String moultingStep) {
-        String sql = SELECT_STATEMENT + "WHERE ds.name = ':dsName' AND ae.name =':aeName' AND c.sex = ':sex' AND c.moulting_step = ':ms' ";
+        String sql = SELECT_STATEMENT + "WHERE ds.name = :dsName AND ae.name =:aeName AND c.sex = :sex AND c.moulting_step = :ms ";
         MapSqlParameterSource source = new MapSqlParameterSource().addValue("dsName", devStageName)
                                                                   .addValue("aeName", anatEntityName)
                                                                   .addValue("sex", sex)
@@ -57,7 +57,7 @@ public class MySQLConditionDAO implements ConditionDAO {
     
     @Override
     public List<ConditionTO> find(Integer ageInDays, String sex, String moultingStep) {
-        String sql = SELECT_STATEMENT + "WHERE c.dev_stage_days = ':ageInDays' AND c.sex = ':sex' AND c.moulting_step = ':ms' ";
+        String sql = SELECT_STATEMENT + "WHERE c.dev_stage_days = :ageInDays AND c.sex = :sex AND c.moulting_step = :ms ";
         MapSqlParameterSource source = new MapSqlParameterSource().addValue("ageInDays", ageInDays)
                                                                   .addValue("sex", sex)
                                                                   .addValue("ms", moultingStep);

@@ -18,21 +18,21 @@ public class ConditionTO extends EntityTO<Integer> {
     private final String sex;
     private final String moultingStep;
     
-    public ConditionTO(Integer id, Integer ageInDays, String sex, String moultingStep)
+    public ConditionTO(Integer id, Integer ageInDays, AnatEntityTO anatEntityTO, String sex, String moultingStep)
             throws IllegalArgumentException {
-        super(id);
-        this.devStageTO = null;
-        this.ageInDays = ageInDays;
-        this.anatEntityTO = null;
-        this.sex = sex;
-        this.moultingStep = moultingStep;
+        this(id, null, ageInDays, anatEntityTO, sex, moultingStep);
     }
     
     public ConditionTO(Integer id, DevStageTO devStageTO, AnatEntityTO anatEntityTO, String sex, String moultingStep)
             throws IllegalArgumentException {
+        this(id, devStageTO, null, anatEntityTO, sex, moultingStep);
+    }
+
+    private ConditionTO(Integer id, DevStageTO devStageTO, Integer ageInDays, AnatEntityTO anatEntityTO, String sex, String moultingStep)
+            throws IllegalArgumentException {
         super(id);
         this.devStageTO = devStageTO;
-        this.ageInDays = null;
+        this.ageInDays = ageInDays;
         this.anatEntityTO = anatEntityTO;
         this.sex = sex;
         this.moultingStep = moultingStep;

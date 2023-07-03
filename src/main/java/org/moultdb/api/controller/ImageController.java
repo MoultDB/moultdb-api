@@ -33,15 +33,16 @@ public class ImageController {
     ImageService imageService;
     
     @PostMapping("/import")
-    public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("file") MultipartFile file,
-                                                           @RequestParam("speciesName") String speciesName,
-                                                           @RequestParam("sex") String sex,
-                                                           @RequestParam("ageInDays") Integer ageInDays,
-                                                           @RequestParam("location") String location,
-                                                           @RequestParam("moultingStep") String moultingStep,
-                                                           @RequestParam("specimenCount") Integer specimenCount) {
+    public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam MultipartFile file,
+                                                           @RequestParam String speciesName,
+                                                           @RequestParam String moultingStep,
+                                                           @RequestParam Integer specimenCount,
+                                                           @RequestParam Boolean isFossil,
+                                                           @RequestParam(required = false) String sex,
+                                                           @RequestParam(required = false) Integer ageInDays,
+                                                           @RequestParam(required = false) String location) {
         try {
-            imageService.saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount);
+            imageService.saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount, isFossil);
         } catch (Exception e) {
             return generateErrorResponse("Could not upload the image: " + file.getOriginalFilename() + ". Error: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);

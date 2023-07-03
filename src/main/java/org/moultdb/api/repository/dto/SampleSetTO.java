@@ -19,7 +19,13 @@ public class SampleSetTO extends EntityTO<Integer> {
     @Serial
     private static final long serialVersionUID = 9090994360207976303L;
     
+    /**
+     * Older bound of the geological age range
+     */
     private final GeologicalAgeTO fromGeologicalAgeTO;
+    /**
+     * Youngest bound of the geological age range
+     */
     private final GeologicalAgeTO toGeologicalAgeTO;
     private final Integer specimenCount;
     private final Set<String> storageAccessions;

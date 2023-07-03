@@ -36,7 +36,7 @@ public class TokenFilter extends GenericFilterBean {
         final String authHeader = request.getHeader("Authorization");
     
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AuthenticationException("Token does not begin with Bearer String");
+            throw new AuthenticationException("No token or token does not begin with 'Bearer '");
         }
         // JWT Token is in the form "Bearer token". Remove Bearer word and get only the Token
         final String token = authHeader.substring(7);
