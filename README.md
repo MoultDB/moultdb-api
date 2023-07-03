@@ -14,18 +14,15 @@ The war file generated from this module will be used to deploy the API on a serv
     - main class: org.moultdb.api.MoultdbApiApplication.java
     - use classpath module: moultdb-api
 
-2. Set properties in `moultdb-api/src/main/resources/application.properties`:
-    - `spring.datasource.username`
-    - `spring.datasource.password`
+2. Set empty properties in `moultdb-api/src/main/resources/application.properties` such as `spring.datasource.username`.
 **WARNING: These properties should not be commited as they should not be available on GitHub**
 
 3. Run the application:  
    Run > Run 'moultdb-api'
 
 ## How to build the API war be deployed on server
-1. Set properties in `moultdb-api/src/main/resources/application.properties`:
-- `spring.datasource.username`
-- `spring.datasource.password`
+1. Set empty properties in `moultdb-api/src/main/resources/application.properties` such as `spring.datasource.username`.
+   **
 
 **WARNING: These properties should not be commited as they should not be available on GitHub**
 
