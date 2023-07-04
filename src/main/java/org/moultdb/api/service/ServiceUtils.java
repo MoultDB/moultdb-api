@@ -210,7 +210,7 @@ public class ServiceUtils {
                           .map(Role::valueOf)
                           .collect(Collectors.toSet());
         }
-        return new MoultDBUser(userTO.getEmail(), userTO.getName(), userTO.getPassword(),
-                roles, userTO.isVerified(), userTO.getOrcidId());
+        return new MoultDBUser(userTO.getEmail(), userTO.getName(), userTO.getPassword(), userTO.getOrcidId(),
+                roles, userTO.isVerified());
     }
 }

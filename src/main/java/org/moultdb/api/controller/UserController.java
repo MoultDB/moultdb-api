@@ -37,7 +37,8 @@ public class UserController {
         this.tokenService = tokenService;
     }
     @PostMapping("/registration")
-    public ResponseEntity<?> postUser(@RequestBody MoultDBUser user) {
+    public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
+        MoultDBUser user = new MoultDBUser(json.get("email"), json.get("name"), json.get("password"), json.get("orcidId"));
         try {
             userService.saveUser(user);
             userService.askEmailValidation(user.getEmail(), "/user/email-validation");

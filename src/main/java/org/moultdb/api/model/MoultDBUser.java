@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.User;
 
 import java.io.Serial;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.StringJoiner;
 
 /**
@@ -18,18 +19,17 @@ public class MoultDBUser extends User {
     private static final long serialVersionUID = -5845388570221521795L;
     
     private final String name;
-    
-    private final String orcidId;
-    
     private final Boolean verified;
-    
-    public MoultDBUser(String email, String name, String password, Collection<Role> authorities, Boolean verified)
+
+    private final String orcidId;
+
+    public MoultDBUser(String email, String name, String password, String orcidId)
             throws IllegalArgumentException {
-        this(email, name, password, authorities, verified, null);
+        this(email, name, password, orcidId, Collections.singleton(Role.ROLE_USER), false);
     }
     
-    public MoultDBUser(String email, String name, String password, Collection<Role> authorities,
-                       Boolean verified, String orcidId) throws IllegalArgumentException {
+    public MoultDBUser(String email, String name, String password, String orcidId,
+                       Collection<Role> authorities, Boolean verified) throws IllegalArgumentException {
         super(email, password, authorities);
         this.name = name;
         this.orcidId = orcidId;
@@ -59,8 +59,8 @@ public class MoultDBUser extends User {
                 .add("email='" + getEmail() + "'")
                 .add("name='" + getName() + "'")
                 .add("password='" + (StringUtils.isNotEmpty(getPassword()) ? "[PROTECTED]" : null) + "'")
-                .add("authorities='" + getAuthorities() + "'")
                 .add("orcidId='" + getOrcidId() + "'")
+                .add("authorities='" + getAuthorities() + "'")
                 .add("verified='" + isVerified() + "'")
                 .toString();
     }
