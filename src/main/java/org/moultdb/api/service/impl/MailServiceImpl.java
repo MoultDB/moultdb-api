@@ -60,7 +60,7 @@ public class MailServiceImpl implements MailService {
             logger.debug("Sending...");
             Transport.send(message);
             logger.debug("Sent message successfully....");
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             throw new MailNotSentException("Unable to send the mail", e);
         }
     }
