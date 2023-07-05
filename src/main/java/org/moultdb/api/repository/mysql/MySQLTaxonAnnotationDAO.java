@@ -61,10 +61,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public List<TaxonAnnotationTO> findByUser(String username) {
-        return template.query(SELECT_STATEMENT + "WHERE uc.username = :username",
-                new MapSqlParameterSource().addValue("username", username), new TaxonAnnotationRowMapper());
-        
+    public List<TaxonAnnotationTO> findByUser(String email) {
+        return template.query(SELECT_STATEMENT + "WHERE uc.email = :email",
+                new MapSqlParameterSource().addValue("email", email), new TaxonAnnotationRowMapper());
     }
     
     @Override
@@ -131,21 +130,20 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             }
             
             ConditionTO conditionTO = null;
-            if (rs.getInt("ta.condition_id") < 1) {
+            if (rs.getInt("ta.condition_id") > 1) {
                 conditionTO = new ConditionTO(rs.getInt("c.id"), devStageTO, anatEntityTO,
                         rs.getString("c.sex"), rs.getString("c.moulting_step"));
             }
             
-            ArticleTO articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
-                    rs.getString("a.title"), rs.getString("a.authors"), null);
-            if (rs.getInt("ta.article_id") < 1) {
+            ArticleTO articleTO = null;
+            if (rs.getInt("ta.article_id") > 1) {
                 // TODO: add dbXrefTOs
                 articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
                         rs.getString("a.title"), rs.getString("a.authors"), null);
             }
             
             ImageTO imageTO = null;
-            if (rs.getInt("ta.image_id") < 1) {
+            if (rs.getInt("ta.image_id") > 1) {
                 imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.description"));
             }
             

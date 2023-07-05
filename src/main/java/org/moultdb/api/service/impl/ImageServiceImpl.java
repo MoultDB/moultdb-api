@@ -26,11 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -191,24 +187,33 @@ public class ImageServiceImpl implements ImageService {
     }
     
     @Override
-    public List<ImageInfo> getAllImages() {
-        try (Stream<Path> entries = Files.walk(getPath(), 1)) {
-            return entries
-                    .filter(path -> !path.equals(getPath()))
-                    .map(path -> getPath().relativize(path))
-                    .map(path -> {
-                        String filename = path.getFileName().toString();
-                        String url = MvcUriComponentsBuilder
-                                .fromMethodName(ImageController.class, "getImage", path.getFileName().toString()).build().toString();
-    
-                        return new ImageInfo(filename, url);
-                    })
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new ImageUploadException("Could not load the files!");
+    public List<ImageInfo> getAllImageInfos() {
+        return getImageInfosByUser(null);
+    }
+
+    @Override
+    public List<ImageInfo> getImageInfosByUser(String email) {
+        List<TaxonAnnotationTO> annots;
+        if (StringUtils.isNotBlank(email)) {
+            annots = taxonAnnotationDAO.findByUser(email);
+        } else {
+            annots = taxonAnnotationDAO.findAll();
         }
+        if (annots.isEmpty()) {
+            return null;
+        }
+        return annots.stream()
+                .filter(ta -> ta.getImageTO() != null)
+                .map(ta -> getImageInfo(ta.getTaxonTO().getScientificName(), ta.getImageTO().getFileName()))
+                .sorted(Comparator.comparing(ImageInfo::getName))
+                .toList();
     }
     
+    private static ImageInfo getImageInfo(String scientificName, String filename) {
+        return new ImageInfo(scientificName,
+                MvcUriComponentsBuilder.fromMethodName(ImageController.class, "getImage", filename).build().toString());
+    }
+
     @Override
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(getPath().toFile());

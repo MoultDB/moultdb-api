@@ -62,8 +62,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public List<TaxonAnnotation> getUserTaxonAnnotations(String username) {
-        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByUser(username);
+    public List<TaxonAnnotation> getUserTaxonAnnotations(String email) {
+        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByUser(email);
         return getTaxonAnnotations(taxonAnnotationTOs);
     }
     

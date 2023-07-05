@@ -39,8 +39,8 @@ public class TaxonAnnotationController {
     }
     
     @GetMapping("/user-specific")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam("username") String username) {
-        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(username));
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam("email") String email) {
+        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(email));
     }
     
     @PostMapping("/import-file")

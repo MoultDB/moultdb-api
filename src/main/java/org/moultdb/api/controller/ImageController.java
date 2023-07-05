@@ -52,18 +52,21 @@ public class ImageController {
     
     @GetMapping("/all")
     public ResponseEntity<Map<String, Object>> getListImages() {
-        List<ImageInfo> imageInfos = imageService.getAllImages();
-        
+        List<ImageInfo> imageInfos = imageService.getAllImageInfos();
         return generateValidResponse("List of all images", imageInfos);
     }
     
+    @GetMapping("/user-specific")
+    public ResponseEntity<Map<String, Object>> getListImages(@RequestParam String email) {
+        List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email);
+        return generateValidResponse("List of images loaded by " + email, imageInfos);
+    }
+
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         Resource file = imageService.getImage(filename);
-        
         return ResponseEntity.ok()
                              .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
                              .body(file);
     }
-    
 }

@@ -19,7 +19,9 @@ public interface ImageService {
     
     public Resource getImage(String filename);
     
-    public List<ImageInfo> getAllImages();
-    
+    public List<ImageInfo> getAllImageInfos();
+
+    public List<ImageInfo> getImageInfosByUser(String email);
+
     public void deleteAll();
 }
