@@ -25,19 +25,16 @@ public class TaxonController {
     @Autowired
     TaxonService taxonService;
 
-    @CrossOrigin
     @GetMapping("/all")
     public ResponseEntity<Map<String, List<Taxon>>> getAllTaxa() {
         return generateValidResponse(taxonService.getAllTaxa());
     }
     
-    @CrossOrigin
     @GetMapping("/scientific-name")
     public ResponseEntity<Map<String, Taxon>> getByScientificName(@RequestParam String name) {
         return generateValidResponse(taxonService.getTaxonByScientificName(name));
     }
     
-    @CrossOrigin
     @PostMapping(value = "/create",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE}

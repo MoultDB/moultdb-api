@@ -21,7 +21,9 @@ public interface ImageService {
     
     public List<ImageInfo> getAllImageInfos();
 
-    public List<ImageInfo> getImageInfosByUser(String email);
+    public List<ImageInfo> getNewestImageInfos();
+
+    public List<ImageInfo> getImageInfosByUser(String email, Integer limit);
 
     public void deleteAll();
 }

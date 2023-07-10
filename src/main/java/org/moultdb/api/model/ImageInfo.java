@@ -6,18 +6,13 @@ import java.util.StringJoiner;
  * @author Valentine Rech de Laval
  * @since 2023-05-31
  */
-public class ImageInfo {
+public class ImageInfo extends NamedEntity<String> {
     
-    private String name;
-    private String url;
+    private final String url;
     
-    public ImageInfo(String name, String url) {
-        this.name = name;
+    public ImageInfo(String id, String name, String url) {
+        super(id, name);
         this.url = url;
-    }
-    
-    public String getName() {
-        return this.name;
     }
     
     public String getUrl() {
@@ -27,7 +22,8 @@ public class ImageInfo {
     @Override
     public String toString() {
         return new StringJoiner(", ", ImageInfo.class.getSimpleName() + "[", "]")
-                .add("name='" + name + "'")
+                .add("id='" + getId() + "'")
+                .add("name='" + getName() + "'")
                 .add("url='" + url + "'")
                 .toString();
     }

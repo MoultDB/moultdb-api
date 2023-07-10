@@ -32,7 +32,6 @@ public class TaxonAnnotationController {
     @Autowired
     TaxonAnnotationService taxonAnnotationService;
     
-    @CrossOrigin
     @GetMapping("/all")
     public ResponseEntity<Map<String, List<TaxonAnnotation>>> getAllTaxonAnnotations() {
         return generateValidResponse(taxonAnnotationService.getAllTaxonAnnotations());

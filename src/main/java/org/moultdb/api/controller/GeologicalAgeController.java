@@ -3,7 +3,6 @@ package org.moultdb.api.controller;
 import org.moultdb.api.service.GeologicalAgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +23,6 @@ public class GeologicalAgeController {
     @Autowired
     GeologicalAgeService geologicalAgeService;
     
-    @CrossOrigin
     @GetMapping(value = "/create")
     public ResponseEntity<Map<String, Integer>> insertGeologicalAge(@RequestParam("pwd") String pwd) {
         Integer integer = geologicalAgeService.updateGeologicalAges(pwd);

@@ -85,7 +85,12 @@ public class ImageServiceImpl implements ImageService {
             throw new ImageUploadException("Format file cannot be other than: " + String.join(", ", ALLOWED_CONTENT_TYPES));
         }
         
-        String fileName = generateImageFileName(originalFilename);
+        TaxonTO taxonTO = taxonDAO.findByScientificName(speciesName);
+        if (taxonTO == null) {
+            throw new MoultDBException("Unknown species scientific name: " + speciesName);
+        }
+        
+        String fileName = generateImageFileName(originalFilename, taxonTO);
         try {
             Files.copy(file.getInputStream(), getPath().resolve(fileName));
             
@@ -93,11 +98,6 @@ public class ImageServiceImpl implements ImageService {
             throw new MoultDBException("A file of that name already exists.");
         } catch (Exception e) {
             throw new MoultDBException(e.getMessage());
-        }
-        
-        TaxonTO taxonTO = taxonDAO.findByScientificName(speciesName);
-        if (taxonTO == null) {
-            throw new MoultDBException("Unknown species scientific name: " + speciesName);
         }
         
         GeologicalAgeTO fromGeologicalAgeTO;
@@ -143,7 +143,8 @@ public class ImageServiceImpl implements ImageService {
         imageDAO.insert(imageTO);
 
         // FIXME getuser
-        UserTO userTO = userDAO.findByEmail("");
+
+        UserTO userTO = userDAO.findByEmail("valdelaval@yahoo.fr");
         
         Integer versionLastId = versionDAO.getLastId();
         Integer versionNextId = versionLastId == null ? 1 : versionLastId + 1;
@@ -156,18 +157,19 @@ public class ImageServiceImpl implements ImageService {
         taxonAnnotationDAO.insertImageTaxonAnnotation(taxonAnnotationTO);
     }
     
-    private static String generateImageFileName(String filename) {
-        String extension = "";
+    private static String generateImageFileName(String filename, TaxonTO taxonTO) {
+        String spName = taxonTO.getScientificName().replaceAll(" ", "_").toLowerCase();
+        String extension;
         int dotIndex = filename.lastIndexOf('.');
         if (dotIndex > 0 && dotIndex < filename.length() - 1) {
             extension = filename.substring(dotIndex).toLowerCase();
         } else {
             throw new ImageUploadException("Filename should have an extension.");
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmssSS");
         String timestamp = sdf.format(new Date());
         
-        return "image_" + timestamp + extension;
+        return spName + "_" + timestamp + extension;
     }
     
     @Override
@@ -188,14 +190,21 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public List<ImageInfo> getAllImageInfos() {
-        return getImageInfosByUser(null);
+        return getImageInfosByUser(null, null);
     }
-
+    
     @Override
-    public List<ImageInfo> getImageInfosByUser(String email) {
+    public List<ImageInfo> getNewestImageInfos() {
+        return getImageInfosByUser(null, 1);
+    }
+    
+    @Override
+    public List<ImageInfo> getImageInfosByUser(String email, Integer limit) {
         List<TaxonAnnotationTO> annots;
         if (StringUtils.isNotBlank(email)) {
-            annots = taxonAnnotationDAO.findByUser(email);
+            annots = taxonAnnotationDAO.findByUser(email, limit);
+        } else if (limit != null && limit > 0) {
+            annots = taxonAnnotationDAO.findLast(limit);
         } else {
             annots = taxonAnnotationDAO.findAll();
         }
@@ -210,7 +219,8 @@ public class ImageServiceImpl implements ImageService {
     }
     
     private static ImageInfo getImageInfo(String scientificName, String filename) {
-        return new ImageInfo(scientificName,
+        String id = filename.substring(0, filename.lastIndexOf('.'));
+        return new ImageInfo(id, scientificName,
                 MvcUriComponentsBuilder.fromMethodName(ImageController.class, "getImage", filename).build().toString());
     }
 

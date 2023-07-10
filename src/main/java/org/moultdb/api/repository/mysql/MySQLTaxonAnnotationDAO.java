@@ -61,8 +61,14 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public List<TaxonAnnotationTO> findByUser(String email) {
-        return template.query(SELECT_STATEMENT + "WHERE uc.email = :email",
+    public List<TaxonAnnotationTO> findLast(int limit) {
+        return template.query(SELECT_STATEMENT + " ORDER BY v.creation_date DESC LIMIT " + limit, new TaxonAnnotationRowMapper());
+    }
+
+    @Override
+    public List<TaxonAnnotationTO> findByUser(String email, Integer limit) {
+        String limitSql = limit != null ? " ORDER BY v.creation_date DESC LIMIT " + limit : "";
+        return template.query(SELECT_STATEMENT + "WHERE uc.email = :email " + limitSql,
                 new MapSqlParameterSource().addValue("email", email), new TaxonAnnotationRowMapper());
     }
     

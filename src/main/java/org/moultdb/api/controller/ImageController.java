@@ -1,6 +1,7 @@
 package org.moultdb.api.controller;
 
 import org.moultdb.api.model.ImageInfo;
+import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -56,9 +57,14 @@ public class ImageController {
         return generateValidResponse("List of all images", imageInfos);
     }
     
+    @GetMapping("/last")
+    public ResponseEntity<Map<String, Object>> getLastImages() {
+        return generateValidResponse(imageService.getImageInfosByUser(null, 10));
+    }
+    
     @GetMapping("/user-specific")
     public ResponseEntity<Map<String, Object>> getListImages(@RequestParam String email) {
-        List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email);
+        List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email, null);
         return generateValidResponse("List of images loaded by " + email, imageInfos);
     }
 

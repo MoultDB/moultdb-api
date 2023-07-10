@@ -15,6 +15,8 @@ public interface TaxonAnnotationService {
     
     public List<TaxonAnnotation> getAllTaxonAnnotations();
     
+    public List<TaxonAnnotation> getLastTaxonAnnotations(int limit);
+
     public List<TaxonAnnotation> getUserTaxonAnnotations(String username);
     
     public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) throws IOException;
