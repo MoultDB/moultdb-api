@@ -34,7 +34,7 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     }
     
     @Override
-    public Integer updateGeologicalAges(String pwd) {
+    public Integer updateGeologicalAges() {
         logger.info("Start geological ages import...");
     
         GeologicalAgeImporter importer = new GeologicalAgeImporter();

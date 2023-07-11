@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -24,8 +23,8 @@ public class GeologicalAgeController {
     GeologicalAgeService geologicalAgeService;
     
     @GetMapping(value = "/create")
-    public ResponseEntity<Map<String, Integer>> insertGeologicalAge(@RequestParam("pwd") String pwd) {
-        Integer integer = geologicalAgeService.updateGeologicalAges(pwd);
+    public ResponseEntity<Map<String, Integer>> insertGeologicalAge() {
+        Integer integer = geologicalAgeService.updateGeologicalAges();
         return generateValidResponse(integer);
     }
 }
