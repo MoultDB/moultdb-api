@@ -1,7 +1,9 @@
 package org.moultdb.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.moultdb.api.config.UserHolder;
 import org.moultdb.api.controller.ImageController;
+import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.ImageUploadException;
 import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.ImageInfo;
@@ -18,7 +20,6 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -27,8 +28,6 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Valentine Rech de Laval
@@ -142,9 +141,10 @@ public class ImageServiceImpl implements ImageService {
         ImageTO imageTO = new ImageTO(imageNextId, fileName, null);
         imageDAO.insert(imageTO);
 
-        // FIXME getuser
-
-        UserTO userTO = userDAO.findByEmail("valdelaval@yahoo.fr");
+        UserTO userTO = userDAO.findByEmail(UserHolder.getEmail());
+        if (userTO == null) {
+            throw new AuthenticationException("User not found");
+        }
         
         Integer versionLastId = versionDAO.getLastId();
         Integer versionNextId = versionLastId == null ? 1 : versionLastId + 1;

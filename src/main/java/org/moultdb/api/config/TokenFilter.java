@@ -54,6 +54,17 @@ public class TokenFilter extends GenericFilterBean {
         }
         request.setAttribute("claims", claims);
         request.setAttribute("user", servletRequest.getParameter("id"));
-        filterChain.doFilter(request, response);
+        
+        // Stocke le token dans TokenHolder
+        UserHolder.setEmail(claims.getSubject());
+        
+        try {
+            // Continue la chaîne de filtres
+            filterChain.doFilter(request, response);
+        } finally {
+            // Nettoie le token une fois que la demande a été traitée
+            UserHolder.clearEmail();
+        }
+        
     }
 }
