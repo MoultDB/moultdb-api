@@ -73,6 +73,12 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
+    public List<TaxonAnnotationTO> findByTaxon(String taxonPath) {
+        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath ",
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new TaxonAnnotationRowMapper());
+    }
+    
+    @Override
     public Integer getLastId() {
         String sql = "SELECT id FROM taxon_annotation ORDER BY id DESC LIMIT 1";
         try {

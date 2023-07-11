@@ -32,7 +32,7 @@ public class ImageController {
     
     @PostMapping("/import")
     public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam MultipartFile file,
-                                                           @RequestParam String speciesName,
+                                                           @RequestParam String taxonName,
                                                            @RequestParam String moultingStep,
                                                            @RequestParam Integer specimenCount,
                                                            @RequestParam Boolean isFossil,
@@ -45,7 +45,7 @@ public class ImageController {
             if (!tokenService.validateToken(email, token)) {
                 return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
             }
-            imageService.saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, email);
+            imageService.saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, email);
         } catch (Exception e) {
             return generateErrorResponse("Could not upload the image: " + file.getOriginalFilename() + ". Error: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,7 +54,7 @@ public class ImageController {
     }
     
     @GetMapping("/all")
-    public ResponseEntity<Map<String, Object>> getListImages() {
+    public ResponseEntity<Map<String, Object>> getUserImages() {
         List<ImageInfo> imageInfos = imageService.getAllImageInfos();
         return generateValidResponse("List of all images", imageInfos);
     }
@@ -65,11 +65,17 @@ public class ImageController {
     }
     
     @GetMapping("/user-specific")
-    public ResponseEntity<Map<String, Object>> getListImages(@RequestParam String email) {
+    public ResponseEntity<Map<String, Object>> getUserImages(@RequestParam String email) {
         List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email, null);
         return generateValidResponse("List of images loaded by " + email, imageInfos);
     }
 
+    @GetMapping("/taxon-specific")
+    public ResponseEntity<Map<String, Object>> getTaxonImages(@RequestParam String taxonName) {
+        List<ImageInfo> imageInfos = imageService.getImageInfosByTaxon(taxonName);
+        return generateValidResponse("List of images of " + taxonName + " taxon and it's children", imageInfos);
+    }
+    
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         Resource file = imageService.getImage(filename);

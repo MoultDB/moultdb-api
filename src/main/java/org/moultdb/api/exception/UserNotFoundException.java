@@ -15,8 +15,8 @@ public class UserNotFoundException extends MoultDBException {
         super("User not found");
     }
     
-    public UserNotFoundException(String message) {
-        super(message);
+    public UserNotFoundException(String email) {
+        super("User with e-mail ["+ email + "] not found");
     }
     
 }

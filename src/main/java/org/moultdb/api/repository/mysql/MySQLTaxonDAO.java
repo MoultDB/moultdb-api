@@ -40,9 +40,9 @@ public class MySQLTaxonDAO implements TaxonDAO {
     MySQLDbXrefDAO dbXrefDAO;
     
     private static final String SELECT_STATEMENT = "SELECT * from taxon t " +
-            "INNER JOIN taxon_db_xref tx ON t.path = tx.taxon_path " +
-            "INNER JOIN db_xref x ON tx.db_xref_id = x.id " +
-            "INNER JOIN data_source ds ON (x.data_source_id = ds.id) ";
+            "LEFT JOIN taxon_db_xref tx ON t.path = tx.taxon_path " +
+            "LEFT JOIN db_xref x ON tx.db_xref_id = x.id " +
+            "LEFT JOIN data_source ds ON (x.data_source_id = ds.id) ";
     
     public MySQLTaxonDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -55,7 +55,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
     @Override
     public TaxonTO findByScientificName(String taxonScientificName) {
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE scientific_name = :scientific_name",
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) = lower(:scientific_name)",
                 new MapSqlParameterSource().addValue("scientific_name", taxonScientificName), new TaxonResultSetExtractor()));
     }
     

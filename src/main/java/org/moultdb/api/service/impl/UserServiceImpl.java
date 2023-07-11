@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
         }
         UserTO userTO = userDAO.findByEmail(email);
         if (userTO == null) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException(email);
         }
     
         // Get token with short validity
@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
         }
         UserTO userTO = userDAO.findByEmail(email);
         if (userTO == null) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException(email);
         }
     
         // Get token with long validity

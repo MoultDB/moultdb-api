@@ -17,6 +17,8 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     List<TaxonAnnotationTO> findByUser(String username, Integer limit);
     
+    List<TaxonAnnotationTO> findByTaxon(String taxonPath);
+
     Integer getLastId();
     
     int insert(TaxonAnnotationTO taxonAnnotationTO);

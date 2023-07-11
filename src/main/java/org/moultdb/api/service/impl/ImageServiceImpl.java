@@ -6,6 +6,7 @@ import org.moultdb.api.controller.ImageController;
 import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.ImageUploadException;
 import org.moultdb.api.exception.MoultDBException;
+import org.moultdb.api.exception.UserNotFoundException;
 import org.moultdb.api.model.ImageInfo;
 import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.*;
@@ -71,7 +72,7 @@ public class ImageServiceImpl implements ImageService {
     }
     
     @Override
-    public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
+    public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
                           String providedMoultingStep, Integer specimenCount, Boolean isFossil, String email) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
@@ -84,9 +85,9 @@ public class ImageServiceImpl implements ImageService {
             throw new ImageUploadException("Format file cannot be other than: " + String.join(", ", ALLOWED_CONTENT_TYPES));
         }
         
-        TaxonTO taxonTO = taxonDAO.findByScientificName(speciesName);
+        TaxonTO taxonTO = taxonDAO.findByScientificName(taxonName);
         if (taxonTO == null) {
-            throw new MoultDBException("Unknown species scientific name: " + speciesName);
+            throw new MoultDBException("Unknown species scientific name: " + taxonName);
         }
         
         String fileName = generateImageFileName(originalFilename, taxonTO);
@@ -152,15 +153,15 @@ public class ImageServiceImpl implements ImageService {
         VersionTO versionTO = new VersionTO(versionNextId, userTO, current, userTO, current, 1);
         versionDAO.insert(versionTO);
         
-        TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, speciesName, null,
+        TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, taxonName, null,
                 sampleSetTO.getId(), conditionTO, null, imageTO, null, null, versionNextId);
         taxonAnnotationDAO.insertImageTaxonAnnotation(taxonAnnotationTO);
     }
     
     @Override
-    public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
+    public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
                           String moultingStep, Integer specimenCount, Boolean isFossil) {
-        saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, UserHolder.getEmail());
+        saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, UserHolder.getEmail());
     }
     
     private static String generateImageFileName(String filename, TaxonTO taxonTO) {
@@ -217,7 +218,20 @@ public class ImageServiceImpl implements ImageService {
         if (annots.isEmpty()) {
             return null;
         }
-        return annots.stream()
+        return getImageInfos(annots);
+    }
+    
+    @Override
+    public List<ImageInfo> getImageInfosByTaxon(String taxonName) {
+        TaxonTO taxonTO = taxonDAO.findByScientificName(taxonName);
+        if (taxonTO == null) {
+            throw new MoultDBException("Taxon [" + taxonName + "] not found.");
+        }
+        return getImageInfos(taxonAnnotationDAO.findByTaxon(taxonTO.getPath()));
+    }
+    
+    private static List<ImageInfo> getImageInfos(List<TaxonAnnotationTO> taxonAnnotTOs) {
+        return taxonAnnotTOs.stream()
                 .filter(ta -> ta.getImageTO() != null)
                 .map(ta -> getImageInfo(ta.getTaxonTO().getScientificName(), ta.getImageTO().getFileName()))
                 .sorted(Comparator.comparing(ImageInfo::getName))
