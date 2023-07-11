@@ -35,7 +35,7 @@ public class MailServiceImpl implements MailService {
         Properties props = new Properties();
         props.put("mail.smtp.host", smtpHost);
     
-        Session session = Session.getDefaultInstance(props);
+        Session session = Session.getInstance(props);
     
         try {
             Message message = new MimeMessage(session);
