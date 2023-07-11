@@ -31,8 +31,8 @@ public class TokenFilterConfig {
         filter.addUrlPatterns("/geological-age/create");
         filter.addUrlPatterns("/taxon-annotation/import-file");
         filter.addUrlPatterns("/taxon/create");
-        filter.addUrlPatterns("/user/reset-password");
-        // FIXME enable filter on "/image/import" and remove email/token from ImageController
+        // FIXME enable following filters and remove email/token from controllers
+//        filter.addUrlPatterns("/user/reset-password");
 //        filter.addUrlPatterns("/image/import");
         return filter;
     }

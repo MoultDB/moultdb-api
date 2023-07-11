@@ -20,7 +20,7 @@ public interface UserService extends UserDetailsService {
     
     public MoultDBUser getUser(String email, String password) throws UserNotFoundException;
     
-    public void askNewPassword(String email, String urlSuffix);
+    public void forgotPassword(String email, String urlSuffix);
     
     public void askEmailValidation(String email, String urlSuffix);
     

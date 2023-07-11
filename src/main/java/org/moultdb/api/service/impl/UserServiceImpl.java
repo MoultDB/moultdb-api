@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public void askNewPassword(String email, String urlSuffix) {
+    public void forgotPassword(String email, String urlSuffix) {
         if (StringUtils.isBlank(email) || StringUtils.isBlank(urlSuffix)) {
             throw new IllegalArgumentException("E-mail or URL suffix is empty");
         }
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
         int tokenValidityMin = (int) (getShortTokenValidity() / 60000);
     
         // Send e-mail with link to reset password
-        String resetPasswordLink = WEBAPP_URL + urlSuffix +"?token=" + token;
+        String resetPasswordLink = WEBAPP_URL + urlSuffix  + "?email=" + userTO.getEmail() + "&token=" + token;
         String message = "Dear " + userTO.getName() + ",\n\n" +
                 "We have just received a password reset request for " + userTO.getEmail() + ".\n\n" +
                 "Choose your new password to access your account using the link below (valid " + tokenValidityMin + " minutes):\n"+
@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
         int tokenValidityMin = (int) (getLongTokenValidity() / 60000 / 1440);
         
         // Send e-mail with link to reset password
-        String validationLink = WEBAPP_URL + urlSuffix +"?email=" + userTO.getEmail() + "&token=" + token;
+        String validationLink = WEBAPP_URL + urlSuffix + "?email=" + userTO.getEmail() + "&token=" + token;
         String message = "Dear " + userTO.getName() + ",\n\n" +
                 "To continue setting up your MoultDB account, please verify that this is your email address.\n\n" +
                 "Please validate your e-mail address using the link below (valid " + tokenValidityMin + " days):\n"+

@@ -6,12 +6,7 @@ import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,10 +69,10 @@ public class UserController {
         return generateValidResponse("User logged in", userResp);
     }
     
-    @GetMapping("/ask-password")
-    public ResponseEntity<?> askNewPassword(@RequestParam String email) {
+    @GetMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
         try {
-            userService.askNewPassword(email, "/user/reset-password");
+            userService.forgotPassword(email, "/user/reset-password");
         } catch (Exception e) {
             return generateErrorResponse(e);
         }
@@ -92,6 +87,12 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> json) {
         String email = getParam(json, "email");
         String password = getParam(json, "password");
+        String token = getParam(json, "token");
+        
+        if (!tokenService.validateToken(email, token)) {
+            return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
+        }
+        
         boolean isUpdated = false;
         try {
             isUpdated = userService.updateUserPassword(email, password);
