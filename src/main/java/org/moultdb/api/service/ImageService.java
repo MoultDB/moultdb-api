@@ -16,6 +16,9 @@ public interface ImageService {
     
     public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
                           String moultingStep, Integer specimenCount, Boolean isFossil);
+
+    public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
+                          String moultingStep, Integer specimenCount, Boolean isFossil, String email);
     
     public Resource getImage(String filename);
     

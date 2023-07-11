@@ -32,7 +32,8 @@ public class TokenFilterConfig {
         filter.addUrlPatterns("/taxon-annotation/import-file");
         filter.addUrlPatterns("/taxon/create");
         filter.addUrlPatterns("/user/reset-password");
-        filter.addUrlPatterns("/image/import");
+        // FIXME enable filter on "/image/import" and remove email/token from ImageController
+//        filter.addUrlPatterns("/image/import");
         return filter;
     }
 }

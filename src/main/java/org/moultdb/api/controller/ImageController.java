@@ -1,19 +1,14 @@
 package org.moultdb.api.controller;
 
 import org.moultdb.api.model.ImageInfo;
-import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.service.ImageService;
+import org.moultdb.api.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,6 +27,8 @@ public class ImageController {
     
     @Autowired
     ImageService imageService;
+    @Autowired
+    TokenService tokenService;
     
     @PostMapping("/import")
     public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam MultipartFile file,
@@ -41,9 +38,14 @@ public class ImageController {
                                                            @RequestParam Boolean isFossil,
                                                            @RequestParam(required = false) String sex,
                                                            @RequestParam(required = false) Integer ageInDays,
-                                                           @RequestParam(required = false) String location) {
+                                                           @RequestParam(required = false) String location,
+                                                           @RequestParam String email,
+                                                           @RequestParam String token) {
         try {
-            imageService.saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount, isFossil);
+            if (!tokenService.validateToken(email, token)) {
+                return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
+            }
+            imageService.saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, email);
         } catch (Exception e) {
             return generateErrorResponse("Could not upload the image: " + file.getOriginalFilename() + ". Error: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);

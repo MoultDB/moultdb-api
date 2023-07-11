@@ -72,7 +72,7 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
-                          String providedMoultingStep, Integer specimenCount, Boolean isFossil) {
+                          String providedMoultingStep, Integer specimenCount, Boolean isFossil, String email) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
             throw new IllegalArgumentException("File name cannot be blank.");
@@ -141,7 +141,7 @@ public class ImageServiceImpl implements ImageService {
         ImageTO imageTO = new ImageTO(imageNextId, fileName, null);
         imageDAO.insert(imageTO);
 
-        UserTO userTO = userDAO.findByEmail(UserHolder.getEmail());
+        UserTO userTO = userDAO.findByEmail(email);
         if (userTO == null) {
             throw new AuthenticationException("User not found");
         }
@@ -155,6 +155,12 @@ public class ImageServiceImpl implements ImageService {
         TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, speciesName, null,
                 sampleSetTO.getId(), conditionTO, null, imageTO, null, null, versionNextId);
         taxonAnnotationDAO.insertImageTaxonAnnotation(taxonAnnotationTO);
+    }
+    
+    @Override
+    public void saveImage(MultipartFile file, String speciesName, String sex, Integer ageInDays, String location,
+                          String moultingStep, Integer specimenCount, Boolean isFossil) {
+        saveImage(file, speciesName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, UserHolder.getEmail());
     }
     
     private static String generateImageFileName(String filename, TaxonTO taxonTO) {

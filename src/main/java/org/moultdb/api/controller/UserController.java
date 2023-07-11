@@ -36,6 +36,7 @@ public class UserController {
         this.userService = userService;
         this.tokenService = tokenService;
     }
+    
     @PostMapping("/registration")
     public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
         MoultDBUser user = new MoultDBUser(json.get("email"), json.get("name"), json.get("password"), json.get("orcidId"));
@@ -132,7 +133,7 @@ public class UserController {
         if (isValid) {
             return generateValidResponse("Your token is valid.", resp);
         }
-        return generateValidResponse("Your token is expired.", resp);
+        return generateValidResponse("Your token is not valid.", resp);
     }
     
     private static String getParam(Map<String, String> json, String paramKey) {
