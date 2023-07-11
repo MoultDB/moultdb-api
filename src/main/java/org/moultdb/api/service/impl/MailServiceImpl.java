@@ -27,28 +27,15 @@ public class MailServiceImpl implements MailService {
     @Value("${mail.user}")
     private String senderEmail;
     
-    @Value("${mail.pwd}")
-    private String senderPwd;
-    
     @Value("${mail.smtp.host}")
     private String smtpHost;
-    
-    @Value("${mail.smtp.port}")
-    private String smtpPort;
     
     public void sendEmail(String recipientEmail, String subject, String content) {
         
         Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port", smtpPort);
     
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
-                return new javax.mail.PasswordAuthentication(senderEmail, senderPwd);
-            }
-        });
+        Session session = Session.getDefaultInstance(props);
     
         try {
             Message message = new MimeMessage(session);
@@ -61,7 +48,7 @@ public class MailServiceImpl implements MailService {
             Transport.send(message);
             logger.debug("Sent message successfully....");
         } catch (Exception e) {
-            throw new MailNotSentException("Unable to send the mail", e);
+            throw new MailNotSentException("Unable to send the mail. Error: " + e.getMessage(), e);
         }
     }
 }
