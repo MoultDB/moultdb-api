@@ -73,7 +73,8 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
-                          String providedMoultingStep, Integer specimenCount, Boolean isFossil, String email) {
+                          String providedMoultingStep, Integer specimenCount, Boolean isFossil, Boolean isCaptive,
+                          String email) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
             throw new IllegalArgumentException("File name cannot be blank.");
@@ -104,7 +105,7 @@ public class ImageServiceImpl implements ImageService {
         GeologicalAgeTO toGeologicalAgeTO;
         if (isFossil) {
             fromGeologicalAgeTO = geologicalAgeDAO.findByNotation("a2"); // a2 Precambrian
-            toGeologicalAgeTO = geologicalAgeDAO.findByNotation("a1.1.1.1.1.2"); // a1.1.1.1.1.2 Northgrippian
+            toGeologicalAgeTO = geologicalAgeDAO.findByNotation("a1.1"); // a1.1 Phanerozoic
         } else {
             GeologicalAgeTO currentGeoAgeTO = geologicalAgeDAO.findByNotation("a1.1.1.1.1.1"); // Meghalayan age (= current)
             fromGeologicalAgeTO = currentGeoAgeTO;
@@ -117,9 +118,8 @@ public class ImageServiceImpl implements ImageService {
         Integer sampleSetLastId = sampleSetDAO.getLastId();
         Integer sampleSetNextId = sampleSetLastId == null ? 1 : sampleSetLastId + 1;
         SampleSetTO sampleSetTO = new SampleSetTO(sampleSetNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
-                specimenCount, location);
+                specimenCount, isFossil, isCaptive, location);
         sampleSetDAO.insert(sampleSetTO);
-        
 
         String anatEntityId = "UBERON:0013702"; // body proper
         String moultingStep = providedMoultingStep;
@@ -160,8 +160,9 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
-                          String moultingStep, Integer specimenCount, Boolean isFossil) {
-        saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, UserHolder.getEmail());
+                          String moultingStep, Integer specimenCount, Boolean isFossil, Boolean isCaptive) {
+        saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, isCaptive,
+                UserHolder.getEmail());
     }
     
     private static String generateImageFileName(String filename, TaxonTO taxonTO) {

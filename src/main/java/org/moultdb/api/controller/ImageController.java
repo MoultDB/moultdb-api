@@ -36,6 +36,7 @@ public class ImageController {
                                                            @RequestParam String moultingStep,
                                                            @RequestParam Integer specimenCount,
                                                            @RequestParam Boolean isFossil,
+                                                           @RequestParam Boolean isCaptive,
                                                            @RequestParam(required = false) String sex,
                                                            @RequestParam(required = false) Integer ageInDays,
                                                            @RequestParam(required = false) String location,
@@ -45,7 +46,7 @@ public class ImageController {
             if (!tokenService.validateToken(email, token)) {
                 return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
             }
-            imageService.saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, email);
+            imageService.saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, isCaptive, email);
         } catch (Exception e) {
             return generateErrorResponse("Could not upload the image: " + file.getOriginalFilename() + ". Error: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);

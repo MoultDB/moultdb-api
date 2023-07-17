@@ -235,7 +235,7 @@ public class FossilImporter {
             articleToDbXrefTOs.add(new ArticleToDbXrefTO(articleTO.getId(), dbXrefTO.getId()));
             
             SampleSetTO sampleSetTO = new SampleSetTO(ssNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
-                    bean.getSpecimenCount(), extractValues(bean.getMuseumAccession()), extractValues(bean.getMuseumCollection()),
+                    bean.getSpecimenCount(), true, false, extractValues(bean.getMuseumAccession()), extractValues(bean.getMuseumCollection()),
                     extractValues(bean.getLocation()), extractValues(bean.getFossilPreservationType()),
                     extractValues(bean.getEnvironment()), extractValues(bean.getGeologicalFormation()), extractValues(bean.getSpecimenType()));
             sampleSetTOs.add(sampleSetTO);

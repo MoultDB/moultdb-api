@@ -3,7 +3,6 @@ package org.moultdb.api.repository.dto;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +27,8 @@ public class SampleSetTO extends EntityTO<Integer> {
      */
     private final GeologicalAgeTO toGeologicalAgeTO;
     private final Integer specimenCount;
+    private final Boolean isFossil;
+    private final Boolean isCaptive;
     private final Set<String> storageAccessions;
     private final Set<String> storageLocationNames;
     private final Set<String> collectionLocationNames;
@@ -37,8 +38,8 @@ public class SampleSetTO extends EntityTO<Integer> {
     private final Set<String> specimenTypes;
     
     public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
-                       Integer specimenCount, String collectionLocationName) {
-        this(id, fromGeologicalAgeTO, toGeologicalAgeTO, specimenCount, null, null,
+                       Integer specimenCount, Boolean isFossil, Boolean isCaptive, String collectionLocationName) {
+        this(id, fromGeologicalAgeTO, toGeologicalAgeTO, specimenCount, isFossil, isCaptive, null, null,
                 Collections.unmodifiableSet(StringUtils.isBlank(collectionLocationName) ?
                         new HashSet<>() :
                         new HashSet<>(List.of(collectionLocationName))),
@@ -46,7 +47,7 @@ public class SampleSetTO extends EntityTO<Integer> {
     }
     
     public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
-                       Integer specimenCount, Set<String> storageAccessions, Set<String> storageLocationNames,
+                       Integer specimenCount, Boolean isFossil, Boolean isCaptive, Set<String> storageAccessions, Set<String> storageLocationNames,
                        Set<String> collectionLocationNames, Set<String> fossilPreservationTypes,
                        Set<String> environments, Set<String> geologicalFormations, Set<String> specimenTypes)
             throws IllegalArgumentException {
@@ -54,6 +55,8 @@ public class SampleSetTO extends EntityTO<Integer> {
         this.fromGeologicalAgeTO = fromGeologicalAgeTO;
         this.toGeologicalAgeTO = toGeologicalAgeTO;
         this.specimenCount = specimenCount;
+        this.isFossil = isFossil;
+        this.isCaptive = isCaptive;
         this.storageAccessions = storageAccessions;
         this.storageLocationNames = storageLocationNames;
         this.collectionLocationNames = collectionLocationNames;
@@ -73,6 +76,14 @@ public class SampleSetTO extends EntityTO<Integer> {
     
     public Integer getSpecimenCount() {
         return specimenCount;
+    }
+    
+    public Boolean isFossil() {
+        return isFossil;
+    }
+    
+    public Boolean isCaptive() {
+        return isCaptive;
     }
     
     public Set<String> getStorageAccessions() {
@@ -110,6 +121,8 @@ public class SampleSetTO extends EntityTO<Integer> {
                 .add("fromGeologicalAgeTO=" + fromGeologicalAgeTO)
                 .add("toGeologicalAgeTO=" + toGeologicalAgeTO)
                 .add("specimenCount=" + specimenCount)
+                .add("isFossil=" + isFossil)
+                .add("isCaptive=" + isCaptive)
                 .add("storageAccessions=" + storageAccessions)
                 .add("storageLocationNames=" + storageLocationNames)
                 .add("collectionLocationNames=" + collectionLocationNames)

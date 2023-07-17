@@ -15,10 +15,10 @@ public interface ImageService {
     public String getAbsolutePath();
     
     public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
-                          String moultingStep, Integer specimenCount, Boolean isFossil);
+                          String moultingStep, Integer specimenCount, Boolean isFossil, Boolean isCaptive);
 
     public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
-                          String moultingStep, Integer specimenCount, Boolean isFossil, String email);
+                          String moultingStep, Integer specimenCount, Boolean isFossil, Boolean isCaptive, String email);
     
     public Resource getImage(String filename);
     

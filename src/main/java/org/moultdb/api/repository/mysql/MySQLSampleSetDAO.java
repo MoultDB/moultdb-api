@@ -20,7 +20,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -107,17 +106,17 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         return ints[0];
     }
     
-//    @Transactional
     @Override
     public int[] batchUpdate(Set<SampleSetTO> sampleSetTOs) {
         String insertStmt = "INSERT INTO sample_set (id, museum_accessions, from_geological_age_notation," +
-                " to_geological_age_notation, specimen_count) " +
-                "VALUES (:id, :museum_accessions, :from_geological_age_notation, :to_geological_age_notation, :specimen_count) " +
+                " to_geological_age_notation, specimen_count, is_fossil, is_captive) " +
+                "VALUES (:id, :museum_accessions, :from_geological_age_notation, :to_geological_age_notation, " +
+                ":specimen_count, :is_fossil, :is_captive) " +
                 "AS new " +
                 "ON DUPLICATE KEY UPDATE museum_accessions = new.museum_accessions, " +
                 " from_geological_age_notation = new.from_geological_age_notation, " +
                 " to_geological_age_notation = new.to_geological_age_notation, " +
-                " specimen_count = new.specimen_count";
+                " specimen_count = new.specimen_count, is_fossil = new.is_fossil, is_captive = new.is_captive";
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (SampleSetTO sampleSetTO : sampleSetTOs) {
             String storageAccessions = null;
@@ -130,6 +129,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO().getNotation());
             source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO().getNotation());
             source.addValue("specimen_count", sampleSetTO.getSpecimenCount());
+            source.addValue("is_fossil", sampleSetTO.isFossil());
+            source.addValue("is_captive", sampleSetTO.isCaptive());
             params.add(source);
         }
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
@@ -273,7 +274,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 
                 // Build SampleSetTO. Even if it already exists, we create a new one because it's an unmutable object
                 sampleSetTO = new SampleSetTO(rs.getInt("s.id"), DAO.mapToGeologicalAgeTO(rs, "gaf"),
-                        DAO.mapToGeologicalAgeTO(rs, "gat"),  rs.getInt("s.specimen_count"), museumAccessions,
+                        DAO.mapToGeologicalAgeTO(rs, "gat"), rs.getInt("s.specimen_count"),
+                        rs.getBoolean("s.is_fossil"), rs.getBoolean("s.is_captive"), museumAccessions,
                         slNames, clNames, fptNames, eNames, gfNames, stNames);
                 sampleSets.put(sampleSetId, sampleSetTO);
             }
