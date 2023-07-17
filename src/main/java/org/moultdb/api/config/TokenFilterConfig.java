@@ -30,7 +30,8 @@ public class TokenFilterConfig {
         // All Endpoints would be restricted if unspecified
         filter.addUrlPatterns("/geological-age/create");
         filter.addUrlPatterns("/taxon-annotation/import-file");
-        filter.addUrlPatterns("/taxon/create");
+        filter.addUrlPatterns("/taxon/create-taxon");
+        filter.addUrlPatterns("/taxon/import-file");
         // FIXME enable following filters and remove email/token from controllers
 //        filter.addUrlPatterns("/user/reset-password");
 //        filter.addUrlPatterns("/image/import");

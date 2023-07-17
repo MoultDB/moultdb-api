@@ -34,7 +34,7 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
     
     @Override
     public DataSourceTO findByName(String name) {
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE id = :name",
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE name = :name",
                 new MapSqlParameterSource().addValue("name", name), new DataSourceRowMapper()));
     }
     

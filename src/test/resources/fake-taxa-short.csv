@@ -1,0 +1,38 @@
+id,path,ncbi_id,gbif_id,scientific_name,ncbi_rank,gbif_rank,synonym_GBIF_ids,synonym_GBIF_names
+274821,1.19,61985.0,,myriapoda,subphylum,,,
+274876,1.22,1597439.0,,unclassified myriapoda,no rank,,,
+247303,1.3.2.1.149,2659477.0,,unclassified kurzia (in: crustaceans),no rank,,,
+247360,1.3.2.3.5,2688940.0,,unclassified sida (in: crustaceans),no rank,,,
+250282,1.4.1.10.234,2688224.0,,unclassified actaea (in: crustaceans),no rank,,,
+252610,1.4.1.22.8,2688931.0,,unclassified sergia (in: crustaceans),no rank,,,
+264768,1.4.5.3.44,2688624.0,,unclassified leptostylis (in: crustaceans),no rank,,,
+268444,1.6.2.9.16,2688500.0,,unclassified gaussia (in: crustaceans),no rank,,,
+270186,1.6.5.23.2,2688351.0,,unclassified clausia (in: crustaceans),no rank,,,
+273804,1.10.19.1.5,2688306.0,,unclassified calantica (in: crustaceans),no rank,,,
+274877,1.23,197562.0,,pancrustacea,clade,,,
+274878,1.24,6657.0,,crustacea,subphylum,,,
+274887,1.25.1.2,915506.0,,unclassified brachypoda (in: crustaceans),no rank,,,
+274934,1.27,300646.0,,uncultured crustacea,species,,,
+274936,1.29,696709.0,,crustacea environmental sample,species,,,
+274937,1.30,1096919.0,,unclassified crustacea,no rank,,,
+274990,1.33.4.2.4,2688930.0,,unclassified sebekia (in: crustaceans),no rank,,,
+275033,1.34,2172821.0,,multicrustacea,superclass,,,
+275036,1.37,1597507.0,,unclassified pancrustacea,no rank,,,
+275034,1.35,6960.0,,hexapoda,subphylum,,,
+275035,1.36,1597199.0,,unclassified hexapoda,no rank,,,
+0,1,6656.0,,arthropoda,phylum,,,
+274817,1.15,260574.0,,arthropoda environmental sample,species,,,
+274818,1.16,2587169.0,,arthropoda aff. cypridopsis environmental sample,species,,,
+274819,1.17,89902.0,,unclassified arthropoda,no rank,,,
+283442,1.40.9,,9804531.0,harpetida,,order,,
+283443,1.40.9.1,,3266941.0,harpetidae,,family,8643483,arraphidae
+4,1.1.1.1.1,1101107.0,1842986.0,haplochrois,,,"4704674, 4684201","eritarbes, syntreternis"
+331,1.1.1.2.10,722367.0,1824900.0,apela,,,12000643,apella
+1031,1.1.1.2.710,1852765.0,,snellenita divaricata,species,,,
+1051,1.1.1.2.730,1857719.0,,torigea argentea,species,,,
+1740,1.1.1.3.9,1932627.0,1878904.0,agriphila tolli,,,4531520,crambus tolli
+1745,1.1.1.3.14,2612807.0,1889034.0,alatuncusia bergii,,,11947884,dichogama bergii
+2431,1.1.1.3.700,1869557.0,,catoptria radiella,species,,,
+2511,1.1.1.3.780,1870169.0,,pediasia contaminella,species,,,
+2521,1.1.1.3.790,1888592.0,,neodactria zeellus,species,,,
+4911,1.1.1.5.7,1371897.0,1808893.0,cheliosea cosmeta,,,,

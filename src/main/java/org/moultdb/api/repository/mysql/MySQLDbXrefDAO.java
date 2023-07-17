@@ -65,7 +65,8 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
     @Override
     public DbXrefTO findByAccessionAndDatasource(String accession, Integer dataSourceId) {
         if (StringUtils.isBlank(accession) || dataSourceId == null) {
-            throw new IllegalArgumentException("An accession and/or dataSourceId can not be null");
+            throw new IllegalArgumentException("An accession [" + accession
+                    + "] and/or dataSourceId [" + dataSourceId + "] can not be null");
         }
         return  TransfertObject.getOneTO(template.query(SELECT_STATEMENT +
                         "WHERE x.accession = :accession AND data_source_id = :data_source_id ",

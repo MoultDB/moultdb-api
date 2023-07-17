@@ -21,9 +21,16 @@ public class TaxonTO extends NamedEntityTO<String> {
     private final String rank;
     private final Boolean isExtincted;
     private final Set<DbXrefTO> dbXrefTOs;
+    private final Set<TaxonToDbXrefTO> taxonToDbXrefTOs;
     
     public TaxonTO(String path, String scientificName, String commonName, String parentTaxonPath,
                    String rank, Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs) {
+        this(path, scientificName, commonName, parentTaxonPath, rank, isExtincted, dbXrefTOs, null);
+    }
+    
+    public TaxonTO(String path, String scientificName, String commonName, String parentTaxonPath,
+                   String rank, Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs,
+                   Collection<TaxonToDbXrefTO> taxonToDbXrefTOs) {
         super(path, scientificName, null);
         this.commonName = commonName;
         this.parentTaxonPath = parentTaxonPath;
@@ -31,6 +38,8 @@ public class TaxonTO extends NamedEntityTO<String> {
         this.isExtincted = isExtincted;
         this.dbXrefTOs = Collections.unmodifiableSet(dbXrefTOs == null ?
                 new HashSet<>(): new HashSet<>(dbXrefTOs));
+        this.taxonToDbXrefTOs = Collections.unmodifiableSet(taxonToDbXrefTOs == null ?
+                new HashSet<>(): new HashSet<>(taxonToDbXrefTOs));
     }
     
     public String getPath() {
@@ -61,6 +70,10 @@ public class TaxonTO extends NamedEntityTO<String> {
         return dbXrefTOs;
     }
     
+    public Set<TaxonToDbXrefTO> getTaxonToDbXrefTOs() {
+        return taxonToDbXrefTOs;
+    }
+    
     @Override
     public String toString() {
         return new StringJoiner(", ", TaxonTO.class.getSimpleName() + "[", "]")
@@ -71,6 +84,7 @@ public class TaxonTO extends NamedEntityTO<String> {
                 .add("rank='" + rank + "'")
                 .add("isExtincted=" + isExtincted)
                 .add("dbXrefTOs=" + dbXrefTOs)
+                .add("taxonToDbXrefTOs=" + taxonToDbXrefTOs)
                 .toString();
     }
 }

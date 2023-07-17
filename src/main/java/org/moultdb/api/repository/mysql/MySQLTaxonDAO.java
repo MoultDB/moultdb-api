@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TaxonTO;
+import org.moultdb.api.repository.dto.TaxonToDbXrefTO;
 import org.moultdb.api.repository.dto.TransfertObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -86,7 +87,20 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name," +
                 " parent_taxon_path = new.parent_taxon_path, taxon_rank = new.taxon_rank, extinct = new.extinct";
         
-        List<MapSqlParameterSource> params = new ArrayList<>();
+        String dbXrefSql = "INSERT INTO db_xref (id, accession, data_source_id) " +
+                "VALUES (:id, :accession, :data_source_id) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE accession = new.accession";
+        
+        String taxonToDbXrefSql = "INSERT INTO taxon_db_xref (taxon_path, db_xref_id, main) " +
+                "VALUES (:taxon_path, :db_xref_id, :main) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE db_xref_id = new.db_xref_id, main = new.main";
+        
+        List<MapSqlParameterSource> taxonParams = new ArrayList<>();
+        List<MapSqlParameterSource> dbXrefParams = new ArrayList<>();
+        List<MapSqlParameterSource> taxonToDbXrefParams = new ArrayList<>();
+        
         for (TaxonTO taxonTO : taxonTOs) {
             MapSqlParameterSource taxonSource = new MapSqlParameterSource();
             taxonSource.addValue("path", taxonTO.getPath());
@@ -95,10 +109,34 @@ public class MySQLTaxonDAO implements TaxonDAO {
             taxonSource.addValue("parent_taxon_path", taxonTO.getParentTaxonPath());
             taxonSource.addValue("taxon_rank", taxonTO.getRank());
             taxonSource.addValue("extinct", taxonTO.isExtincted());
-            params.add(taxonSource);
+            taxonParams.add(taxonSource);
+            
+            for (DbXrefTO dbXrefTO : taxonTO.getDbXrefTOs()) {
+                MapSqlParameterSource dbXrefSource = new MapSqlParameterSource();
+                dbXrefSource.addValue("id", dbXrefTO.getId());
+                dbXrefSource.addValue("accession", dbXrefTO.getAccession());
+                dbXrefSource.addValue("data_source_id", dbXrefTO.getDataSourceTO().getId());
+                dbXrefParams.add(dbXrefSource);
+                
+            }
+            
+            for (TaxonToDbXrefTO taxonToDbXrefTO : taxonTO.getTaxonToDbXrefTOs()) {
+                MapSqlParameterSource taxonToDbXrefSource = new MapSqlParameterSource();
+                taxonToDbXrefSource.addValue("taxon_path", taxonToDbXrefTO.getTaxonPath());
+                taxonToDbXrefSource.addValue("db_xref_id", taxonToDbXrefTO.getDbXrefId());
+                taxonToDbXrefSource.addValue("main", taxonToDbXrefTO.getMain());
+                taxonToDbXrefParams.add(taxonToDbXrefSource);
+            }
         }
-        int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
+        int[] ints = template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
         logger.info(Arrays.stream(ints).sum() + " new row(s) in 'taxon' table.");
+        
+        int[] otherInts = template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(otherInts).sum() + " new row(s) in 'db_xref' table.");
+        
+        otherInts = template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(otherInts).sum() + " new row(s) in 'taxon_db_xref' table.");
+        
         return ints;
     }
     
