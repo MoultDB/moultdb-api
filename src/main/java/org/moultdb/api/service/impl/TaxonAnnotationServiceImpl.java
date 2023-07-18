@@ -70,6 +70,16 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
         return getTaxonAnnotations(taxonAnnotationTOs);
     }
     
+    @Override
+    public TaxonAnnotation getTaxonAnnotationsByImageFilename(String imageFilename) {
+        TaxonAnnotationTO taxonAnnotationTO = taxonAnnotationDAO.findByImageFilename(imageFilename);
+        List<TaxonAnnotation> taxonAnnotations = getTaxonAnnotations(Collections.singletonList(taxonAnnotationTO));
+        if (taxonAnnotations.isEmpty()) {
+            return null;
+        }
+        return taxonAnnotations.get(0);
+    }
+    
     private List<TaxonAnnotation> getTaxonAnnotations(List<TaxonAnnotationTO> taxonAnnotationTOs) {
         if (taxonAnnotationTOs.isEmpty()) {
             return new ArrayList<>();

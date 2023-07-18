@@ -14,19 +14,21 @@ public class TaxonAnnotation {
     private final Condition condition;
     private final MoultingCharacters moultingCharacters;
     private final Article article;
+    private final ImageInfo imageInfo;
     private final Term eco;
     private final Term cio;
     private final Version version;
     
     public TaxonAnnotation(Taxon taxon, String annotatedSpeciesName, SampleSet sampleSet,
                            Condition condition, MoultingCharacters moultingCharacters, Article article,
-                           Term eco, Term cio, Version version) {
+                           ImageInfo imageInfo, Term eco, Term cio, Version version) {
         this.taxon = taxon;
         this.annotatedSpeciesName = annotatedSpeciesName;
         this.sampleSet = sampleSet;
         this.condition = condition;
         this.moultingCharacters = moultingCharacters;
         this.article = article;
+        this.imageInfo = imageInfo;
         this.eco = eco;
         this.cio = cio;
         this.version = version;
@@ -56,6 +58,10 @@ public class TaxonAnnotation {
         return article;
     }
     
+    public ImageInfo getImageInfo() {
+        return imageInfo;
+    }
+    
     public Term getEco() {
         return eco;
     }
@@ -81,6 +87,7 @@ public class TaxonAnnotation {
                 && Objects.equals(condition, that.condition)
                 && Objects.equals(moultingCharacters, that.moultingCharacters)
                 && Objects.equals(article, that.article)
+                && Objects.equals(imageInfo, that.imageInfo)
                 && Objects.equals(eco, that.eco)
                 && Objects.equals(cio, that.cio)
                 && Objects.equals(version, that.version);
@@ -88,6 +95,7 @@ public class TaxonAnnotation {
     
     @Override
     public int hashCode() {
-        return Objects.hash(taxon, annotatedSpeciesName, sampleSet, condition, moultingCharacters, article, eco, cio, version);
+        return Objects.hash(taxon, annotatedSpeciesName, sampleSet, condition, moultingCharacters, article,
+                imageInfo, eco, cio, version);
     }
 }

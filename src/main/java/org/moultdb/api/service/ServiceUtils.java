@@ -1,22 +1,8 @@
 package org.moultdb.api.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.moultdb.api.model.AnatEntity;
-import org.moultdb.api.model.Article;
-import org.moultdb.api.model.Condition;
-import org.moultdb.api.model.DataSource;
-import org.moultdb.api.model.DbXref;
-import org.moultdb.api.model.DevStage;
-import org.moultdb.api.model.GeologicalAge;
-import org.moultdb.api.model.MoultingCharacters;
+import org.moultdb.api.model.*;
 import org.moultdb.api.model.moutldbenum.MoultingStep;
-import org.moultdb.api.model.SampleSet;
-import org.moultdb.api.model.Taxon;
-import org.moultdb.api.model.TaxonAnnotation;
-import org.moultdb.api.model.Term;
-import org.moultdb.api.model.TimePeriod;
-import org.moultdb.api.model.MoultDBUser;
-import org.moultdb.api.model.Version;
 import org.moultdb.api.model.moutldbenum.EgressDirection;
 import org.moultdb.api.model.moutldbenum.ExuviaeConsumption;
 import org.moultdb.api.model.moutldbenum.ExuviaePosition;
@@ -25,18 +11,9 @@ import org.moultdb.api.model.moutldbenum.MoultingPhase;
 import org.moultdb.api.model.moutldbenum.MoultingVariability;
 import org.moultdb.api.model.moutldbenum.Reabsorption;
 import org.moultdb.api.model.moutldbenum.Role;
-import org.moultdb.api.repository.dto.ArticleTO;
-import org.moultdb.api.repository.dto.ConditionTO;
-import org.moultdb.api.repository.dto.DataSourceTO;
-import org.moultdb.api.repository.dto.DbXrefTO;
-import org.moultdb.api.repository.dto.GeologicalAgeTO;
-import org.moultdb.api.repository.dto.MoultingCharactersTO;
-import org.moultdb.api.repository.dto.SampleSetTO;
-import org.moultdb.api.repository.dto.TaxonAnnotationTO;
-import org.moultdb.api.repository.dto.TaxonTO;
-import org.moultdb.api.repository.dto.TermTO;
-import org.moultdb.api.repository.dto.UserTO;
-import org.moultdb.api.repository.dto.VersionTO;
+import org.moultdb.api.repository.dto.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +25,24 @@ import java.util.stream.Collectors;
  * @author Valentine Rech de Laval
  * @since 2021-10-27
  */
+@Service
 public class ServiceUtils {
+    
+    public static String API_URL;
+    
+    @Value("${url.api}")
+    public void setApiUrl(String apiUrl) {
+        API_URL = apiUrl;
+    }
+    
+    public static String getImageUrl(String filename) {
+        String url = API_URL;
+        if (!API_URL.endsWith("/")) {
+            url = url + "/";
+        }
+        url = url + "image/" + filename;
+        return url;
+    }
     
     public static DataSource mapFromTO(DataSourceTO dataSourceTO) {
         if (dataSourceTO == null) {
@@ -87,9 +81,18 @@ public class ServiceUtils {
                 mapFromTO(taxonAnnotationTO.getConditionTO()),
                 mapFromTO(moultingCharactersTO),
                 article,
+                mapFromTO(taxonAnnotationTO.getImageTO(), taxonAnnotationTO),
                 mapFromTO(taxonAnnotationTO.getEcoTO()),
                 mapFromTO(taxonAnnotationTO.getCioTO()),
                 taxonAnnotVersion);
+    }
+    
+    private static ImageInfo mapFromTO(ImageTO imageTO, TaxonAnnotationTO taxonAnnotationTO) {
+        if (imageTO == null) {
+            return null;
+        }
+        return new ImageInfo(imageTO.getFileName().substring(0, imageTO.getFileName().indexOf(".")),
+                taxonAnnotationTO.getAnnotatedSpeciesName(), getImageUrl(imageTO.getFileName()));
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {
@@ -104,7 +107,7 @@ public class ServiceUtils {
                 sampleSetTO.getStorageAccessions(), sampleSetTO.getStorageLocationNames(),
                 sampleSetTO.getGeologicalFormations(), sampleSetTO.getFossilPreservationTypes(),
                 sampleSetTO.getEnvironments(), sampleSetTO.getSpecimenTypes(),
-                sampleSetTO.getSpecimenCount());
+                sampleSetTO.getSpecimenCount(), sampleSetTO.isFossil(), sampleSetTO.isFossil());
     }
     
     public static Condition mapFromTO(ConditionTO conditionTO) {

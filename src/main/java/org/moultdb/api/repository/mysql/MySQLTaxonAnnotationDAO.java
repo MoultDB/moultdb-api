@@ -4,14 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
-import org.moultdb.api.repository.dto.AnatEntityTO;
-import org.moultdb.api.repository.dto.ArticleTO;
-import org.moultdb.api.repository.dto.ConditionTO;
-import org.moultdb.api.repository.dto.DevStageTO;
-import org.moultdb.api.repository.dto.ImageTO;
-import org.moultdb.api.repository.dto.TaxonAnnotationTO;
-import org.moultdb.api.repository.dto.TaxonTO;
-import org.moultdb.api.repository.dto.TermTO;
+import org.moultdb.api.repository.dto.*;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -51,13 +44,15 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             "LEFT JOIN user uc ON v.creation_user_id = uc.id " +
             "LEFT JOIN user um ON v.last_update_user_id = um.id ";
     
+    private static final String ORDER_BY_STATEMENT = "ORDER BY v.creation_date DESC";
+    
     public MySQLTaxonAnnotationDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
     }
     
     @Override
     public List<TaxonAnnotationTO> findAll() {
-        return template.query(SELECT_STATEMENT, new TaxonAnnotationRowMapper());
+        return template.query(SELECT_STATEMENT + ORDER_BY_STATEMENT, new TaxonAnnotationRowMapper());
     }
     
     @Override
@@ -74,8 +69,16 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     @Override
     public List<TaxonAnnotationTO> findByTaxon(String taxonPath) {
-        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath ",
+        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath " + ORDER_BY_STATEMENT,
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new TaxonAnnotationRowMapper());
+    }
+    
+    @Override
+    public TaxonAnnotationTO findByImageFilename(String imageFilename) {
+        String sql = SELECT_STATEMENT + "WHERE i.file_name LIKE :imageFilename ";
+        return TransfertObject.getOneTO(template.query(sql,
+                new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"),
+                new TaxonAnnotationRowMapper()));
     }
     
     @Override

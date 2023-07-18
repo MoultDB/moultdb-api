@@ -42,6 +42,11 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(email));
     }
     
+    @GetMapping("/one")
+    public ResponseEntity<Map<String, TaxonAnnotation>> getTaxonAnnotationByImageId(@RequestParam("imageFilename") String imageFilename) {
+        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
+    }
+    
     @PostMapping("/import-file")
     public
     ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam("file") MultipartFile file) {

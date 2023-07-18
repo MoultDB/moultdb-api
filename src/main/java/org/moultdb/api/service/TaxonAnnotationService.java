@@ -19,6 +19,8 @@ public interface TaxonAnnotationService {
 
     public List<TaxonAnnotation> getUserTaxonAnnotations(String username);
     
+    public TaxonAnnotation getTaxonAnnotationsByImageFilename(String imageId);
+    
     public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) throws IOException;
     
 }

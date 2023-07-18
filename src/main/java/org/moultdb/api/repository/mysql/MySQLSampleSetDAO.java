@@ -47,20 +47,20 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     
     private static final String SELECT_STATEMENT = "SELECT s.*, gaf.*, gat.*, sl.*, cl.*, fpt.*, e.*, gf.*, st.* " +
             "FROM sample_set s " +
-            "INNER JOIN geological_age gaf ON (gaf.notation = s.from_geological_age_notation) " +
-            "INNER JOIN geological_age gat ON (gat.notation = s.to_geological_age_notation) " +
-            "INNER JOIN sample_set_storage_location sssl ON (sssl.sample_set_id = s.id) " +
-            "INNER JOIN storage_location sl ON (sl.id = sssl.storage_location_id) " +
-            "INNER JOIN sample_set_collection_location sscl ON (sscl.sample_set_id = s.id) " +
-            "INNER JOIN collection_location cl ON (cl.id = sscl.collection_location_id) " +
-            "INNER JOIN sample_set_fossil_preservation_type ssfpt ON (ssfpt.sample_set_id = s.id) " +
-            "INNER JOIN fossil_preservation_type fpt ON (fpt.id = ssfpt.fossil_preservation_type_id) " +
-            "INNER JOIN sample_set_environment sse ON (sse.sample_set_id = s.id) " +
-            "INNER JOIN environment e ON (e.id = sse.environment_id) " +
-            "INNER JOIN sample_set_geological_formation ssgf ON (ssgf.sample_set_id = s.id) " +
-            "INNER JOIN geological_formation gf ON (e.id = ssgf.geological_formation_id) " +
-            "INNER JOIN sample_set_specimen_type ssst ON (ssst.sample_set_id = s.id) " +
-            "INNER JOIN specimen_type st ON (st.id = ssst.specimen_type_id) ";
+            "LEFT JOIN geological_age gaf ON (gaf.notation = s.from_geological_age_notation) " +
+            "LEFT JOIN geological_age gat ON (gat.notation = s.to_geological_age_notation) " +
+            "LEFT JOIN sample_set_storage_location sssl ON (sssl.sample_set_id = s.id) " +
+            "LEFT JOIN storage_location sl ON (sl.id = sssl.storage_location_id) " +
+            "LEFT JOIN sample_set_collection_location sscl ON (sscl.sample_set_id = s.id) " +
+            "LEFT JOIN collection_location cl ON (cl.id = sscl.collection_location_id) " +
+            "LEFT JOIN sample_set_fossil_preservation_type ssfpt ON (ssfpt.sample_set_id = s.id) " +
+            "LEFT JOIN fossil_preservation_type fpt ON (fpt.id = ssfpt.fossil_preservation_type_id) " +
+            "LEFT JOIN sample_set_environment sse ON (sse.sample_set_id = s.id) " +
+            "LEFT JOIN environment e ON (e.id = sse.environment_id) " +
+            "LEFT JOIN sample_set_geological_formation ssgf ON (ssgf.sample_set_id = s.id) " +
+            "LEFT JOIN geological_formation gf ON (e.id = ssgf.geological_formation_id) " +
+            "LEFT JOIN sample_set_specimen_type ssst ON (ssst.sample_set_id = s.id) " +
+            "LEFT JOIN specimen_type st ON (st.id = ssst.specimen_type_id) ";
     
     public MySQLSampleSetDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -256,7 +256,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         public List<SampleSetTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
             Map<Integer, SampleSetTO> sampleSets = new HashMap<>();
             while(rs.next()) {
-                Integer sampleSetId = rs.getInt("a.id");
+                Integer sampleSetId = rs.getInt("s.id");
                 SampleSetTO sampleSetTO = sampleSets.get(sampleSetId);
     
                 String museumAccessionValue = rs.getString("s.museum_accessions");

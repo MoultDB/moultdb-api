@@ -27,6 +27,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.moultdb.api.service.ServiceUtils.getImageUrl;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2023-05-31
@@ -55,9 +57,6 @@ public class ImageServiceImpl implements ImageService {
     
     @Value("${file.storage}")
     private String FILE_STORAGE;
-    
-    @Value("${url.api}")
-    private String API_URL;
     
     private final long FILE_MAX_SIZE = 1 * 1024 * 1024; // 1 Mo
     private final Set<String> ALLOWED_CONTENT_TYPES = new HashSet<>(Arrays.asList("image/jpeg", "image/png"));
@@ -245,11 +244,7 @@ public class ImageServiceImpl implements ImageService {
     
     private ImageInfo getImageInfo(String scientificName, String filename) {
         String id = filename.substring(0, filename.lastIndexOf('.'));
-        String url = API_URL;
-        if (!API_URL.endsWith("/")) {
-            url = url + "/";
-        }
-        url = url + "image/" + filename;
+        String url = getImageUrl(filename);
         return new ImageInfo(id, scientificName, url);
     }
 

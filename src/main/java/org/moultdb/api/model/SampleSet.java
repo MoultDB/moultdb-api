@@ -22,12 +22,15 @@ public class SampleSet {
     private final Set<String> environments;
     private final Set<String> specimenTypes;
     private final Integer specimenCount;
+    private final Boolean isFossil;
+    private final Boolean isCaptive;
+    
     
     public SampleSet(TimePeriod timePeriod, Collection<String> collectionLocations,
                      Collection<String> storageAccessions, Collection<String> storageLocations,
                      Collection<String> geologicalFormations, Collection<String> fossilPreservationTypes,
                      Collection<String> environments, Collection<String> specimenTypes,
-                     Integer specimenCount) {
+                     Integer specimenCount, Boolean isFossil, Boolean isCaptive) {
         this.timePeriod = timePeriod;
         this.collectionLocations = Collections.unmodifiableSet(collectionLocations == null ?
                 new HashSet<>(): new HashSet<>(collectionLocations));
@@ -44,6 +47,8 @@ public class SampleSet {
         this.specimenTypes = Collections.unmodifiableSet(specimenTypes == null ?
                 new HashSet<>(): new HashSet<>(specimenTypes));
         this.specimenCount = specimenCount;
+        this.isFossil = isFossil;
+        this.isCaptive = isCaptive;
     }
     
     public TimePeriod getTimePeriod() {
@@ -82,6 +87,14 @@ public class SampleSet {
         return specimenCount;
     }
     
+    public Boolean isFossil() {
+        return isFossil;
+    }
+    
+    public Boolean isCaptive() {
+        return isCaptive;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -112,6 +125,8 @@ public class SampleSet {
                 .add("specimenTypes=" + specimenTypes)
                 .add("environments=" + environments)
                 .add("specimenCount=" + specimenCount)
+                .add("isFossil=" + isFossil)
+                .add("isCaptive=" + isCaptive)
                 .toString();
     }
 }
