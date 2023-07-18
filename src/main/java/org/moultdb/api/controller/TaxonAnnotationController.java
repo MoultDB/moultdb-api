@@ -24,6 +24,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  */
 @RestController
 @RequestMapping(path="/taxon-annotation")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class TaxonAnnotationController {
     
     @Autowired
@@ -54,7 +55,8 @@ public class TaxonAnnotationController {
             return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
         }
         String imageFilename = getParam(json, "imageFilename");
-        return generateValidResponse(taxonAnnotationService.deleteTaxonAnnotationsByImageFilename(imageFilename));
+        taxonAnnotationService.deleteTaxonAnnotationsByImageFilename(imageFilename);
+        return generateValidResponse("Image " + imageFilename + "deleted");
     }
     private static String getParam(Map<String, String> json, String paramKey) {
         return json == null ? null : json.get(paramKey);
