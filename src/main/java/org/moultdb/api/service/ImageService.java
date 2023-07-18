@@ -24,9 +24,9 @@ public interface ImageService {
     
     public List<ImageInfo> getAllImageInfos();
 
-    public List<ImageInfo> getNewestImageInfos();
+    public List<ImageInfo> getNewestImageInfos(int limit);
 
-    public List<ImageInfo> getImageInfosByUser(String email, Integer limit);
+    public List<ImageInfo> getImageInfosByUser(String email);
     
     List<ImageInfo> getImageInfosByTaxon(String taxonName);
 

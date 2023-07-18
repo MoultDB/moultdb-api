@@ -6,7 +6,6 @@ import org.moultdb.api.controller.ImageController;
 import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.ImageUploadException;
 import org.moultdb.api.exception.MoultDBException;
-import org.moultdb.api.exception.UserNotFoundException;
 import org.moultdb.api.model.ImageInfo;
 import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.*;
@@ -198,16 +197,20 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public List<ImageInfo> getAllImageInfos() {
-        return getImageInfosByUser(null, null);
+        return convertToImageInfos(null, null);
     }
     
     @Override
-    public List<ImageInfo> getNewestImageInfos() {
-        return getImageInfosByUser(null, 1);
+    public List<ImageInfo> getNewestImageInfos(int limit) {
+        return convertToImageInfos(null, limit);
     }
     
     @Override
-    public List<ImageInfo> getImageInfosByUser(String email, Integer limit) {
+    public List<ImageInfo> getImageInfosByUser(String email) {
+        return convertToImageInfos(email, null);
+    }
+    
+    private List<ImageInfo> convertToImageInfos(String email, Integer limit) {
         List<TaxonAnnotationTO> annots;
         if (StringUtils.isNotBlank(email)) {
             annots = taxonAnnotationDAO.findByUser(email, limit);
@@ -219,7 +222,7 @@ public class ImageServiceImpl implements ImageService {
         if (annots.isEmpty()) {
             return null;
         }
-        return getImageInfos(annots);
+        return convertToImageInfos(annots);
     }
     
     @Override
@@ -228,10 +231,10 @@ public class ImageServiceImpl implements ImageService {
         if (taxonTO == null) {
             throw new MoultDBException("Taxon [" + taxonName + "] not found.");
         }
-        return getImageInfos(taxonAnnotationDAO.findByTaxon(taxonTO.getPath()));
+        return convertToImageInfos(taxonAnnotationDAO.findByTaxon(taxonTO.getPath()));
     }
     
-    private static List<ImageInfo> getImageInfos(List<TaxonAnnotationTO> taxonAnnotTOs) {
+    private List<ImageInfo> convertToImageInfos(List<TaxonAnnotationTO> taxonAnnotTOs) {
         return taxonAnnotTOs.stream()
                 .filter(ta -> ta.getImageTO() != null)
                 .map(ta -> getImageInfo(ta.getTaxonTO().getScientificName(), ta.getImageTO().getFileName()))

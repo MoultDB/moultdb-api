@@ -62,12 +62,12 @@ public class ImageController {
     
     @GetMapping("/last")
     public ResponseEntity<Map<String, Object>> getLastImages() {
-        return generateValidResponse(imageService.getImageInfosByUser(null, 10));
+        return generateValidResponse(imageService.getNewestImageInfos(10));
     }
     
     @GetMapping("/user-specific")
     public ResponseEntity<Map<String, Object>> getUserImages(@RequestParam String email) {
-        List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email, null);
+        List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email);
         return generateValidResponse("List of images loaded by " + email, imageInfos);
     }
 
