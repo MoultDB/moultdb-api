@@ -29,4 +29,5 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs);
     
+    void deleteByImageFilename(String imageFilename);
 }

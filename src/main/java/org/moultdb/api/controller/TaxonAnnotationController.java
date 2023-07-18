@@ -2,15 +2,12 @@ package org.moultdb.api.controller;
 
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.service.TaxonAnnotationService;
+import org.moultdb.api.service.TokenService;
+import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -31,6 +28,8 @@ public class TaxonAnnotationController {
     
     @Autowired
     TaxonAnnotationService taxonAnnotationService;
+    @Autowired
+    TokenService tokenService;
     
     @GetMapping("/all")
     public ResponseEntity<Map<String, List<TaxonAnnotation>>> getAllTaxonAnnotations() {
@@ -45,6 +44,20 @@ public class TaxonAnnotationController {
     @GetMapping("/one")
     public ResponseEntity<Map<String, TaxonAnnotation>> getTaxonAnnotationByImageId(@RequestParam("imageFilename") String imageFilename) {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
+    }
+    
+    @DeleteMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteTaxonAnnotationByImageId(@RequestBody Map<String, String> json) {
+        String email = getParam(json, "email");
+        String token = getParam(json, "token");
+        if (!tokenService.validateToken(email, token)) {
+            return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
+        }
+        String imageFilename = getParam(json, "imageFilename");
+        return generateValidResponse(taxonAnnotationService.deleteTaxonAnnotationsByImageFilename(imageFilename));
+    }
+    private static String getParam(Map<String, String> json, String paramKey) {
+        return json == null ? null : json.get(paramKey);
     }
     
     @PostMapping("/import-file")

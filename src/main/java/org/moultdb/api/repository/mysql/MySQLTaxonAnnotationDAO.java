@@ -125,6 +125,14 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         throw new UnsupportedOperationException("Insertion of 'complete' taxon annotations not available");
     }
     
+    @Override
+    public void deleteByImageFilename(String imageFilename) {
+        String sql = "DELETE ta, i " +
+                "FROM taxon_annotation ta " +
+                "LEFT JOIN image i ON i.id = ta.image_id " +
+                "WHERE i.file_name LIKE :imageFilename ";
+        template.update(sql, new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"));
+    }
     
     private static class TaxonAnnotationRowMapper implements RowMapper<TaxonAnnotationTO> {
         @Override

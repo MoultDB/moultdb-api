@@ -23,4 +23,5 @@ public interface TaxonAnnotationService {
     
     public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) throws IOException;
     
+    public void deleteTaxonAnnotationsByImageFilename(String imageFilename);
 }

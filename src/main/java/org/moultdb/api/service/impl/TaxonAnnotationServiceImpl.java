@@ -132,4 +132,9 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
         return null;
     }
+    
+    @Override
+    public void deleteTaxonAnnotationsByImageFilename(String imageFilename) {
+        taxonAnnotationDAO.deleteByImageFilename(imageFilename);
+    }
 }
