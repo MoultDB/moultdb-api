@@ -2,7 +2,6 @@ package org.moultdb.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.moultdb.api.config.UserHolder;
-import org.moultdb.api.controller.ImageController;
 import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.ImageUploadException;
 import org.moultdb.api.exception.MoultDBException;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.net.MalformedURLException;
 import java.nio.file.FileAlreadyExistsException;
@@ -57,6 +55,9 @@ public class ImageServiceImpl implements ImageService {
     
     @Value("${file.storage}")
     private String FILE_STORAGE;
+    
+    @Value("${url.api}")
+    private String API_URL;
     
     private final long FILE_MAX_SIZE = 1 * 1024 * 1024; // 1 Mo
     private final Set<String> ALLOWED_CONTENT_TYPES = new HashSet<>(Arrays.asList("image/jpeg", "image/png"));
@@ -242,10 +243,14 @@ public class ImageServiceImpl implements ImageService {
                 .toList();
     }
     
-    private static ImageInfo getImageInfo(String scientificName, String filename) {
+    private ImageInfo getImageInfo(String scientificName, String filename) {
         String id = filename.substring(0, filename.lastIndexOf('.'));
-        return new ImageInfo(id, scientificName,
-                MvcUriComponentsBuilder.fromMethodName(ImageController.class, "getImage", filename).build().toString());
+        String url = API_URL;
+        if (!API_URL.endsWith("/")) {
+            url = url + "/";
+        }
+        url = url + "image/" + filename;
+        return new ImageInfo(id, scientificName, url);
     }
 
     @Override
