@@ -47,8 +47,9 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
     }
     
-    @DeleteMapping("/delete")
-    public ResponseEntity<Map<String, Object>> deleteTaxonAnnotationByImageId(@RequestBody Map<String, String> json) {
+    //FIXME change postmapping to deletemapping
+    @PostMapping("/delete")
+    public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
         String email = getParam(json, "email");
         String token = getParam(json, "token");
         if (!tokenService.validateToken(email, token)) {
@@ -58,6 +59,7 @@ public class TaxonAnnotationController {
         taxonAnnotationService.deleteTaxonAnnotationsByImageFilename(imageFilename);
         return generateValidResponse("Image " + imageFilename + "deleted");
     }
+    
     private static String getParam(Map<String, String> json, String paramKey) {
         return json == null ? null : json.get(paramKey);
     }
