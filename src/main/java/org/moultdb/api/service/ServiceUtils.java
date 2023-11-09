@@ -2,15 +2,7 @@ package org.moultdb.api.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.moultdb.api.model.*;
-import org.moultdb.api.model.moutldbenum.MoultingStep;
-import org.moultdb.api.model.moutldbenum.EgressDirection;
-import org.moultdb.api.model.moutldbenum.ExuviaeConsumption;
-import org.moultdb.api.model.moutldbenum.ExuviaePosition;
-import org.moultdb.api.model.moutldbenum.LifeHistoryStyle;
-import org.moultdb.api.model.moutldbenum.MoultingPhase;
-import org.moultdb.api.model.moutldbenum.MoultingVariability;
-import org.moultdb.api.model.moutldbenum.Reabsorption;
-import org.moultdb.api.model.moutldbenum.Role;
+import org.moultdb.api.model.moutldbenum.*;
 import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -139,7 +131,7 @@ public class ServiceUtils {
         if (dbXrefTO == null) {
             return null;
         }
-        return new DbXref(dbXrefTO.getAccession(), mapFromTO(dbXrefTO.getDataSourceTO()));
+        return new DbXref(dbXrefTO.getAccession(), dbXrefTO.getName(), mapFromTO(dbXrefTO.getDataSourceTO()));
     }
     
     public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
@@ -182,7 +174,7 @@ public class ServiceUtils {
         if (taxonTO == null) {
             return null;
         }
-        return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(), taxonTO.getRank(),
+        return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(),
                 taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs()));
     }
     

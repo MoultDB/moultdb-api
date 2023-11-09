@@ -13,16 +13,14 @@ import java.util.StringJoiner;
 public class Taxon extends NamedEntity<String> {
     
     private final String commonName;
-    private final String taxonRank;
     private final String parentTaxonPath;
     private final boolean extinct;
     private final Set<DbXref> dbXrefs;
     
-    public Taxon(String path, String scientificName, String commonName, String taxonRank,
-                 String parentTaxonPath, boolean extinct, Collection<DbXref> dbXrefs) {
+    public Taxon(String path, String scientificName, String commonName, String parentTaxonPath,
+                 boolean extinct, Collection<DbXref> dbXrefs) {
         super(path, scientificName);
         this.commonName = commonName;
-        this.taxonRank = taxonRank;
         this.parentTaxonPath = parentTaxonPath;
         this.extinct = extinct;
         this.dbXrefs =  Collections.unmodifiableSet(dbXrefs == null ?
@@ -39,10 +37,6 @@ public class Taxon extends NamedEntity<String> {
     
     public String getCommonName() {
         return commonName;
-    }
-    
-    public String getTaxonRank() {
-        return taxonRank;
     }
     
     public String getParentTaxonPath() {
@@ -63,7 +57,6 @@ public class Taxon extends NamedEntity<String> {
                 .add("path='" + getPath() + "'")
                 .add("scientificName='" + getScientificName() + "'")
                 .add("commonName='" + commonName + "'")
-                .add("taxonRank='" + taxonRank + "'")
                 .add("parentTaxonPath=" + parentTaxonPath)
                 .add("extinct=" + extinct)
                 .add("dbXrefs=" + dbXrefs)

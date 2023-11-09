@@ -18,23 +18,21 @@ public class TaxonTO extends NamedEntityTO<String> {
     
     private final String commonName;
     private final String parentTaxonPath;
-    private final String rank;
     private final Boolean isExtincted;
     private final Set<DbXrefTO> dbXrefTOs;
     private final Set<TaxonToDbXrefTO> taxonToDbXrefTOs;
     
     public TaxonTO(String path, String scientificName, String commonName, String parentTaxonPath,
-                   String rank, Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs) {
-        this(path, scientificName, commonName, parentTaxonPath, rank, isExtincted, dbXrefTOs, null);
+                   Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs) {
+        this(path, scientificName, commonName, parentTaxonPath, isExtincted, dbXrefTOs, null);
     }
     
     public TaxonTO(String path, String scientificName, String commonName, String parentTaxonPath,
-                   String rank, Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs,
+                   Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs,
                    Collection<TaxonToDbXrefTO> taxonToDbXrefTOs) {
         super(path, scientificName, null);
         this.commonName = commonName;
         this.parentTaxonPath = parentTaxonPath;
-        this.rank = rank;
         this.isExtincted = isExtincted;
         this.dbXrefTOs = Collections.unmodifiableSet(dbXrefTOs == null ?
                 new HashSet<>(): new HashSet<>(dbXrefTOs));
@@ -58,10 +56,6 @@ public class TaxonTO extends NamedEntityTO<String> {
         return parentTaxonPath;
     }
     
-    public String getRank() {
-        return rank;
-    }
-    
     public Boolean isExtincted() {
         return isExtincted;
     }
@@ -81,7 +75,6 @@ public class TaxonTO extends NamedEntityTO<String> {
                 .add("scientificName='" + getScientificName() + "'")
                 .add("commonName='" + commonName + "'")
                 .add("parentTaxonPath='" + parentTaxonPath + "'")
-                .add("rank='" + rank + "'")
                 .add("isExtincted=" + isExtincted)
                 .add("dbXrefTOs=" + dbXrefTOs)
                 .add("taxonToDbXrefTOs=" + taxonToDbXrefTOs)

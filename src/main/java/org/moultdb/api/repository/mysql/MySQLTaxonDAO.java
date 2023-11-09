@@ -2,6 +2,7 @@ package org.moultdb.api.repository.mysql;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TaxonTO;
@@ -13,18 +14,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Valentine Rech de Laval
@@ -77,15 +71,14 @@ public class MySQLTaxonDAO implements TaxonDAO {
         return ints[0];
     }
     
-    @Transactional
     @Override
     public int[] batchUpdate(Set<TaxonTO> taxonTOs) {
         String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, " +
-                "parent_taxon_path, taxon_rank, extinct) " +
-                "VALUES (:path, :scientific_name, :common_name, :parent_taxon_path, :taxon_rank, :extinct) " +
+                "parent_taxon_path, extinct) " +
+                "VALUES (:path, :scientific_name, :common_name, :parent_taxon_path, :extinct) " +
                 "AS new " +
                 "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name," +
-                " parent_taxon_path = new.parent_taxon_path, taxon_rank = new.taxon_rank, extinct = new.extinct";
+                " parent_taxon_path = new.parent_taxon_path, extinct = new.extinct";
         
         String dbXrefSql = "INSERT INTO db_xref (id, accession, data_source_id) " +
                 "VALUES (:id, :accession, :data_source_id) " +
@@ -107,7 +100,6 @@ public class MySQLTaxonDAO implements TaxonDAO {
             taxonSource.addValue("scientific_name", taxonTO.getScientificName());
             taxonSource.addValue("common_name", taxonTO.getCommonName());
             taxonSource.addValue("parent_taxon_path", taxonTO.getParentTaxonPath());
-            taxonSource.addValue("taxon_rank", taxonTO.getRank());
             taxonSource.addValue("extinct", taxonTO.isExtincted());
             taxonParams.add(taxonSource);
             
@@ -128,16 +120,20 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 taxonToDbXrefParams.add(taxonToDbXrefSource);
             }
         }
-        int[] ints = template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'taxon' table.");
-        
-        int[] otherInts = template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(otherInts).sum() + " new row(s) in 'db_xref' table.");
-        
-        otherInts = template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(otherInts).sum() + " new row(s) in 'taxon_db_xref' table.");
-        
-        return ints;
+        int[] taxonRowCounts = null ;
+        try {
+            taxonRowCounts = template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug(Arrays.stream(taxonRowCounts).sum() + " updated row(s) in 'taxon' table.");
+
+            int[] dbXrefRowCounts = template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug(Arrays.stream(dbXrefRowCounts).sum() + " updated row(s) in 'db_xref' table.");
+            
+            int[] taxonToDbXrefRowCounts = template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug(Arrays.stream(taxonToDbXrefRowCounts).sum() + " updated row(s) in 'taxon_db_xref' table.");
+        } catch (Exception e) {
+            throw new MoultDBException("Insertion of taxa failed: " + e.getMessage());
+        }
+        return taxonRowCounts;
     }
     
     private static class TaxonResultSetExtractor implements ResultSetExtractor<List<TaxonTO>> {
@@ -159,7 +155,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        rs.getString("t.parent_taxon_path"), rs.getString("t.taxon_rank"), rs.getBoolean("t.extinct"), dbXrefTOs);
+                        rs.getString("t.parent_taxon_path"), rs.getBoolean("t.extinct"), dbXrefTOs);
     
                 taxa.put(taxonPath, taxonTO);
             }

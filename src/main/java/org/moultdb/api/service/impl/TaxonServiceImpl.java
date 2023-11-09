@@ -2,6 +2,7 @@ package org.moultdb.api.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.Taxon;
 import org.moultdb.api.repository.dao.DataSourceDAO;
 import org.moultdb.api.repository.dao.DbXrefDAO;
@@ -57,35 +58,132 @@ public class TaxonServiceImpl implements TaxonService {
         taxonDAO.insert(convertToDto(taxon));
     }
     
+    List<String> listDuplicateUsingFilterAndSetAdd(List<String> list) {
+        Set<String> elements = new HashSet<>();
+        return list.stream()
+                .filter(n -> !elements.add(n))
+                .collect(Collectors.toList());
+    }
+    
     @Override
     public Integer insertTaxa(MultipartFile file) {
-        logger.info("Start taxon annotations import...");
+        logger.info("Start taxon import...");
+        long startImportTimePoint = System.currentTimeMillis();
         
         TaxonParser parser = new TaxonParser();
         
+        logger.info("# Start reading taxon file " + file.getOriginalFilename() + "...");
         Set<TaxonBean> taxonBeans = parser.getTaxonBeans(file);
+        logger.info("# End reading taxon file");
+        
+        List<String> ncbiIds = taxonBeans.stream()
+                .map(TaxonBean::getNcbiId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<String> gbifIds = taxonBeans.stream()
+                .map(TaxonBean::getGbifId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<String> syno = taxonBeans.stream()
+                .filter(b -> b.getSynonymGbifIds() != null)
+                .map(b -> List.of(b.getSynonymGbifIds().split(", ")))
+                .flatMap(List::stream).toList();
+
+        boolean hasDuplicatedIDs = false;
+        HashSet<String> uniqNcbiIds = new HashSet<>(ncbiIds);
+        if (ncbiIds.size() != uniqNcbiIds.size()) {
+            hasDuplicatedIDs = true;
+            logger.error("NCBI IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(ncbiIds));
+        }
+        HashSet<String> uniqGbifIds = new HashSet<>(gbifIds);
+        if (gbifIds.size() != uniqGbifIds.size()) {
+            hasDuplicatedIDs = true;
+            logger.error("GBIF IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(gbifIds));
+        }
+        HashSet<String> uniqSyno = new HashSet<>(syno);
+        if (syno.size() != uniqSyno.size()) {
+            hasDuplicatedIDs = true;
+            logger.error("GBIF synonym IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(syno));
+        }
+        HashSet<String> uniq = new HashSet<>(uniqGbifIds);
+        uniq.addAll(uniqSyno);
+        if ((uniqGbifIds.size() + uniqSyno.size()) != uniq.size()) {
+            hasDuplicatedIDs = true;
+            List<String> list = new ArrayList<>(uniqGbifIds);
+            list.addAll(uniqSyno);
+            logger.error("All GBIF IDs (main + synonyms) are not uniq: " +
+                    listDuplicateUsingFilterAndSetAdd(list));
+        }
+        if (hasDuplicatedIDs) {
+            throw new MoultDBException("There are duplicated in the input file");
+        }
+        
+        // Divide set in several sets to avoid memory errors
+        Set<Set<TaxonBean>> taxonBeanSubsets = splitBeans(taxonBeans);
+        int sum = 0;
         
         
-        Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeans, taxonDAO, dataSourceDAO, dbXrefDAO);
+        for (Set<TaxonBean> taxonBeanSubset : taxonBeanSubsets) {
+            logger.info("# Start parsing taxon beans...");
+            long startTimePoint = System.currentTimeMillis();
+            Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, taxonDAO, dataSourceDAO, dbXrefDAO);
+            long endTimePoint = System.currentTimeMillis();
+            logger.info("# End parsing taxon beans. " + getExecutionTime(startTimePoint, endTimePoint));
+            
+            logger.info("# Start of taxon insertion...");
+            startTimePoint = System.currentTimeMillis();
+            taxonDAO.batchUpdate(taxonTOs);
+            endTimePoint = System.currentTimeMillis();
+            logger.info("# End of taxon insertion. " + getExecutionTime(startTimePoint, endTimePoint));
+        }
+        long endImportTimePoint = System.currentTimeMillis();
         
-        int[] ints = taxonDAO.batchUpdate(taxonTOs);
-        
-        int sum = Arrays.stream(ints).sum();
-        
-        logger.info("End taxon annotations import: " + Arrays.stream(ints).sum()+ " new row(s) in 'taxon' table.");
+        logger.info("End taxon import." + getExecutionTime(startImportTimePoint, endImportTimePoint));
         
         return sum;
+    }
+    
+    private static Set<Set<TaxonBean>> splitBeans(Set<TaxonBean> originalSet) {
+        int subsetSize = 100000;
+        
+        Set<Set<TaxonBean>> allSubsets = new HashSet<>();
+        Set<TaxonBean> currentSubset = new HashSet<>();
+        
+        for (TaxonBean element : originalSet) {
+            currentSubset.add(element);
+            
+            if (currentSubset.size() == subsetSize) {
+                allSubsets.add(currentSubset);
+                currentSubset = new HashSet<>(); // Reinitialize current subset
+            }
+        }
+        
+        // Add last subset if not complete
+        if (!currentSubset.isEmpty()) {
+            allSubsets.add(currentSubset);
+        }
+        return allSubsets;
+    }
+    
+    private static String getExecutionTime(long startPoint, long endPoint) {
+        long executionTimeInMs = endPoint - startPoint;
+
+        long seconds = (executionTimeInMs / 1000) % 60;
+        long minutes = (executionTimeInMs / (1000 * 60)) % 60;
+        long hours = (executionTimeInMs / (1000 * 60 * 60));
+        
+        return "Execution time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds.";
     }
     
     private TaxonTO convertToDto(Taxon taxon) {
         Set<DbXrefTO> dbXrefTOs = taxon.getDbXref().stream()
                                        .map(xref -> {
                                            DataSourceTO dataSourceTO = dataSourceDAO.findByName(xref.getDataSource().getName());
-                                           return new DbXrefTO(null, xref.getAccession(), dataSourceTO);
+                                           return new DbXrefTO(null, xref.getAccession(), xref.getName(), dataSourceTO);
                                        })
                                        .collect(Collectors.toSet());
         
         return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.getParentTaxonPath(),
-                taxon.getTaxonRank(), taxon.isExtinct(), dbXrefTOs);
+                taxon.isExtinct(), dbXrefTOs);
     }
 }

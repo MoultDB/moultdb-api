@@ -19,6 +19,6 @@ class TaxonParserTest {
         
         TaxonParser parser = new TaxonParser();
         Set<TaxonBean> taxonBeans = parser.parseTaxonFile(file);
-        logger.info(taxonBeans.toString());
+        logger.debug(taxonBeans.toString());
     }
 }

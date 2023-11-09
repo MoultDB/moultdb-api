@@ -11,15 +11,22 @@ public class DbXref {
     
     private final String accession;
     
+    private final String name;
+    
     private final DataSource dataSource;
     
-    public DbXref(String accession, DataSource dataSource) {
+    public DbXref(String accession, String name, DataSource dataSource) {
         this.accession = accession;
+        this.name = name;
         this.dataSource = dataSource;
     }
     
     public String getAccession() {
         return accession;
+    }
+    
+    public String getName() {
+        return name;
     }
     
     public DataSource getDataSource() {
@@ -34,18 +41,20 @@ public class DbXref {
             return false;
         DbXref dbXref = (DbXref) o;
         return Objects.equals(accession, dbXref.accession)
+                && Objects.equals(name, dbXref.name)
                 && Objects.equals(dataSource, dbXref.dataSource);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(accession, dataSource);
+        return Objects.hash(accession, name, dataSource);
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", DbXref.class.getSimpleName() + "[", "]")
                 .add("accession='" + accession + "'")
+                .add("name='" + name + "'")
                 .add("dataSource=" + dataSource)
                 .toString();
     }

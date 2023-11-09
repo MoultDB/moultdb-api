@@ -15,11 +15,11 @@ public class TaxonBean {
     private String path;
     private String ncbiId;
     private String gbifId;
-    private String scientificName;
-    private String ncbiRank;
-    private String gbifRank;
+    private String ncbiName;
+    private String gbifName;
     private String synonymGbifIds;
     private String synonymGbifNames;
+    private String synonymNcbiNames;
     
     public TaxonBean() {
     }
@@ -56,28 +56,20 @@ public class TaxonBean {
         this.gbifId = gbifId;
     }
     
-    public String getScientificName() {
-        return scientificName;
+    public String getNcbiName() {
+        return ncbiName;
     }
     
-    public void setScientificName(String scientificName) {
-        this.scientificName = scientificName;
+    public void setNcbiName(String ncbiName) {
+        this.ncbiName = ncbiName;
     }
     
-    public String getNcbiRank() {
-        return ncbiRank;
+    public String getGbifName() {
+        return gbifName;
     }
     
-    public void setNcbiRank(String ncbiRank) {
-        this.ncbiRank = ncbiRank;
-    }
-    
-    public String getGbifRank() {
-        return gbifRank;
-    }
-    
-    public void setGbifRank(String gbifRank) {
-        this.gbifRank = gbifRank;
+    public void setGbifName(String gbifName) {
+        this.gbifName = gbifName;
     }
     
     public String getSynonymGbifIds() {
@@ -100,6 +92,14 @@ public class TaxonBean {
         return StringUtils.isBlank(s) ? null : s.toLowerCase();
     }
     
+    public String getSynonymNcbiNames() {
+        return synonymNcbiNames;
+    }
+    
+    public void setSynonymNcbiNames(String synonymNcbiNames) {
+        this.synonymNcbiNames = synonymNcbiNames;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -109,17 +109,16 @@ public class TaxonBean {
                 && Objects.equals(path, taxonBean.path)
                 && Objects.equals(ncbiId, taxonBean.ncbiId)
                 && Objects.equals(gbifId, taxonBean.gbifId)
-                && Objects.equals(scientificName, taxonBean.scientificName)
-                && Objects.equals(ncbiRank, taxonBean.ncbiRank)
-                && Objects.equals(gbifRank, taxonBean.gbifRank)
+                && Objects.equals(ncbiName, taxonBean.ncbiName)
+                && Objects.equals(gbifName, taxonBean.gbifName)
                 && Objects.equals(synonymGbifIds, taxonBean.synonymGbifIds)
-                && Objects.equals(synonymGbifNames, taxonBean.synonymGbifNames);
+                && Objects.equals(synonymGbifNames, taxonBean.synonymGbifNames)
+                && Objects.equals(synonymNcbiNames, taxonBean.synonymNcbiNames);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(id, path, ncbiId, gbifId, scientificName, ncbiRank, gbifRank,
-                synonymGbifIds, synonymGbifNames);
+        return Objects.hash(id, path, ncbiId, gbifId, ncbiName, gbifName, synonymGbifIds, synonymGbifNames, synonymNcbiNames);
     }
     
     @Override
@@ -129,11 +128,11 @@ public class TaxonBean {
                 .add("path='" + path + "'")
                 .add("ncbiId='" + ncbiId + "'")
                 .add("gbifId='" + gbifId + "'")
-                .add("scientificName='" + scientificName + "'")
-                .add("ncbiRank='" + ncbiRank + "'")
-                .add("gbifRank='" + gbifRank + "'")
+                .add("ncbiName='" + ncbiName + "'")
+                .add("gbifName='" + gbifName + "'")
                 .add("synonymGbifIds='" + synonymGbifIds + "'")
                 .add("synonymGbifNames='" + synonymGbifNames + "'")
+                .add("synonymNcbiNames='" + synonymNcbiNames + "'")
                 .toString();
     }
 }
