@@ -2,18 +2,9 @@ package org.moultdb.api.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.model.TaxonAnnotation;
-import org.moultdb.api.repository.dao.ArticleDAO;
-import org.moultdb.api.repository.dao.ArticleToDbXrefDAO;
-import org.moultdb.api.repository.dao.ConditionDAO;
-import org.moultdb.api.repository.dao.DataSourceDAO;
-import org.moultdb.api.repository.dao.DbXrefDAO;
-import org.moultdb.api.repository.dao.GeologicalAgeDAO;
-import org.moultdb.api.repository.dao.MoultingCharactersDAO;
-import org.moultdb.api.repository.dao.SampleSetDAO;
-import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
-import org.moultdb.api.repository.dao.TaxonDAO;
-import org.moultdb.api.repository.dao.VersionDAO;
+import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.MoultingCharactersTO;
 import org.moultdb.api.repository.dto.SampleSetTO;
 import org.moultdb.api.repository.dto.TaxonAnnotationTO;
@@ -43,14 +34,16 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
     @Autowired ConditionDAO conditionDAO;
-    @Autowired DbXrefDAO dbXrefDAO;
     @Autowired DataSourceDAO dataSourceDAO;
+    @Autowired DbXrefDAO dbXrefDAO;
+    @Autowired DevStageDAO devStageDAO;
     @Autowired GeologicalAgeDAO geologicalAgeDAO;
     @Autowired MoultingCharactersDAO moultingCharactersDAO;
     @Autowired SampleSetDAO sampleSetDAO;
     @Autowired TaxonDAO taxonDAO;
     @Autowired TaxonAnnotationDAO taxonAnnotationDAO;
     @Autowired VersionDAO versionDAO;
+    @Autowired UserDAO userDAO;
     
     @Override
     public List<TaxonAnnotation> getAllTaxonAnnotations() {
@@ -120,14 +113,22 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) {
     
         logger.info("Start taxon annotations import...");
-    
+        
         FossilImporter importer = new FossilImporter();
-
-        List<FossilAnnotationBean> fossilAnnotationBeans = importer.parseFossilAnnotation(file);
-    
-        importer.insertFossilAnnotation(fossilAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO, dataSourceDAO,
-                dbXrefDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO, taxonDAO, taxonAnnotationDAO);
-    
+        
+        try {
+            logger.info("Parse annotation file " + file.getOriginalFilename() + "...");
+            List<FossilAnnotationBean> fossilAnnotationBeans = importer.parseFossilAnnotation(file);
+            
+            logger.info("Load annotations in db...");
+            importer.insertFossilAnnotation(fossilAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO,
+                    dataSourceDAO, dbXrefDAO, devStageDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO,
+                    taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
+        
+        } catch (Exception e) {
+            throw new ImportException("Unable to import annotations from " + file.getOriginalFilename() + ". " +
+                    "Error: " + e.getMessage());
+        }
         logger.info("End taxon annotations import.");
     
         return null;

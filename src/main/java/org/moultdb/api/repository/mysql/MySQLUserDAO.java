@@ -80,6 +80,15 @@ public class MySQLUserDAO implements UserDAO {
                 new MapSqlParameterSource().addValue("email", email), new UserRowMapper()));
     }
     
+    @Override
+    public UserTO findByOrcidId(String orcidId) {
+        if (StringUtils.isBlank(orcidId)) {
+            throw new IllegalArgumentException("Orcid ID is empty");
+        }
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE orcidId = (:orcidId)",
+                new MapSqlParameterSource().addValue("orcidId", orcidId), new UserRowMapper()));
+    }
+    
     @Autowired
     private PasswordEncoder passwordEncoder;
     
@@ -100,7 +109,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
         
         int[] ints = template.batchUpdate(userSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'user' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table.");
         return ints;
     
     }
@@ -118,7 +127,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
     
         int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'user' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table.");
         return ints;
     }
     
@@ -134,7 +143,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
     
         int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'user' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table.");
         return ints;
     }
     

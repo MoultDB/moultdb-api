@@ -23,21 +23,6 @@ public abstract class EntityTO<T extends Comparable<T>> extends TransfertObject 
     }
     
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        EntityTO<?> entityTO = (EntityTO<?>) o;
-        return Objects.equals(id, entityTO.id);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-    
-    @Override
     public String toString() {
         return "EntityTO[id='" + id + "']";
     }

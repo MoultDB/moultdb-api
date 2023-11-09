@@ -3,7 +3,6 @@ package org.moultdb.api.controller;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.service.TaxonAnnotationService;
 import org.moultdb.api.service.TokenService;
-import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,7 +69,7 @@ public class TaxonAnnotationController {
         Integer integer;
         try {
             integer = taxonAnnotationService.importTaxonAnnotations(file);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Map<String, Object> resp = new HashMap<>();

@@ -20,4 +20,6 @@ public interface VersionDAO extends DAO<VersionTO> {
     int insert(VersionTO versionTO);
     
     Integer getLastId();
+    
+    int[] batchUpdate(Set<VersionTO> versionTOs);
 }

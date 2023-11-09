@@ -46,12 +46,10 @@ public class MySQLConditionDAO implements ConditionDAO {
     }
     
     @Override
-    public ConditionTO find(String devStageName, String anatEntityName, String sex, String moultingStep) {
-        String sql = SELECT_STATEMENT + "WHERE ds.name = :dsName AND ae.name =:aeName AND c.sex = :sex AND c.moulting_step = :ms ";
-        MapSqlParameterSource source = new MapSqlParameterSource().addValue("dsName", devStageName)
-                                                                  .addValue("aeName", anatEntityName)
-                                                                  .addValue("sex", sex)
-                                                                  .addValue("ms", moultingStep);
+    public ConditionTO find(String devStageId, String anatEntityId) {
+        String sql = SELECT_STATEMENT + "WHERE ds.id = :dsId AND ae.id =:aeId ";
+        MapSqlParameterSource source = new MapSqlParameterSource().addValue("dsId", devStageId)
+                                                                  .addValue("aeId", anatEntityId);
         return TransfertObject.getOneTO(template.query(sql, source, new MySQLConditionDAO.ConditionRowMapper()));
     }
     
@@ -87,7 +85,7 @@ public class MySQLConditionDAO implements ConditionDAO {
         }
 
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'cond' table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'cond' table.");
         return ints;
     }
     
@@ -106,7 +104,8 @@ public class MySQLConditionDAO implements ConditionDAO {
         @Override
         public ConditionTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new ConditionTO(rs.getInt("c.id"),
-                    new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"), rs.getInt("ds.leftBound"), rs.getInt("ds.rightBound")),
+                    new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
+                            rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound")),
                     new AnatEntityTO(rs.getString("ae.id"), rs.getString("ae.name"), rs.getString("ae.description")),
                     rs.getString("c.sex"), rs.getString("c.moulting_step"));
         }

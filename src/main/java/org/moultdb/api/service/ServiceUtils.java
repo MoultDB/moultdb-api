@@ -148,17 +148,23 @@ public class ServiceUtils {
             return null;
         }
         return new MoultingCharacters(LifeHistoryStyle.valueOfByStringRepresentation(mcTO.getLifeHistoryStyle()),
-                mcTO.getHasTerminalAdultStage(), mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(),
-                mcTO.getSpecimenCount(), mcTO.getSegmentAdditionMode(), mcTO.getBodySegmentsCountPerMoultStage(),
-                mcTO.getBodySegmentsCountInAdults(), mcTO.getBodyLengthAverage(), mcTO.getBodyLengthIncreaseAverage(),
-                mcTO.getMeasurementUnit(), mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
-                mcTO.getResultingNamedMoultingConfiguration(), EgressDirection.valueOfByStringRepresentation(mcTO.getEgressDirection()),
+                LifeMode.valueOfByStringRepresentation(mcTO.getLifeMode()), mcTO.getJuvenileMoultCount(),
+                mcTO.getMajorMorphologicalTransitionCount(), mcTO.getHasTerminalAdultStage(),
+                mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSegmentAdditionMode(),
+                mcTO.getBodySegmentCount(), mcTO.getBodySegmentCountInAdults(), mcTO.getBodyLengthAverage(),
+                mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyMassIncreaseAverage(), mcTO.getIntermoultPeriod(),
+                mcTO.getPremoultPeriod(), mcTO.getPostmoultPeriod(), mcTO.getVariationWithinCohorts(),
+                mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
+                mcTO.getResultingNamedMoultingConfiguration(),
+                EgressDirection.valueOfByStringRepresentation(mcTO.getEgressDirection()),
                 ExuviaePosition.valueOfByStringRepresentation(mcTO.getPositionExuviaeFoundIn()),
                 MoultingPhase.valueOfByStringRepresentation(mcTO.getMoultingPhase()),
-                MoultingVariability.valueOfByStringRepresentation(mcTO.getMoultingVariability()), mcTO.getOtherBehaviour(),
-                ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
+                MoultingVariability.valueOfByStringRepresentation(mcTO.getMoultingVariability()),
+                Calcification.valueOfByStringRepresentation(mcTO.getCalcificationEvent()),
+                HeavyMetalReinforcement.valueOfByStringRepresentation(mcTO.getHeavyMetalReinforcement()),
+                mcTO.getOtherBehaviour(), ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
                 Reabsorption.valueOfByStringRepresentation(mcTO.getExoskeletalMaterialReabsorption()),
-                mcTO.getFossilExuviaeQuality());
+                mcTO.getFossilExuviaeQuality(), mcTO.getGeneralComments());
     }
     
     public static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {

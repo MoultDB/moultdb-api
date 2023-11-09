@@ -21,19 +21,20 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private final ImageTO imageTO;
     private final TermTO ecoTO;
     private final TermTO cioTO;
+    private final String determinedBy;
     private final Integer versionId;
     
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
                              Integer sampleSetId, ConditionTO conditionTO, ImageTO imageTO,
-                             Integer versionId) {
+                             String determinedBy, Integer versionId) {
         this(id, taxonTO, annotatedSpeciesName, null, sampleSetId, conditionTO, null,
-                imageTO, null, null, versionId);
+                imageTO, null, null, determinedBy, versionId);
     }
     
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
                              Integer moultingCharactersId, Integer sampleSetId,
                              ConditionTO conditionTO, ArticleTO articleTO, ImageTO imageTO,
-                             TermTO ecoTO, TermTO cioTO, Integer versionId) {
+                             TermTO ecoTO, TermTO cioTO, String determinedBy, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
         this.annotatedSpeciesName = annotatedSpeciesName;
@@ -44,6 +45,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         this.imageTO = imageTO;
         this.ecoTO = ecoTO;
         this.cioTO = cioTO;
+        this.determinedBy = determinedBy;
         this.versionId = versionId;
     }
     
@@ -83,6 +85,10 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return cioTO;
     }
     
+    public String getDeterminedBy() {
+        return determinedBy;
+    }
+    
     public Integer getVersionId() {
         return versionId;
     }
@@ -100,6 +106,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
                 .add("imageTO=" + imageTO)
                 .add("ecoTO=" + ecoTO)
                 .add("cioTO=" + cioTO)
+                .add("determinedBy=" + determinedBy)
                 .add("versionId=" + versionId)
                 .toString();
     }

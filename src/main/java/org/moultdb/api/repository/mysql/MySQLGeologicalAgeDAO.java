@@ -102,7 +102,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
         }
         int[] ints = template.batchUpdate(geoAgeSql, params.toArray(MapSqlParameterSource[]::new));
         int newGeoAgeCount = Arrays.stream(ints).sum();
-        logger.info(newGeoAgeCount + " new row(s) in 'geological_age' table.");
+        logger.info(newGeoAgeCount + " updated row(s) in 'geological_age' table.");
     
         String synonymSql = "INSERT INTO geological_age_synonym (geological_age_notation, synonym) " +
                 "VALUES (:geological_age_notation, :synonym) " +
@@ -118,7 +118,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
             }
         }
         ints = template.batchUpdate(synonymSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'geological_age_synonym' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'geological_age_synonym' table.");
         
         return newGeoAgeCount;
     }

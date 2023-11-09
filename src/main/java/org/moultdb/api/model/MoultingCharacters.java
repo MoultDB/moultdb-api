@@ -1,12 +1,6 @@
 package org.moultdb.api.model;
 
-import org.moultdb.api.model.moutldbenum.EgressDirection;
-import org.moultdb.api.model.moutldbenum.ExuviaeConsumption;
-import org.moultdb.api.model.moutldbenum.ExuviaePosition;
-import org.moultdb.api.model.moutldbenum.LifeHistoryStyle;
-import org.moultdb.api.model.moutldbenum.MoultingPhase;
-import org.moultdb.api.model.moutldbenum.MoultingVariability;
-import org.moultdb.api.model.moutldbenum.Reabsorption;
+import org.moultdb.api.model.moutldbenum.*;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -24,6 +18,12 @@ public class MoultingCharacters {
      */
     private final LifeHistoryStyle lifeHistoryStyle;
     
+    private final LifeMode lifeMode;
+    
+    private final Integer juvenileMoultCount;
+    
+    private final Integer majorMorphologicalTransitionCount;
+    
     /**
      * Define whether there is a terminal adult moult (=true) or it's a continued moulting (=false) during adult stage
      */
@@ -40,11 +40,6 @@ public class MoultingCharacters {
     private final Integer estimatedMoultCount;
 
     /**
-     * Define the number of specimen at each moult stage
-     */
-    private final Integer specimenCount;
-    
-    /**
      * Define the mode in which the species adds segments through its life history
      */
     private final String segmentAdditionMode;
@@ -52,12 +47,12 @@ public class MoultingCharacters {
     /**
      * Define the number of body segments added by individuals of the species at each moult stage (can be two values)
      */
-    private final String bodySegmentsCountPerMoultStage;
+    private final String bodySegmentCount;
     
     /**
      * Define the number of body segments in adult individuals of the species (can be two values ar a range)
      */
-    private final String bodySegmentsCountInAdults;
+    private final String bodySegmentCountInAdults;
     
     /**
      * Define the average body length of individuals at this defined and observed moult stage
@@ -67,12 +62,20 @@ public class MoultingCharacters {
     /**
      * Define the average body length increase with the previous moult stage (can be a range)
      */
-    private final String bodyLengthIncreaseAverage;
+    private final BigDecimal bodyLengthIncreaseAverage;
     
     /**
-     * Define the unit of body length measurements
+     * Define the average body mass increase with the previous moult stage (can be a range)
      */
-    private final String measurementUnit;
+    private final BigDecimal bodyMassIncreaseAverage;
+    
+    private final String intermoultPeriod;
+    
+    private final String premoultPeriod;
+    
+    private final String postmoultPeriod;
+    
+    private final String variationWithinCohorts;
     
     /**
      * Define location of moulting suture opened in adult specimens of this species in order to moult
@@ -114,6 +117,10 @@ public class MoultingCharacters {
      */
     private final MoultingVariability moultingVariability;
     
+    private final Calcification calcificationEvent;
+    
+    private final HeavyMetalReinforcement heavyMetalReinforcement;
+    
     /**
      * Define other notable behaviours, excepting methods of moulting itself, that the species shows in conjunction with individual moulting events
      */
@@ -133,27 +140,38 @@ public class MoultingCharacters {
      */
     private final String fossilExuviaeQuality;
     
-    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, Boolean hasTerminalAdultStage, Integer observedMoultCount,
-                              Integer estimatedMoultCount, Integer specimenCount, String segmentAdditionMode,
-                              String bodySegmentsCountPerMoultStage, String bodySegmentsCountInAdults,
-                              BigDecimal bodyLengthAverage, String bodyLengthIncreaseAverage,
-                              String measurementUnit, String sutureLocation,
-                              String cephalicSutureLocation, String postCephalicSutureLocation,
+    private final String generalComments;
+    
+    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, LifeMode lifeMode, Integer juvenileMoultCount,
+                              Integer majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
+                              Integer observedMoultCount, Integer estimatedMoultCount, String segmentAdditionMode,
+                              String bodySegmentCount, String bodySegmentCountInAdults, BigDecimal bodyLengthAverage,
+                              BigDecimal bodyLengthIncreaseAverage, BigDecimal bodyMassIncreaseAverage, String intermoultPeriod,
+                              String premoultPeriod, String postmoultPeriod, String variationWithinCohorts,
+                              String sutureLocation, String cephalicSutureLocation, String postCephalicSutureLocation,
                               String resultingNamedMoultingConfiguration, EgressDirection egressDirection,
                               ExuviaePosition positionExuviaeFoundIn, MoultingPhase moultingPhase,
-                              MoultingVariability moultingVariability, String otherBehaviour, ExuviaeConsumption exuviaeConsumption,
-                              Reabsorption reabsorption, String fossilExuviaeQuality) {
+                              MoultingVariability moultingVariability, Calcification calcificationEvent,
+                              HeavyMetalReinforcement heavyMetalReinforcement, String otherBehaviour,
+                              ExuviaeConsumption exuviaeConsumption, Reabsorption reabsorption,
+                              String fossilExuviaeQuality, String generalComments) {
         this.lifeHistoryStyle = lifeHistoryStyle;
+        this.lifeMode = lifeMode;
+        this.juvenileMoultCount = juvenileMoultCount;
+        this.majorMorphologicalTransitionCount = majorMorphologicalTransitionCount;
         this.hasTerminalAdultStage = hasTerminalAdultStage;
         this.observedMoultCount = observedMoultCount;
         this.estimatedMoultCount = estimatedMoultCount;
-        this.specimenCount = specimenCount;
         this.segmentAdditionMode = segmentAdditionMode;
-        this.bodySegmentsCountPerMoultStage = bodySegmentsCountPerMoultStage;
-        this.bodySegmentsCountInAdults = bodySegmentsCountInAdults;
+        this.bodySegmentCount = bodySegmentCount;
+        this.bodySegmentCountInAdults = bodySegmentCountInAdults;
         this.bodyLengthAverage = bodyLengthAverage;
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
-        this.measurementUnit = measurementUnit;
+        this.bodyMassIncreaseAverage = bodyMassIncreaseAverage;
+        this.intermoultPeriod = intermoultPeriod;
+        this.premoultPeriod = premoultPeriod;
+        this.postmoultPeriod = postmoultPeriod;
+        this.variationWithinCohorts = variationWithinCohorts;
         this.sutureLocation = sutureLocation;
         this.cephalicSutureLocation = cephalicSutureLocation;
         this.postCephalicSutureLocation = postCephalicSutureLocation;
@@ -162,14 +180,29 @@ public class MoultingCharacters {
         this.positionExuviaeFoundIn = positionExuviaeFoundIn;
         this.moultingPhase = moultingPhase;
         this.moultingVariability = moultingVariability;
+        this.calcificationEvent = calcificationEvent;
+        this.heavyMetalReinforcement = heavyMetalReinforcement;
         this.otherBehaviour = otherBehaviour;
         this.exuviaeConsumption = exuviaeConsumption;
         this.reabsorption = reabsorption;
         this.fossilExuviaeQuality = fossilExuviaeQuality;
+        this.generalComments = generalComments;
     }
     
     public LifeHistoryStyle getLifeHistoryStyle() {
         return lifeHistoryStyle;
+    }
+    
+    public LifeMode getLifeMode() {
+        return lifeMode;
+    }
+    
+    public Integer getJuvenileMoultCount() {
+        return juvenileMoultCount;
+    }
+    
+    public Integer getMajorMorphologicalTransitionCount() {
+        return majorMorphologicalTransitionCount;
     }
     
     public Boolean getHasTerminalAdultStage() {
@@ -184,32 +217,44 @@ public class MoultingCharacters {
         return estimatedMoultCount;
     }
     
-    public Integer getSpecimenCount() {
-        return specimenCount;
-    }
-    
     public String getSegmentAdditionMode() {
         return segmentAdditionMode;
     }
     
-    public String getBodySegmentsCountPerMoultStage() {
-        return bodySegmentsCountPerMoultStage;
+    public String getBodySegmentCount() {
+        return bodySegmentCount;
     }
     
-    public String getBodySegmentsCountInAdults() {
-        return bodySegmentsCountInAdults;
+    public String getBodySegmentCountInAdults() {
+        return bodySegmentCountInAdults;
     }
     
     public BigDecimal getBodyLengthAverage() {
         return bodyLengthAverage;
     }
     
-    public String getBodyLengthIncreaseAverage() {
+    public BigDecimal getBodyLengthIncreaseAverage() {
         return bodyLengthIncreaseAverage;
     }
     
-    public String getMeasurementUnit() {
-        return measurementUnit;
+    public BigDecimal getBodyMassIncreaseAverage() {
+        return bodyMassIncreaseAverage;
+    }
+    
+    public String getIntermoultPeriod() {
+        return intermoultPeriod;
+    }
+    
+    public String getPremoultPeriod() {
+        return premoultPeriod;
+    }
+    
+    public String getPostmoultPeriod() {
+        return postmoultPeriod;
+    }
+    
+    public String getVariationWithinCohorts() {
+        return variationWithinCohorts;
     }
     
     public String getSutureLocation() {
@@ -244,6 +289,14 @@ public class MoultingCharacters {
         return moultingVariability;
     }
     
+    public Calcification getCalcificationEvent() {
+        return calcificationEvent;
+    }
+    
+    public HeavyMetalReinforcement getHeavyMetalReinforcement() {
+        return heavyMetalReinforcement;
+    }
+    
     public String getOtherBehaviour() {
         return otherBehaviour;
     }
@@ -260,6 +313,10 @@ public class MoultingCharacters {
         return fossilExuviaeQuality;
     }
     
+    public String getGeneralComments() {
+        return generalComments;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -268,16 +325,22 @@ public class MoultingCharacters {
             return false;
         MoultingCharacters that = (MoultingCharacters) o;
         return lifeHistoryStyle == that.lifeHistoryStyle
+                && lifeMode == that.lifeMode
+                && Objects.equals(juvenileMoultCount, that.juvenileMoultCount)
+                && Objects.equals(majorMorphologicalTransitionCount, that.majorMorphologicalTransitionCount)
                 && Objects.equals(hasTerminalAdultStage, that.hasTerminalAdultStage)
                 && Objects.equals(observedMoultCount, that.observedMoultCount)
                 && Objects.equals(estimatedMoultCount, that.estimatedMoultCount)
-                && Objects.equals(specimenCount, that.specimenCount)
                 && Objects.equals(segmentAdditionMode, that.segmentAdditionMode)
-                && Objects.equals(bodySegmentsCountPerMoultStage, that.bodySegmentsCountPerMoultStage)
-                && Objects.equals(bodySegmentsCountInAdults, that.bodySegmentsCountInAdults)
+                && Objects.equals(bodySegmentCount, that.bodySegmentCount)
+                && Objects.equals(bodySegmentCountInAdults, that.bodySegmentCountInAdults)
                 && Objects.equals(bodyLengthAverage, that.bodyLengthAverage)
                 && Objects.equals(bodyLengthIncreaseAverage, that.bodyLengthIncreaseAverage)
-                && Objects.equals(measurementUnit, that.measurementUnit)
+                && Objects.equals(bodyMassIncreaseAverage, that.bodyMassIncreaseAverage)
+                && Objects.equals(intermoultPeriod, that.intermoultPeriod)
+                && Objects.equals(premoultPeriod, that.premoultPeriod)
+                && Objects.equals(postmoultPeriod, that.postmoultPeriod)
+                && Objects.equals(variationWithinCohorts, that.variationWithinCohorts)
                 && Objects.equals(sutureLocation, that.sutureLocation)
                 && Objects.equals(cephalicSutureLocation, that.cephalicSutureLocation)
                 && Objects.equals(postCephalicSutureLocation, that.postCephalicSutureLocation)
@@ -286,36 +349,47 @@ public class MoultingCharacters {
                 && positionExuviaeFoundIn == that.positionExuviaeFoundIn
                 && moultingPhase == that.moultingPhase
                 && moultingVariability == that.moultingVariability
+                && calcificationEvent == that.calcificationEvent
+                && heavyMetalReinforcement == that.heavyMetalReinforcement
                 && Objects.equals(otherBehaviour, that.otherBehaviour)
                 && exuviaeConsumption == that.exuviaeConsumption
                 && reabsorption == that.reabsorption
-                && Objects.equals(fossilExuviaeQuality, that.fossilExuviaeQuality);
+                && Objects.equals(fossilExuviaeQuality, that.fossilExuviaeQuality)
+                && Objects.equals(generalComments, that.generalComments);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(lifeHistoryStyle, hasTerminalAdultStage, observedMoultCount, estimatedMoultCount, specimenCount,
-                segmentAdditionMode, bodySegmentsCountPerMoultStage, bodySegmentsCountInAdults, bodyLengthAverage,
-                bodyLengthIncreaseAverage, measurementUnit, sutureLocation,
-                cephalicSutureLocation, postCephalicSutureLocation, resultingNamedMoultingConfiguration, egressDirection,
-                positionExuviaeFoundIn, moultingPhase, moultingVariability,
-                otherBehaviour, exuviaeConsumption, reabsorption, fossilExuviaeQuality);
+        return Objects.hash(lifeHistoryStyle, lifeMode, juvenileMoultCount, majorMorphologicalTransitionCount,
+                hasTerminalAdultStage, observedMoultCount, estimatedMoultCount, segmentAdditionMode, bodySegmentCount,
+                bodySegmentCountInAdults, bodyLengthAverage, bodyLengthIncreaseAverage, bodyMassIncreaseAverage,
+                intermoultPeriod, premoultPeriod, postmoultPeriod, variationWithinCohorts, sutureLocation,
+                cephalicSutureLocation, postCephalicSutureLocation, resultingNamedMoultingConfiguration,
+                egressDirection, positionExuviaeFoundIn, moultingPhase, moultingVariability, calcificationEvent,
+                heavyMetalReinforcement, otherBehaviour, exuviaeConsumption, reabsorption, fossilExuviaeQuality,
+                generalComments);
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", MoultingCharacters.class.getSimpleName() + "[", "]")
                 .add("lifeHistoryStyle=" + lifeHistoryStyle)
+                .add("lifeMode=" + lifeMode)
+                .add("juvenileMoultCount=" + juvenileMoultCount)
+                .add("majorMorphologicalTransitionCount=" + majorMorphologicalTransitionCount)
                 .add("hasTerminalAdultStage=" + hasTerminalAdultStage)
                 .add("observedMoultCount=" + observedMoultCount)
                 .add("estimatedMoultCount=" + estimatedMoultCount)
-                .add("specimenCount=" + specimenCount)
                 .add("segmentAdditionMode='" + segmentAdditionMode + "'")
-                .add("bodySegmentsCountPerMoultStage=" + bodySegmentsCountPerMoultStage)
-                .add("bodySegmentsCountInAdults=" + bodySegmentsCountInAdults)
+                .add("bodySegmentCount='" + bodySegmentCount + "'")
+                .add("bodySegmentCountInAdults='" + bodySegmentCountInAdults + "'")
                 .add("bodyLengthAverage=" + bodyLengthAverage)
-                .add("bodyLengthIncreaseAverage=" + bodyLengthIncreaseAverage)
-                .add("measurementUnit=" + measurementUnit)
+                .add("bodyLengthIncreaseAverage='" + bodyLengthIncreaseAverage + "'")
+                .add("bodyMassIncreaseAverage='" + bodyMassIncreaseAverage + "'")
+                .add("intermoultPeriod='" + intermoultPeriod + "'")
+                .add("premoultPeriod='" + premoultPeriod + "'")
+                .add("postmoultPeriod='" + postmoultPeriod + "'")
+                .add("variationWithinCohorts='" + variationWithinCohorts + "'")
                 .add("sutureLocation='" + sutureLocation + "'")
                 .add("cephalicSutureLocation='" + cephalicSutureLocation + "'")
                 .add("postCephalicSutureLocation='" + postCephalicSutureLocation + "'")
@@ -324,10 +398,13 @@ public class MoultingCharacters {
                 .add("positionExuviaeFoundIn=" + positionExuviaeFoundIn)
                 .add("moultingPhase=" + moultingPhase)
                 .add("moultingVariability=" + moultingVariability)
+                .add("calcificationEvent=" + calcificationEvent)
+                .add("heavyMetalReinforcement=" + heavyMetalReinforcement)
                 .add("otherBehaviour='" + otherBehaviour + "'")
                 .add("exuviaeConsumption=" + exuviaeConsumption)
                 .add("reabsorption=" + reabsorption)
                 .add("fossilExuviaeQuality='" + fossilExuviaeQuality + "'")
+                .add("generalComments='" + generalComments + "'")
                 .toString();
     }
 }

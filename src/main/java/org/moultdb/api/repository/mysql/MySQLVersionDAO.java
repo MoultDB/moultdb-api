@@ -3,6 +3,7 @@ package org.moultdb.api.repository.mysql;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.VersionDAO;
+import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.TransfertObject;
 import org.moultdb.api.repository.dto.UserTO;
 import org.moultdb.api.repository.dto.VersionTO;
@@ -59,25 +60,7 @@ public class MySQLVersionDAO implements VersionDAO {
     
     @Override
     public int insert(VersionTO versionTO) {
-        String insertStmt = "INSERT INTO version (id, creation_user_id, creation_date," +
-                " last_update_user_id, last_update_date, version_number) " +
-                "VALUES (:id, :creation_user_id, :creation_date, " +
-                ":last_update_user_id, :last_update_date, :version_number) ";
-        
-        List<MapSqlParameterSource> params = new ArrayList<>();
-        MapSqlParameterSource source = new MapSqlParameterSource();
-        source.addValue("id", versionTO.getId());
-        source.addValue("creation_user_id", versionTO.getCreationUserTO().getId());
-        source.addValue("creation_date", versionTO.getCreationDate());
-        source.addValue("last_update_user_id", versionTO.getLastUpdateUserTO().getId());
-        source.addValue("last_update_date", versionTO.getLastUpdateDate());
-        source.addValue("version_number", versionTO.getVersionNumber());
-        params.add(source);
-        
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'version' table.");
-        
-        return ints[0];
+        return batchUpdate(Collections.singleton(versionTO))[0];
     }
     
     @Override
@@ -89,6 +72,29 @@ public class MySQLVersionDAO implements VersionDAO {
             logger.debug("No record found in 'version' table");
             return 0;
         }
+    }
+    
+    @Override
+    public int[] batchUpdate(Set<VersionTO> versionTOs) {
+        String insertStmt = "INSERT INTO version (id, creation_user_id, creation_date," +
+                " last_update_user_id, last_update_date, version_number) " +
+                "VALUES (:id, :creation_user_id, :creation_date, " +
+                ":last_update_user_id, :last_update_date, :version_number) ";
+        
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (VersionTO versionTO : versionTOs) {
+            MapSqlParameterSource source = new MapSqlParameterSource();
+            source.addValue("id", versionTO.getId());
+            source.addValue("creation_user_id", versionTO.getCreationUserTO().getId());
+            source.addValue("creation_date", versionTO.getCreationDate());
+            source.addValue("last_update_user_id", versionTO.getLastUpdateUserTO().getId());
+            source.addValue("last_update_date", versionTO.getLastUpdateDate());
+            source.addValue("version_number", versionTO.getVersionNumber());
+            params.add(source);
+        }
+        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'version' table.");
+        return ints;
     }
     
     private static class VersionRowMapper implements RowMapper<VersionTO> {

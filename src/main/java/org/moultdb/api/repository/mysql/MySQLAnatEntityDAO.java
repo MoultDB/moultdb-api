@@ -50,7 +50,7 @@ public class MySQLAnatEntityDAO implements AnatEntityDAO {
         try {
             return template.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
         } catch (EmptyResultDataAccessException e) {
-            logger.debug("No record found in 'cond' table");
+            logger.debug("No record found in 'anatomical_entity' table");
             return 0;
         }
     }

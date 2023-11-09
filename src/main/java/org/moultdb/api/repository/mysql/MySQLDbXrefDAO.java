@@ -69,9 +69,38 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
                     + "] and/or dataSourceId [" + dataSourceId + "] can not be null");
         }
         return  TransfertObject.getOneTO(template.query(SELECT_STATEMENT +
-                        "WHERE x.accession = :accession AND data_source_id = :data_source_id ",
+                        "WHERE x.accession = :accession AND x.data_source_id = :data_source_id ",
                 new MapSqlParameterSource().addValue("accession", accession)
                                            .addValue("data_source_id", dataSourceId),
+                new DbXrefRowMapper()));
+    }
+    
+    @Override
+    public DbXrefTO find(String accession, String name, Integer dataSourceId) {
+        if (dataSourceId == null) {
+            throw new IllegalArgumentException("A datasource ID [" + dataSourceId + "] can not be null");
+        }
+        if (StringUtils.isBlank(accession) && StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("An accession [" + accession+ "] and name [" + name + "] can not be null");
+        }
+        
+        String sql = SELECT_STATEMENT + "WHERE x.data_source_id = :data_source_id ";
+        MapSqlParameterSource mapSqlParameterSource = new MapSqlParameterSource()
+                .addValue("data_source_id", dataSourceId);
+        
+        if (StringUtils.isNotBlank(accession)) {
+            sql += "AND x.accession = :accession ";
+            mapSqlParameterSource.addValue("accession", accession);
+        }
+        
+        if (StringUtils.isNotBlank(name)) {
+            sql += "AND x.name = :name ";
+            mapSqlParameterSource.addValue("name", name);
+        }
+        return  TransfertObject.getOneTO(template.query(sql,
+                new MapSqlParameterSource().addValue("accession", accession)
+                        .addValue("name", name)
+                        .addValue("data_source_id", dataSourceId),
                 new DbXrefRowMapper()));
     }
     
@@ -97,7 +126,7 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
             params.add(source);
         }
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'db_xref' table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'db_xref' table.");
         return ints;
     }
     
@@ -115,7 +144,7 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
     protected static class DbXrefRowMapper implements RowMapper<DbXrefTO> {
         @Override
         public DbXrefTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"),
+            return new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"), rs.getString("x.name"),
                     new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("description"),
                             rs.getString("ds.base_url"), rs.getDate("ds.last_import_date"), rs.getString("ds.release_version")));
         }
@@ -125,7 +154,7 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
         @Override
         public Map.Entry<Integer, DbXrefTO> mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new AbstractMap.SimpleEntry<>(rs.getInt("adx.article_id"),
-                    new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"),
+                    new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"), rs.getString("x.name"),
                             new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("description"),
                                     rs.getString("ds.base_url"), rs.getDate("ds.last_import_date"), rs.getString("ds.release_version"))));
         }

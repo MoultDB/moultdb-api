@@ -51,7 +51,7 @@ public class MySQLArticleToDbXrefDAO implements ArticleToDbXrefDAO {
             params.add(source);
         }
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'article_db_xref' table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'article_db_xref' table.");
         return ints;
     }
 }

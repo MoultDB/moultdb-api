@@ -109,14 +109,15 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     @Override
     public int[] batchUpdate(Set<SampleSetTO> sampleSetTOs) {
         String insertStmt = "INSERT INTO sample_set (id, museum_accessions, from_geological_age_notation," +
-                " to_geological_age_notation, specimen_count, is_fossil, is_captive) " +
+                " to_geological_age_notation, specimen_count, is_fossil, is_captive, biozone) " +
                 "VALUES (:id, :museum_accessions, :from_geological_age_notation, :to_geological_age_notation, " +
-                ":specimen_count, :is_fossil, :is_captive) " +
+                ":specimen_count, :is_fossil, :is_captive, :biozone) " +
                 "AS new " +
                 "ON DUPLICATE KEY UPDATE museum_accessions = new.museum_accessions, " +
-                " from_geological_age_notation = new.from_geological_age_notation, " +
-                " to_geological_age_notation = new.to_geological_age_notation, " +
-                " specimen_count = new.specimen_count, is_fossil = new.is_fossil, is_captive = new.is_captive";
+                "from_geological_age_notation = new.from_geological_age_notation, " +
+                "to_geological_age_notation = new.to_geological_age_notation, " +
+                "specimen_count = new.specimen_count, is_fossil = new.is_fossil, is_captive = new.is_captive, " +
+                "biozone = new.biozone";
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (SampleSetTO sampleSetTO : sampleSetTOs) {
             String storageAccessions = null;
@@ -131,10 +132,11 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             source.addValue("specimen_count", sampleSetTO.getSpecimenCount());
             source.addValue("is_fossil", sampleSetTO.isFossil());
             source.addValue("is_captive", sampleSetTO.isCaptive());
+            source.addValue("biozone", sampleSetTO.getBiozone());
             params.add(source);
         }
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in 'sample_set' table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'sample_set' table.");
     
         insertInOtherTable(sampleSetTOs, SampleSetTO::getStorageLocationNames,
                 "storage_location", "sample_set_storage_location", "storage_location_id",
@@ -187,7 +189,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         }
         
         int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in '" + otherTableName + "'  table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in '" + otherTableName + "'  table.");
     
         insertInAssociationTable(sampleSetTOs, func, otherTableName, associationTableName,
                 associationFieldName, mapper);
@@ -236,7 +238,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             }
         }
         int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " new row(s) in '" + associationTableName + "' table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in '" + associationTableName + "' table.");
     }
     
     @Override
@@ -276,7 +278,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 sampleSetTO = new SampleSetTO(rs.getInt("s.id"), DAO.mapToGeologicalAgeTO(rs, "gaf"),
                         DAO.mapToGeologicalAgeTO(rs, "gat"), rs.getInt("s.specimen_count"),
                         rs.getBoolean("s.is_fossil"), rs.getBoolean("s.is_captive"), museumAccessions,
-                        slNames, clNames, fptNames, eNames, gfNames, stNames);
+                        slNames, clNames, fptNames, eNames, gfNames, stNames, rs.getString("s.biozone"));
                 sampleSets.put(sampleSetId, sampleSetTO);
             }
             return new ArrayList<>(sampleSets.values());

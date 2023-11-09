@@ -11,7 +11,7 @@ import java.util.List;
 class FossilImporterTest {
     
     private final static Logger logger = LogManager.getLogger(FossilImporterTest.class.getName());
-    private static final String FOSSIL_ANNOTATIONS_TSV = "/fake-fossil-annotations4.tsv";
+    private static final String FOSSIL_ANNOTATIONS_TSV = "/fake-fossil-annotations5.tsv";
     
     @Test
     public void test() {

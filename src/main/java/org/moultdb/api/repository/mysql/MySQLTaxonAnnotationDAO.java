@@ -30,13 +30,18 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, c.*, ds.*, ae.*, a.*, i.*, eco.*, cio.*, v.*, uc.*, um.* " +
+    private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, dx1.*, c.*, ds.*, ae.*, a.*, dx2.*," +
+            " i.*, eco.*, cio.*, v.*, uc.*, um.* " +
             "FROM taxon_annotation ta " +
             "LEFT JOIN taxon t ON t.path = ta.taxon_path " +
+            "LEFT JOIN taxon_db_xref tdx ON t.path = tdx.taxon_path " +
+            "LEFT JOIN db_xref dx1 ON tdx.db_xref_id = dx1.id " +
             "LEFT JOIN cond c ON c.id = ta.condition_id " +
             "LEFT JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
             "LEFT JOIN anatomical_entity ae ON ae.id = c.dev_stage_id " +
             "LEFT JOIN article a ON a.id = ta.article_id " +
+            "LEFT JOIN article_db_xref adx ON a.id = adx.article_id " +
+            "LEFT JOIN db_xref dx2 ON adx.db_xref_id = dx2.id " +
             "LEFT JOIN image i ON i.id = ta.image_id " +
             "LEFT JOIN eco ON eco.id = ta.eco_id " +
             "LEFT JOIN cio ON cio.id = ta.cio_id " +
@@ -62,8 +67,8 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
 
     @Override
     public List<TaxonAnnotationTO> findByUser(String email, Integer limit) {
-        String limitSql = limit != null ? " ORDER BY v.creation_date DESC LIMIT " + limit : "";
-        return template.query(SELECT_STATEMENT + "WHERE uc.email = :email " + limitSql,
+        String limitSql = limit != null ? " LIMIT " + limit : "";
+        return template.query(SELECT_STATEMENT + "WHERE uc.email = :email ORDER BY v.creation_date DESC " + limitSql,
                 new MapSqlParameterSource().addValue("email", email), new TaxonAnnotationRowMapper());
     }
     
@@ -114,7 +119,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         params.add(source);
     
         int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new row(s) in 'taxon_annotation' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table.");
     
         return ints[0];
     }
@@ -122,7 +127,30 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     @Transactional
     @Override
     public int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
-        throw new UnsupportedOperationException("Insertion of 'complete' taxon annotations not available");
+        String sql = "INSERT INTO taxon_annotation (taxon_path, moulting_characters_id, " +
+                "sample_set_id, condition_id, article_id, annotated_species_name, eco_id, cio_id, version_id) " +
+                "VALUES (:taxonPath, :moultingCharactersId, " +
+                ":sampleSetId, :conditionId, :articleId, :annotatedSpeciesName, :ecoId, :cioId, :versionId)";
+        
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (TaxonAnnotationTO taxonAnnotationTO : taxonAnnotationTOs) {
+            MapSqlParameterSource source = new MapSqlParameterSource();
+            source.addValue("taxonPath", taxonAnnotationTO.getTaxonTO().getPath());
+            source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
+            source.addValue("sampleSetId", taxonAnnotationTO.getSampleSetId());
+            source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
+            source.addValue("articleId", taxonAnnotationTO.getArticleTO().getId());
+            source.addValue("annotatedSpeciesName", taxonAnnotationTO.getAnnotatedSpeciesName());
+            source.addValue("ecoId", taxonAnnotationTO.getEcoTO() == null? null: taxonAnnotationTO.getEcoTO().getId());
+            source.addValue("cioId", taxonAnnotationTO.getCioTO() == null? null: taxonAnnotationTO.getCioTO().getId());
+            source.addValue("versionId", taxonAnnotationTO.getVersionId());
+            params.add(source);
+        }
+        
+        int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
+        logger.debug(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table.");
+        
+        return ints;
     }
     
     @Override
@@ -134,13 +162,14 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         template.update(sql, new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"));
     }
     
+    // FIXME convert to ResultSetExtractor<List<TaxonAnnotationTO>> to be able to add x-refs
     private static class TaxonAnnotationRowMapper implements RowMapper<TaxonAnnotationTO> {
         @Override
         public TaxonAnnotationTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             
             // TODO: add dbXrefTOs
             TaxonTO taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                    rs.getString("t.parent_taxon_path"), rs.getString("t.taxon_rank"), rs.getBoolean("t.extinct"), null);
+                    rs.getString("t.parent_taxon_path"), rs.getBoolean("t.extinct"), null);
             
             DevStageTO devStageTO = null;
             if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
@@ -182,7 +211,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             
             return new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
                     rs.getInt("ta.moulting_characters_id"), rs.getInt("ta.sample_set_id"), conditionTO, articleTO,
-                    imageTO, ecoTO, cioTO, rs.getInt("ta.version_id"));
+                    imageTO, ecoTO, cioTO, rs.getString("ta.determined_by"), rs.getInt("ta.version_id"));
         }
     }
 }
