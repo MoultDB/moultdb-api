@@ -46,6 +46,11 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
     }
     
+    @GetMapping("/species")
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationBySpeciesName(@RequestParam("speciesName") String speciesName) {
+        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsBySpeciesName(speciesName));
+    }
+    
     //FIXME change postmapping to deletemapping
     @PostMapping("/delete")
     public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {

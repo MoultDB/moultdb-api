@@ -5,10 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.repository.dao.*;
-import org.moultdb.api.repository.dto.MoultingCharactersTO;
-import org.moultdb.api.repository.dto.SampleSetTO;
-import org.moultdb.api.repository.dto.TaxonAnnotationTO;
-import org.moultdb.api.repository.dto.VersionTO;
+import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TaxonAnnotationService;
 import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
@@ -71,6 +68,17 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             return null;
         }
         return taxonAnnotations.get(0);
+    }
+    
+    @Override
+    public List<TaxonAnnotation> getTaxonAnnotationsBySpeciesName(String speciesName) {
+        List<TaxonAnnotation> taxonAnnotations = new ArrayList<>();
+        TaxonTO taxonTO = taxonDAO.findByScientificName(speciesName);
+        if (taxonTO != null) {
+            List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByTaxon(taxonTO.getPath());
+            taxonAnnotations = getTaxonAnnotations(taxonAnnotationTOs);
+        }
+        return taxonAnnotations;
     }
     
     private List<TaxonAnnotation> getTaxonAnnotations(List<TaxonAnnotationTO> taxonAnnotationTOs) {
