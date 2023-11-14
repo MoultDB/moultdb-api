@@ -1,7 +1,9 @@
 package org.moultdb.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import org.moultdb.api.model.moutldbenum.Role;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import java.io.Serial;
@@ -36,6 +38,49 @@ public class MoultDBUser extends User {
         this.verified = verified;
     }
     
+    @JsonIgnore
+    @Override
+    public String getUsername() {
+        return super.getUsername();
+    }
+    
+    @JsonIgnore
+    @Override
+    public String getPassword() {
+        return super.getPassword();
+    }
+    
+    @JsonIgnore
+    @Override
+    public Collection<GrantedAuthority> getAuthorities() {
+        return super.getAuthorities();
+    }
+    
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return super.isAccountNonExpired();
+    }
+    
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return super.isAccountNonLocked();
+    }
+    
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return super.isCredentialsNonExpired();
+    }
+    
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return super.isEnabled();
+    }
+    
+    @JsonIgnore
     public String getEmail() {
         return getUsername();
     }
@@ -48,6 +93,7 @@ public class MoultDBUser extends User {
         return orcidId;
     }
     
+    @JsonIgnore
     public Boolean isVerified() {
         return verified;
     }

@@ -1,5 +1,6 @@
 package org.moultdb.api.repository.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
@@ -34,6 +35,7 @@ public class UserTO extends NamedEntityTO<Integer> {
         return email;
     }
     
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
