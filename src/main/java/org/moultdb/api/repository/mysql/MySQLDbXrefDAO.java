@@ -37,7 +37,7 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
     NamedParameterJdbcTemplate template;
     
     String SELECT_STATEMENT = "SELECT x.*, ds.* FROM db_xref x " +
-            "INNER JOIN data_source ds ON (x.data_source_id = ds.id) ";
+            "LEFT JOIN data_source ds ON (x.data_source_id = ds.id) ";
     
     public MySQLDbXrefDAO(NamedParameterJdbcTemplate template) {
         this.template = template;

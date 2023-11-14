@@ -33,13 +33,13 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT * FROM moulting_characters gmc " +
-            "INNER JOIN segment_addition_mode sam ON gmc.segment_addition_mode_id = sam.id " +
-            "INNER JOIN suture_location sl ON gmc.suture_location_id = sl.id " +
-            "INNER JOIN cephalic_suture_location csl ON gmc.cephalic_suture_location_id = csl.id " +
-            "INNER JOIN post_cephalic_suture_location pcsl ON gmc.post_cephalic_suture_location_id = pcsl.id " +
-            "INNER JOIN resulting_named_moulting_configuration rnmc ON gmc.resulting_named_moulting_configuration_id = rnmc.id " +
-            "INNER JOIN other_behaviour ob ON gmc.other_behaviour_id = ob.id " +
-            "INNER JOIN fossil_exuviae_quality feq ON gmc.fossil_exuviae_quality_id = feq.id ";
+            "LEFT JOIN segment_addition_mode sam ON gmc.segment_addition_mode_id = sam.id " +
+            "LEFT JOIN suture_location sl ON gmc.suture_location_id = sl.id " +
+            "LEFT JOIN cephalic_suture_location csl ON gmc.cephalic_suture_location_id = csl.id " +
+            "LEFT JOIN post_cephalic_suture_location pcsl ON gmc.post_cephalic_suture_location_id = pcsl.id " +
+            "LEFT JOIN resulting_named_moulting_configuration rnmc ON gmc.resulting_named_moulting_configuration_id = rnmc.id " +
+            "LEFT JOIN other_behaviour ob ON gmc.other_behaviour_id = ob.id " +
+            "LEFT JOIN fossil_exuviae_quality feq ON gmc.fossil_exuviae_quality_id = feq.id ";
     
     public MySQLMoultingCharactersDAO(NamedParameterJdbcTemplate template) {
         this.template = template;

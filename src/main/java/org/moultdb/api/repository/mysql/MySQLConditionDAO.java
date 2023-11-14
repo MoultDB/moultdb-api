@@ -33,8 +33,8 @@ public class MySQLConditionDAO implements ConditionDAO {
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT c.*, ds.*, ae.* FROM cond c " +
-            "INNER JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
-            "INNER JOIN anatomical_entity ae ON ae.id = c.anatomical_entity_id ";
+            "LEFT JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
+            "LEFT JOIN anatomical_entity ae ON ae.id = c.anatomical_entity_id ";
     
     public MySQLConditionDAO(NamedParameterJdbcTemplate template) {
         this.template = template;

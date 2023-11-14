@@ -39,8 +39,8 @@ public class MySQLVersionDAO implements VersionDAO {
     private static final String SELECT_STATEMENT =
             "SELECT v.*, u1.*, u2.* " +
             "FROM version v " +
-            "INNER JOIN user u1 ON (u1.id = v.creation_user_id) " +
-            "INNER JOIN user u2 ON (u2.id = v.last_update_user_id) ";
+            "LEFT JOIN user u1 ON (u1.id = v.creation_user_id) " +
+            "LEFT JOIN user u2 ON (u2.id = v.last_update_user_id) ";
     
     @Override
     public List<VersionTO> findAll() {

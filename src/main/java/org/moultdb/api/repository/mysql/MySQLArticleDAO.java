@@ -39,9 +39,9 @@ public class MySQLArticleDAO implements ArticleDAO {
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT a.*, ax.*, x.*, ds.* FROM article a " +
-            "INNER JOIN article_db_xref ax ON a.id = ax.article_id " +
-            "INNER JOIN db_xref x ON ax.db_xref_id = x.id " +
-            "INNER JOIN data_source ds ON (x.data_source_id = ds.id) ";
+            "LEFT JOIN article_db_xref ax ON a.id = ax.article_id " +
+            "LEFT JOIN db_xref x ON ax.db_xref_id = x.id " +
+            "LEFT JOIN data_source ds ON (x.data_source_id = ds.id) ";
     
     public MySQLArticleDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -131,7 +131,7 @@ public class MySQLArticleDAO implements ArticleDAO {
                 dbXrefTOs.add(dbXrefTO);
                 
                 // Build ArticleTO. Even if it already exists, we create a new one because it's an unmutable object
-                articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
+                articleTO = new ArticleTO(articleId, rs.getString("a.citation"),
                         rs.getString("a.title"), rs.getString("a.authors"), dbXrefTOs);
                 articles.put(articleId, articleTO);
             }
