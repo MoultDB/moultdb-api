@@ -3,6 +3,7 @@ package org.moultdb.api.repository.mysql;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
+import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TaxonTO;
@@ -155,7 +156,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        rs.getString("t.parent_taxon_path"), rs.getBoolean("t.extinct"), dbXrefTOs);
+                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs);
     
                 taxa.put(taxonPath, taxonTO);
             }

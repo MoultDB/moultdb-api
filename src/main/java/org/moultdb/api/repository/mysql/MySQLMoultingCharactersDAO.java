@@ -2,6 +2,7 @@ package org.moultdb.api.repository.mysql;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.MoultingCharactersDAO;
 import org.moultdb.api.repository.dto.MoultingCharactersTO;
 import org.moultdb.api.repository.dto.TransfertObject;
@@ -175,9 +176,9 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
         public MoultingCharactersTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             
             return new MoultingCharactersTO(rs.getInt("gmc.id"), rs.getString("gmc.life_history_style"),
-                    rs.getString("gmc.life_mode"), rs.getInt("juvenile_moult_count"),
-                    rs.getInt("major_morphological_transition_count"), rs.getBoolean("gmc.terminal_adult_stage"),
-                    rs.getInt("gmc.observed_moult_stage_count"), rs.getInt("gmc.estimated_moult_count"), rs.getString("sam.name"),
+                    rs.getString("gmc.life_mode"), DAO.getInteger(rs, "juvenile_moult_count"),
+                    DAO.getInteger(rs, "major_morphological_transition_count"), DAO.getBoolean(rs, "gmc.terminal_adult_stage"),
+                    DAO.getInteger(rs, "gmc.observed_moult_stage_count"), DAO.getInteger(rs, "gmc.estimated_moult_count"), rs.getString("sam.name"),
                     rs.getString("gmc.body_segment_count"), rs.getString("gmc.body_segment_count_in_adults"),
                     rs.getBigDecimal("gmc.body_length_average"), rs.getBigDecimal("gmc.body_length_increase_average"),
                     rs.getBigDecimal("gmc.body_mass_increase_average"), rs.getString("gmc.intermoult_period"),

@@ -3,6 +3,7 @@ package org.moultdb.api.repository.mysql;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
 import org.moultdb.api.repository.dto.*;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -170,7 +171,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             
             // TODO: add dbXrefTOs
             TaxonTO taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                    rs.getString("t.parent_taxon_path"), rs.getBoolean("t.extinct"), null);
+                    rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), null);
             
             DevStageTO devStageTO = null;
             if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
@@ -183,20 +184,20 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             }
             
             ConditionTO conditionTO = null;
-            if (rs.getInt("ta.condition_id") > 1) {
+            if (DAO.getInteger(rs, "ta.condition_id") != null) {
                 conditionTO = new ConditionTO(rs.getInt("c.id"), devStageTO, anatEntityTO,
                         rs.getString("c.sex"), rs.getString("c.moulting_step"));
             }
             
             ArticleTO articleTO = null;
-            if (rs.getInt("ta.article_id") > 1) {
+            if (DAO.getInteger(rs, "ta.article_id") != null) {
                 // TODO: add dbXrefTOs
                 articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
                         rs.getString("a.title"), rs.getString("a.authors"), null);
             }
             
             ImageTO imageTO = null;
-            if (rs.getInt("ta.image_id") > 1) {
+            if (DAO.getInteger(rs, "ta.image_id") != null) {
                 imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.description"));
             }
             

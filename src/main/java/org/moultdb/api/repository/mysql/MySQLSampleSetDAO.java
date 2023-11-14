@@ -270,10 +270,10 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 Set<String> stNames = extractNames(rs, "st.name", sampleSetTO == null ? null : sampleSetTO.getSpecimenTypes());
                 
                 // Build SampleSetTO. Even if it already exists, we create a new one because it's an unmutable object
-                sampleSetTO = new SampleSetTO(rs.getInt("s.id"), DAO.mapToGeologicalAgeTO(rs, "gaf"),
-                        DAO.mapToGeologicalAgeTO(rs, "gat"), rs.getInt("s.specimen_count"),
-                        rs.getBoolean("s.is_fossil"), rs.getBoolean("s.is_captive"), museumAccessions,
-                        slNames, clNames, fptNames, eNames, gfNames, stNames, rs.getString("s.biozone"));
+                sampleSetTO = new SampleSetTO(sampleSetId, DAO.mapToGeologicalAgeTO(rs, "gaf"),
+                        DAO.mapToGeologicalAgeTO(rs, "gat"), DAO.getInteger(rs, "s.specimen_count"),
+                        DAO.getBoolean(rs, "s.is_fossil"), DAO.getBoolean(rs, "s.is_captive"),
+                        museumAccessions, slNames, clNames, fptNames, eNames, gfNames, stNames, rs.getString("s.biozone"));
                 sampleSets.put(sampleSetId, sampleSetTO);
             }
             return new ArrayList<>(sampleSets.values());

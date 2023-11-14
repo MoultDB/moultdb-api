@@ -26,4 +26,15 @@ public interface DAO<T extends TransfertObject> {
                 rs.getBigDecimal(alias + "younger_bound"), rs.getBigDecimal(alias + "younger_bound_imprecision"),
                 rs.getBigDecimal(alias + "older_bound"), rs.getBigDecimal(alias + "older_bound_imprecision"), null);
     }
+    
+    static Integer getInteger(ResultSet rs, String strColName) throws SQLException {
+        int nValue = rs.getInt(strColName);
+        return rs.wasNull() ? null : nValue;
+    }
+    
+    static Boolean getBoolean(ResultSet rs, String strColName) throws SQLException {
+        boolean nValue = rs.getBoolean(strColName);
+        return rs.wasNull() ? null : nValue;
+    }
+    
 }
