@@ -277,8 +277,8 @@ public class FossilImporter {
             versionNextId ++;
             
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(taxonAnnotNextId, taxonTO, bean.getTaxon(),
-                    moultingCharactersTO.getId(), sampleSetTO.getId(), conditionTO, articleTO, null, null, null,
-                    bean.getDeterminedBy(), versionTO.getId());
+                    bean.getDeterminedBy(), sampleSetTO.getId(), conditionTO, articleTO, null,
+                    moultingCharactersTO.getId(), null, null, versionTO.getId());
             taxonAnnotationTOs.add(taxonAnnotationTO);
             taxonAnnotNextId ++;
         }

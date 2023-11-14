@@ -38,7 +38,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             "LEFT JOIN db_xref dx1 ON tdx.db_xref_id = dx1.id " +
             "LEFT JOIN cond c ON c.id = ta.condition_id " +
             "LEFT JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
-            "LEFT JOIN anatomical_entity ae ON ae.id = c.dev_stage_id " +
+            "LEFT JOIN anatomical_entity ae ON ae.id = c.anatomical_entity_id " +
             "LEFT JOIN article a ON a.id = ta.article_id " +
             "LEFT JOIN article_db_xref adx ON a.id = adx.article_id " +
             "LEFT JOIN db_xref dx2 ON adx.db_xref_id = dx2.id " +
@@ -127,20 +127,21 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     @Transactional
     @Override
     public int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
-        String sql = "INSERT INTO taxon_annotation (taxon_path, moulting_characters_id, " +
-                "sample_set_id, condition_id, article_id, annotated_species_name, eco_id, cio_id, version_id) " +
-                "VALUES (:taxonPath, :moultingCharactersId, " +
-                ":sampleSetId, :conditionId, :articleId, :annotatedSpeciesName, :ecoId, :cioId, :versionId)";
+        String sql = "INSERT INTO taxon_annotation (taxon_path, annotated_species_name, determined_by,  " +
+                "sample_set_id, condition_id, article_id, moulting_characters_id, eco_id, cio_id, version_id) " +
+                "VALUES (:taxonPath, :annotatedSpeciesName, :determinedBy, " +
+                ":sampleSetId, :conditionId, :articleId, :moultingCharactersId, :ecoId, :cioId, :versionId)";
         
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (TaxonAnnotationTO taxonAnnotationTO : taxonAnnotationTOs) {
             MapSqlParameterSource source = new MapSqlParameterSource();
             source.addValue("taxonPath", taxonAnnotationTO.getTaxonTO().getPath());
-            source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
+            source.addValue("annotatedSpeciesName", taxonAnnotationTO.getAnnotatedSpeciesName());
+            source.addValue("determinedBy", taxonAnnotationTO.getDeterminedBy());
             source.addValue("sampleSetId", taxonAnnotationTO.getSampleSetId());
             source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
             source.addValue("articleId", taxonAnnotationTO.getArticleTO().getId());
-            source.addValue("annotatedSpeciesName", taxonAnnotationTO.getAnnotatedSpeciesName());
+            source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
             source.addValue("ecoId", taxonAnnotationTO.getEcoTO() == null? null: taxonAnnotationTO.getEcoTO().getId());
             source.addValue("cioId", taxonAnnotationTO.getCioTO() == null? null: taxonAnnotationTO.getCioTO().getId());
             source.addValue("versionId", taxonAnnotationTO.getVersionId());
@@ -177,7 +178,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                         rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound"));
             }
             AnatEntityTO anatEntityTO = null;
-            if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
+            if (StringUtils.isNotBlank(rs.getString("c.anatomical_entity_id"))) {
                 anatEntityTO= new AnatEntityTO(rs.getString("ae.id"), rs.getString("ae.name"), rs.getString("ae.description"));
             }
             
@@ -210,8 +211,8 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             }
             
             return new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
-                    rs.getInt("ta.moulting_characters_id"), rs.getInt("ta.sample_set_id"), conditionTO, articleTO,
-                    imageTO, ecoTO, cioTO, rs.getString("ta.determined_by"), rs.getInt("ta.version_id"));
+                    rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), conditionTO, articleTO,
+                    imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"), ecoTO, cioTO, rs.getInt("ta.version_id"));
         }
     }
 }

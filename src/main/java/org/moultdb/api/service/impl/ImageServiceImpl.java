@@ -152,8 +152,8 @@ public class ImageServiceImpl implements ImageService {
         VersionTO versionTO = new VersionTO(versionNextId, userTO, current, userTO, current, 1);
         versionDAO.insert(versionTO);
         
-        TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, taxonName, null,
-                sampleSetTO.getId(), conditionTO, null, imageTO, null, null, versionNextId);
+        TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, taxonName, userTO.getOrcidId(),
+                sampleSetTO.getId(), conditionTO, null, imageTO, null, null, null, versionNextId);
         taxonAnnotationDAO.insertImageTaxonAnnotation(taxonAnnotationTO);
     }
     

@@ -14,11 +14,11 @@ public class Taxon extends NamedEntity<String> {
     
     private final String commonName;
     private final String parentTaxonPath;
-    private final boolean extinct;
+    private final Boolean extinct;
     private final Set<DbXref> dbXrefs;
     
     public Taxon(String path, String scientificName, String commonName, String parentTaxonPath,
-                 boolean extinct, Collection<DbXref> dbXrefs) {
+                 Boolean extinct, Collection<DbXref> dbXrefs) {
         super(path, scientificName);
         this.commonName = commonName;
         this.parentTaxonPath = parentTaxonPath;
@@ -43,7 +43,7 @@ public class Taxon extends NamedEntity<String> {
         return parentTaxonPath;
     }
     
-    public boolean isExtinct() {
+    public Boolean isExtinct() {
         return extinct;
     }
     

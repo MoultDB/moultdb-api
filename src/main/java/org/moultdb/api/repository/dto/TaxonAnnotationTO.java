@@ -27,14 +27,13 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
                              Integer sampleSetId, ConditionTO conditionTO, ImageTO imageTO,
                              String determinedBy, Integer versionId) {
-        this(id, taxonTO, annotatedSpeciesName, null, sampleSetId, conditionTO, null,
-                imageTO, null, null, determinedBy, versionId);
+        this(id, taxonTO, annotatedSpeciesName, determinedBy, sampleSetId, conditionTO, null, imageTO,
+                null, null, null, versionId);
     }
     
-    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
-                             Integer moultingCharactersId, Integer sampleSetId,
-                             ConditionTO conditionTO, ArticleTO articleTO, ImageTO imageTO,
-                             TermTO ecoTO, TermTO cioTO, String determinedBy, Integer versionId) {
+    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName, String determinedBy,
+                             Integer sampleSetId, ConditionTO conditionTO, ArticleTO articleTO, ImageTO imageTO,
+                             Integer moultingCharactersId, TermTO ecoTO, TermTO cioTO, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
         this.annotatedSpeciesName = annotatedSpeciesName;

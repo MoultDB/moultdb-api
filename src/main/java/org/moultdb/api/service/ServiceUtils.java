@@ -99,7 +99,7 @@ public class ServiceUtils {
                 sampleSetTO.getStorageAccessions(), sampleSetTO.getStorageLocationNames(),
                 sampleSetTO.getGeologicalFormations(), sampleSetTO.getFossilPreservationTypes(),
                 sampleSetTO.getEnvironments(), sampleSetTO.getSpecimenTypes(),
-                sampleSetTO.getSpecimenCount(), sampleSetTO.isFossil(), sampleSetTO.isFossil());
+                sampleSetTO.getSpecimenCount(), sampleSetTO.isFossil(), sampleSetTO.isCaptive());
     }
     
     public static Condition mapFromTO(ConditionTO conditionTO) {

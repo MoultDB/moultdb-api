@@ -58,7 +58,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             "LEFT JOIN sample_set_environment sse ON (sse.sample_set_id = s.id) " +
             "LEFT JOIN environment e ON (e.id = sse.environment_id) " +
             "LEFT JOIN sample_set_geological_formation ssgf ON (ssgf.sample_set_id = s.id) " +
-            "LEFT JOIN geological_formation gf ON (e.id = ssgf.geological_formation_id) " +
+            "LEFT JOIN geological_formation gf ON (gf.id = ssgf.geological_formation_id) " +
             "LEFT JOIN sample_set_specimen_type ssst ON (ssst.sample_set_id = s.id) " +
             "LEFT JOIN specimen_type st ON (st.id = ssst.specimen_type_id) ";
     
@@ -84,12 +84,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     
     @Override
     public List<SampleSetTO> find(GeologicalAgeTO fromGeoAgeTO, GeologicalAgeTO toGeoAgeTO, String location) {
-        String sql = "SELECT s.*, gaf.*, gat.*, cl.* " +
-                "FROM sample_set s " +
-                "INNER JOIN geological_age gaf ON (gaf.notation = s.from_geological_age_notation) " +
-                "INNER JOIN geological_age gat ON (gat.notation = s.to_geological_age_notation) " +
-                "INNER JOIN sample_set_collection_location sscl ON (sscl.sample_set_id = s.id) " +
-                "INNER JOIN collection_location cl ON (cl.id = sscl.collection_location_id) " +
+        String sql = SELECT_STATEMENT +
                 "WHERE gaf.notation = ':gaf' " +
                 "AND gat.notation = ':got' " +
                 "AND cl.name = ':location' ";
@@ -286,12 +281,13 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     
         private Set<String> extractNames(ResultSet rs, String label, Set<String> previousValues) throws SQLException {
             String value = rs.getString(label);
-            Set<String> values = previousValues;
             if (previousValues == null) {
                 previousValues = new HashSet<>();
             }
-            previousValues.add(value);
-            return values;
+            if (value != null) {
+                previousValues.add(value);
+            }
+            return previousValues;
         }
     }
     
