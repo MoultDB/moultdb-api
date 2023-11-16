@@ -10,6 +10,7 @@ public class TaxonAnnotation {
     
     private final Taxon taxon;
     private final String annotatedSpeciesName;
+    private final String determinedBy;
     private final SampleSet sampleSet;
     private final Condition condition;
     private final MoultingCharacters moultingCharacters;
@@ -19,11 +20,12 @@ public class TaxonAnnotation {
     private final Term cio;
     private final Version version;
     
-    public TaxonAnnotation(Taxon taxon, String annotatedSpeciesName, SampleSet sampleSet,
+    public TaxonAnnotation(Taxon taxon, String annotatedSpeciesName, String determinedBy, SampleSet sampleSet,
                            Condition condition, MoultingCharacters moultingCharacters, Article article,
                            ImageInfo imageInfo, Term eco, Term cio, Version version) {
         this.taxon = taxon;
         this.annotatedSpeciesName = annotatedSpeciesName;
+        this.determinedBy = determinedBy;
         this.sampleSet = sampleSet;
         this.condition = condition;
         this.moultingCharacters = moultingCharacters;
@@ -40,6 +42,10 @@ public class TaxonAnnotation {
     
     public String getAnnotatedSpeciesName() {
         return annotatedSpeciesName;
+    }
+    
+    public String getDeterminedBy() {
+        return determinedBy;
     }
     
     public SampleSet getSampleSet() {
@@ -83,6 +89,7 @@ public class TaxonAnnotation {
         TaxonAnnotation that = (TaxonAnnotation) o;
         return Objects.equals(taxon, that.taxon)
                 && Objects.equals(annotatedSpeciesName, that.annotatedSpeciesName)
+                && Objects.equals(determinedBy, that.determinedBy)
                 && Objects.equals(sampleSet, that.sampleSet)
                 && Objects.equals(condition, that.condition)
                 && Objects.equals(moultingCharacters, that.moultingCharacters)
@@ -95,7 +102,7 @@ public class TaxonAnnotation {
     
     @Override
     public int hashCode() {
-        return Objects.hash(taxon, annotatedSpeciesName, sampleSet, condition, moultingCharacters, article,
+        return Objects.hash(taxon, annotatedSpeciesName, determinedBy, sampleSet, condition, moultingCharacters, article,
                 imageInfo, eco, cio, version);
     }
 }

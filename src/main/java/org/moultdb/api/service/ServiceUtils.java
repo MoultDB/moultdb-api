@@ -69,6 +69,7 @@ public class ServiceUtils {
         return new TaxonAnnotation(
                 mapFromTO(taxonAnnotationTO.getTaxonTO()),
                 taxonAnnotationTO.getAnnotatedSpeciesName(),
+                taxonAnnotationTO.getDeterminedBy(), 
                 mapFromTO(sampleSetTO),
                 mapFromTO(taxonAnnotationTO.getConditionTO()),
                 mapFromTO(moultingCharactersTO),
@@ -171,7 +172,7 @@ public class ServiceUtils {
         if (geologicalAgeTO == null) {
             return null;
         }
-        return new GeologicalAge(geologicalAgeTO.getNotation(), geologicalAgeTO.getName(), geologicalAgeTO.getRank(),
+        return new GeologicalAge(geologicalAgeTO.getName(), geologicalAgeTO.getNotation(), geologicalAgeTO.getRank(),
                 geologicalAgeTO.getYoungerBound(), geologicalAgeTO.getYoungerBoundImprecision(),
                 geologicalAgeTO.getOlderBound(), geologicalAgeTO.getOlderBoundImprecision(), geologicalAgeTO.getSynonyms());
     }
