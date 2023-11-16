@@ -1,6 +1,5 @@
 package org.moultdb.api.repository.mysql;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.GeologicalAgeDAO;
@@ -85,7 +84,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
                 "VALUES (:notation, :name, :rank_type, :younger_bound, :younger_bound_imprecision," +
                 " :older_bound, :older_bound_imprecision) " +
                 "AS new " +
-                "ON DUPLICATE KEY UPDATE rank_type = new.rank_type, " +
+                "ON DUPLICATE KEY UPDATE name = new.name, rank_type = new.rank_type, " +
                 "younger_bound = new.younger_bound, younger_bound_imprecision = new.younger_bound_imprecision, " +
                 "older_bound = new.older_bound, older_bound_imprecision = new.older_bound_imprecision";
         List<MapSqlParameterSource> params = new ArrayList<>();
