@@ -17,7 +17,7 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     List<TaxonAnnotationTO> findByUser(String username, Integer limit);
     
-    List<TaxonAnnotationTO> findByTaxon(String taxonPath);
+    List<TaxonAnnotationTO> findByTaxonPath(String taxonPath);
 
     TaxonAnnotationTO findByImageFilename(String imageFilename);
     

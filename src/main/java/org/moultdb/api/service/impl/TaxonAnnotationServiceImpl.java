@@ -71,14 +71,17 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public List<TaxonAnnotation> getTaxonAnnotationsBySpeciesName(String speciesName) {
-        List<TaxonAnnotation> taxonAnnotations = new ArrayList<>();
-        TaxonTO taxonTO = taxonDAO.findByScientificName(speciesName);
-        if (taxonTO != null) {
-            List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByTaxon(taxonTO.getPath());
-            taxonAnnotations = getTaxonAnnotations(taxonAnnotationTOs);
+    public List<TaxonAnnotation> getTaxonAnnotationsByTaxonPath(String taxonPath) {
+        return getTaxonAnnotations(taxonAnnotationDAO.findByTaxonPath(taxonPath));
+    }
+    
+    @Override
+    public List<TaxonAnnotation> getTaxonAnnotationsByTaxonName(String taxonName) {
+        TaxonTO taxonTO = taxonDAO.findByScientificName(taxonName);
+        if (taxonTO == null) {
+            return new ArrayList<>();
         }
-        return taxonAnnotations;
+        return getTaxonAnnotationsByTaxonPath(taxonTO.getPath());
     }
     
     private List<TaxonAnnotation> getTaxonAnnotations(List<TaxonAnnotationTO> taxonAnnotationTOs) {

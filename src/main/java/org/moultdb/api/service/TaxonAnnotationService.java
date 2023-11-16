@@ -21,7 +21,9 @@ public interface TaxonAnnotationService {
     
     public TaxonAnnotation getTaxonAnnotationsByImageFilename(String imageId);
     
-    public List<TaxonAnnotation> getTaxonAnnotationsBySpeciesName(String speciesName);
+    public List<TaxonAnnotation> getTaxonAnnotationsByTaxonPath(String taxonPath);
+        
+    public List<TaxonAnnotation> getTaxonAnnotationsByTaxonName(String taxonName);
     
     public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) throws IOException;
     

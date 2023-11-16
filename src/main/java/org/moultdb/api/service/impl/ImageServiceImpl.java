@@ -231,7 +231,7 @@ public class ImageServiceImpl implements ImageService {
         if (taxonTO == null) {
             throw new MoultDBException("Taxon [" + taxonName + "] not found.");
         }
-        return getImageInfos(taxonAnnotationDAO.findByTaxon(taxonTO.getPath()));
+        return getImageInfos(taxonAnnotationDAO.findByTaxonPath(taxonTO.getPath()));
     }
     
     private List<ImageInfo> getImageInfos(List<TaxonAnnotationTO> taxonAnnotTOs) {

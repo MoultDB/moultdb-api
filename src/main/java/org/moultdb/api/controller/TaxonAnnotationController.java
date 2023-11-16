@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +45,14 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
     }
     
-    @GetMapping("/species")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationBySpeciesName(@RequestParam("speciesName") String speciesName) {
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsBySpeciesName(speciesName));
+    @GetMapping("/species/scientific-name")
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByTaxonName(@RequestParam("name") String name) {
+        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonName(name));
+    }
+    
+    @GetMapping("/species/path")
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByTaxonPath(@RequestParam("path") String path) {
+        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonPath(path));
     }
     
     //FIXME change postmapping to deletemapping
