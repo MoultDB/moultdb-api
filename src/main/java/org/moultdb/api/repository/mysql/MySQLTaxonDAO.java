@@ -1,5 +1,6 @@
 package org.moultdb.api.repository.mysql;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Valentine Rech de Laval
@@ -53,6 +53,19 @@ public class MySQLTaxonDAO implements TaxonDAO {
     public TaxonTO findByScientificName(String taxonScientificName) {
         return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) = lower(:scientific_name)",
                 new MapSqlParameterSource().addValue("scientific_name", taxonScientificName), new TaxonResultSetExtractor()));
+    }
+    
+    @Override
+    public TaxonTO findByAccession(String accession, String datasourceName) {
+        if (StringUtils.isBlank(accession) || StringUtils.isBlank(datasourceName)) {
+            throw new UnsupportedOperationException("Empty parameters not supported: accession [" + accession + 
+                    "] ; datasourceName [" + datasourceName + "]" );
+        }
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + 
+                        "WHERE x.accession = :accession " +
+                        "AND ds.name = :datasourceName ",
+                new MapSqlParameterSource().addValue("accession", accession).addValue("datasourceName", datasourceName),
+                new TaxonResultSetExtractor()));
     }
     
     @Override

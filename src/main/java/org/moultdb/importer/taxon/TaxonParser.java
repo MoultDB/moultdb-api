@@ -10,6 +10,7 @@ import org.moultdb.api.repository.dto.DataSourceTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TaxonTO;
 import org.moultdb.api.repository.dto.TaxonToDbXrefTO;
+import org.moultdb.importer.ImportUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
@@ -96,8 +97,8 @@ public class TaxonParser {
         Integer dbXrefLastId = dbXrefDAO.getLastId();
         Integer dbXrefNextId = dbXrefLastId == null ? 1 : dbXrefLastId + 1;
         
-        DataSourceTO ncbiTO = dataSourceDAO.findByName("NCBI Taxonomy");
-        DataSourceTO gbifTO = dataSourceDAO.findByName("GBIF Backbone Taxonomy");
+        DataSourceTO ncbiTO = dataSourceDAO.findByName(ImportUtils.NCBI_TAXONOMY_DATASOURCE_NAME);
+        DataSourceTO gbifTO = dataSourceDAO.findByName(ImportUtils.GBIF_TAXONOMY_DATASOURCE_NAME);
         if (ncbiTO == null || gbifTO == null) {
             throw new IllegalArgumentException("Unknown data source(s).");
         }

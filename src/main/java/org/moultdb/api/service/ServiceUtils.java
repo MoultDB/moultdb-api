@@ -7,6 +7,7 @@ import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -214,5 +215,16 @@ public class ServiceUtils {
         }
         return new MoultDBUser(userTO.getEmail(), userTO.getName(), userTO.getPassword(), userTO.getOrcidId(),
                 roles, userTO.isVerified());
+    }
+    
+    public static Genome mapFromTO(GenomeTO genomeTO) {
+        if (genomeTO == null) {
+            return null;
+        }
+        return new Genome(genomeTO.getGeneBankAcc(), mapFromTO(genomeTO.getTaxonTO()), genomeTO.getSubmissionDate(),
+                genomeTO.getLength(), genomeTO.getScaffolds(), genomeTO.getScaffoldL50(), genomeTO.getScaffoldN50(),
+                genomeTO.getAnnotationDate(), genomeTO.getTotalGenes(),genomeTO.getCompleteBusco(),
+                genomeTO.getSingleBusco(), genomeTO.getDuplicatedBusco(), genomeTO.getFragmentedBusco(),
+                genomeTO.getMissingBusco());
     }
 }

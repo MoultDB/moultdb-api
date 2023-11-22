@@ -35,6 +35,7 @@ public class TokenFilterConfig {
         // FIXME enable following filters and remove email/token from controllers
 //        filter.addUrlPatterns("/user/reset-password");
 //        filter.addUrlPatterns("/image/import");
+        filter.addUrlPatterns("/genome/import-file");
         return filter;
     }
 }
