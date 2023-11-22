@@ -47,11 +47,11 @@ public class TaxonParser {
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.STANDARD_PREFERENCE).build();
     private final static String LIST_SEPARATOR = "; ";
     private final static String ID_COL_NAME = "id";
-    private final static String PATH_COL_NAME = "Index";
-    private final static String NCBI_ID_COL_NAME = "ncbi_id";
+    private final static String PATH_COL_NAME = "path";
+    private final static String NCBI_ID_COL_NAME = "ncbi_taxon_id";
     private final static String GBIF_ID_COL_NAME = "gbif_taxon_id";
-    private final static String NCBI_NAME_COL_NAME = "ncbi_canonicalName";
-    private final static String GBIF_NAME_COL_NAME = "canonicalName";
+    private final static String NCBI_NAME_COL_NAME = "ncbi_canonical_name";
+    private final static String GBIF_NAME_COL_NAME = "gbif_canonical_name";
     private final static String SYNONYM_GBIF_IDS_COL_NAME = "gbif_synonyms_ids";
     private final static String SYNONYM_GBIF_NAMES_COL_NAME = "gbif_synonyms_names";
     private final static String SYNONYM_NCBI_NAMES_COL_NAME = "ncbi_synonyms_names";
