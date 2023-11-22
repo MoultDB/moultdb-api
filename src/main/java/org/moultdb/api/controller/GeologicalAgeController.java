@@ -23,8 +23,8 @@ public class GeologicalAgeController {
     GeologicalAgeService geologicalAgeService;
     
     @GetMapping(value = "/create")
-    public ResponseEntity<Map<String, Integer>> insertGeologicalAge() {
-        Integer integer = geologicalAgeService.updateGeologicalAges();
-        return generateValidResponse(integer);
+    public ResponseEntity<Map<String, Object>> insertGeologicalAge() {
+        geologicalAgeService.updateGeologicalAges();
+        return generateValidResponse("Geological ages imported/updated");
     }
 }

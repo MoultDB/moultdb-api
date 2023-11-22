@@ -15,6 +15,6 @@ public interface GenomeService {
     
     public List<Genome> getGenomesByTaxon(String taxonPath, boolean withSubspeciesGenomes);
     
-    public Integer updateGenomes(MultipartFile file);
+    public void updateGenomes(MultipartFile file);
     
 }

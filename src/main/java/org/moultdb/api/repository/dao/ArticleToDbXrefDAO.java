@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public interface ArticleToDbXrefDAO extends DAO<ArticleToDbXrefTO> {
     
-    int insert(ArticleToDbXrefTO dbXrefTO);
+    void insert(ArticleToDbXrefTO dbXrefTO);
     
-    int[] batchUpdate(Set<ArticleToDbXrefTO> dbXrefTOs);
+    void batchUpdate(Set<ArticleToDbXrefTO> dbXrefTOs);
 }

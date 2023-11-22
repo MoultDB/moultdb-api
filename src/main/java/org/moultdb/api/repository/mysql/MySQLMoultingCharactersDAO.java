@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -73,14 +72,13 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     }
     
     @Override
-    public int insert(MoultingCharactersTO moultingCharactersTO) {
-        int[] ints = batchUpdate(Collections.singleton(moultingCharactersTO));
-        return ints[0];
+    public void insert(MoultingCharactersTO moultingCharactersTO) {
+        batchUpdate(Collections.singleton(moultingCharactersTO));
     }
     
     @Transactional
     @Override
-    public int[] batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs) {
+    public void batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs) {
     
         String insertStmt = "INSERT INTO moulting_characters (id, life_history_style, life_mode, juvenile_moult_count, " +
                 "major_morphological_transition_count, terminal_adult_stage, observed_moult_stage_count, " +
@@ -166,9 +164,8 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
             mcSource.addValue("general_comments", mcTO.getGeneralComments());
             params.add(mcSource);
         }
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " new rows(s) in 'moulting_characters' table.");
-        return ints;
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'moulting_characters' table updated.");
     }
     
     private static class GeneralMoultingCharactersRowMapper implements RowMapper<MoultingCharactersTO> {

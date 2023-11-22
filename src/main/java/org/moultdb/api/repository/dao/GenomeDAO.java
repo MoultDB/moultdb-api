@@ -17,7 +17,7 @@ public interface GenomeDAO extends DAO<GenomeTO> {
     
     GenomeTO findByGenbankAcc(String genbankAcc);
     
-    int insert(GenomeTO taxon);
+    void insert(GenomeTO taxon);
     
-    int[] batchUpdate(Set<GenomeTO> genomeTOs);
+    void batchUpdate(Set<GenomeTO> genomeTOs);
 }

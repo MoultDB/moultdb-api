@@ -22,5 +22,5 @@ public interface GeologicalAgeDAO extends DAO<GeologicalAgeTO> {
     
     public List<GeologicalAgeTO> findByLabelsOrSynonyms(Set<String> labels);
     
-    Integer batchUpdate(Collection<GeologicalAgeTO> geoAgeTOs);
+    void batchUpdate(Collection<GeologicalAgeTO> geoAgeTOs);
 }

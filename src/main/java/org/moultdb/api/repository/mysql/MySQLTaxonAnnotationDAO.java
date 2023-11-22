@@ -97,10 +97,6 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             return 0;
         }
     }
-    @Override
-    public int insert(TaxonAnnotationTO taxonAnnotationTO) {
-        return 0;
-    }
     
     @Override
     public int insertImageTaxonAnnotation(TaxonAnnotationTO taxonAnnotationTO) {

@@ -21,9 +21,9 @@ public interface DbXrefDAO extends DAO<DbXrefTO> {
     
     DbXrefTO find(String accession, String name, Integer dataSourceId);
     
-    int insert(DbXrefTO dbXrefTO);
+    void insert(DbXrefTO dbXrefTO);
     
-    int[] batchUpdate(Set<DbXrefTO> dbXrefTOs);
+    void batchUpdate(Set<DbXrefTO> dbXrefTOs);
     
     Integer getLastId();
 }

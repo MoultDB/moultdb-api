@@ -13,9 +13,9 @@ public interface StorageLocationDAO extends DAO<StorageLocationTO> {
     
     List<StorageLocationTO> findAll();
     
-    int insert(StorageLocationTO storageLocationTO);
+    void insert(StorageLocationTO storageLocationTO);
     
-    int[] batchUpdate(Set<StorageLocationTO> storageLocationTOs);
+    void batchUpdate(Set<StorageLocationTO> storageLocationTOs);
     
     Integer getLastId();
 }

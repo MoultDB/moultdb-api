@@ -20,9 +20,9 @@ public interface SampleSetDAO extends DAO<SampleSetTO> {
     
     List<SampleSetTO> find(GeologicalAgeTO fromGeoAgeTO, GeologicalAgeTO toGeoAgeTO, String location);
     
-    int insert(SampleSetTO sampleSetTO);
+    void insert(SampleSetTO sampleSetTO);
     
-    int[] batchUpdate(Set<SampleSetTO> sampleSetTOs);
+    void batchUpdate(Set<SampleSetTO> sampleSetTOs);
     
     Integer getLastId();
 }

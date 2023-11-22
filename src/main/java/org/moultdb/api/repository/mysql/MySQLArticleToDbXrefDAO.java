@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,14 +30,13 @@ public class MySQLArticleToDbXrefDAO implements ArticleToDbXrefDAO {
     }
     
     @Override
-    public int insert(ArticleToDbXrefTO articleToDbXrefTO) {
-        int[] ints = batchUpdate(Collections.singleton(articleToDbXrefTO));
-        return ints[0];
+    public void insert(ArticleToDbXrefTO articleToDbXrefTO) {
+        batchUpdate(Collections.singleton(articleToDbXrefTO));
     }
     
     @Transactional
     @Override
-    public int[] batchUpdate(Set<ArticleToDbXrefTO> articleToDbXrefTOs) {
+    public void batchUpdate(Set<ArticleToDbXrefTO> articleToDbXrefTOs) {
         String insertStmt = "INSERT INTO article_db_xref (article_id, db_xref_id) " +
                 "VALUES (:article_id, :db_xref_id) " +
                 "AS new " +
@@ -51,7 +49,6 @@ public class MySQLArticleToDbXrefDAO implements ArticleToDbXrefDAO {
             params.add(source);
         }
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'article_db_xref' table.");
-        return ints;
+        logger.info("'article_db_xref' table updated.");
     }
 }

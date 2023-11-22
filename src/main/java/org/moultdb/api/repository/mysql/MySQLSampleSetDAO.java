@@ -4,15 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.SampleSetDAO;
-import org.moultdb.api.repository.dto.CollectionLocationTO;
-import org.moultdb.api.repository.dto.EnvironmentTO;
-import org.moultdb.api.repository.dto.FossilPreservationTypeTO;
-import org.moultdb.api.repository.dto.GeologicalAgeTO;
-import org.moultdb.api.repository.dto.GeologicalFormationTO;
-import org.moultdb.api.repository.dto.NamedEntityTO;
-import org.moultdb.api.repository.dto.SampleSetTO;
-import org.moultdb.api.repository.dto.SpecimenTypeTO;
-import org.moultdb.api.repository.dto.TransfertObject;
+import org.moultdb.api.repository.dto.*;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -23,14 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,13 +81,12 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
     }
     
     @Override
-    public int insert(SampleSetTO sampleSetTO) {
-        int[] ints = batchUpdate(Collections.singleton(sampleSetTO));
-        return ints[0];
+    public void insert(SampleSetTO sampleSetTO) {
+        batchUpdate(Collections.singleton(sampleSetTO));
     }
     
     @Override
-    public int[] batchUpdate(Set<SampleSetTO> sampleSetTOs) {
+    public void batchUpdate(Set<SampleSetTO> sampleSetTOs) {
         String insertStmt = "INSERT INTO sample_set (id, museum_accessions, from_geological_age_notation," +
                 " to_geological_age_notation, specimen_count, is_fossil, is_captive, biozone) " +
                 "VALUES (:id, :museum_accessions, :from_geological_age_notation, :to_geological_age_notation, " +
@@ -130,8 +114,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             source.addValue("biozone", sampleSetTO.getBiozone());
             params.add(source);
         }
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'sample_set' table.");
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'sample_set' table updated.");
     
         insertInOtherTable(sampleSetTOs, SampleSetTO::getStorageLocationNames,
                 "storage_location", "sample_set_storage_location", "storage_location_id",
@@ -153,8 +137,6 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         insertInAssociationTable(sampleSetTOs, SampleSetTO::getSpecimenTypes,
                 "specimen_type", "sample_set_specimen_type", "specimen_type_id",
                 new SpecimenTypeRowMapper());
-    
-        return ints;
     }
     
     private <T extends NamedEntityTO> void insertInOtherTable(
@@ -183,8 +165,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             return;
         }
         
-        int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in '" + otherTableName + "'  table.");
+        template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'" + otherTableName + "'  table updated.");
     
         insertInAssociationTable(sampleSetTOs, func, otherTableName, associationTableName,
                 associationFieldName, mapper);
@@ -232,8 +214,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 params.add(source);
             }
         }
-        int[] ints = template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in '" + associationTableName + "' table.");
+        template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'" + associationTableName + "' table updated.");
     }
     
     @Override

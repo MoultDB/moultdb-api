@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,15 +26,12 @@ public class GenomeController {
     
     @PostMapping("/import-file")
     public ResponseEntity <Map<String, Object>> insertGenomes(@RequestParam("file") MultipartFile file) {
-        Integer integer;
         try {
-            integer = genomeService.updateGenomes(file);
+            genomeService.updateGenomes(file);
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        Map<String, Object> resp = new HashMap<>();
-        resp.put("count", integer);
-        return generateValidResponse("Genomes imported/updated",resp);
+        return generateValidResponse("Genomes imported/updated");
     }
     
     @GetMapping("/all")

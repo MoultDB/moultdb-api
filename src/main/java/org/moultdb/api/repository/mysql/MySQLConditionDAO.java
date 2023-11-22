@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -63,13 +62,12 @@ public class MySQLConditionDAO implements ConditionDAO {
     }
     
     @Override
-    public int insert(ConditionTO conditionTO) {
-        int[] ints = batchUpdate(Collections.singleton(conditionTO));
-        return ints[0];
+    public void insert(ConditionTO conditionTO) {
+        batchUpdate(Collections.singleton(conditionTO));
     }
     
     @Override
-    public int[] batchUpdate(Set<ConditionTO> conditionTOs) {
+    public void batchUpdate(Set<ConditionTO> conditionTOs) {
         String insertStmt = "INSERT INTO cond (id, dev_stage_id, dev_stage_days, anatomical_entity_id, sex, moulting_step) " +
                 "VALUES (:id, :dev_stage_id, :dev_stage_days, :anatomical_entity_id, :sex, :moulting_step) ";
         List<MapSqlParameterSource> params = new ArrayList<>();
@@ -84,9 +82,8 @@ public class MySQLConditionDAO implements ConditionDAO {
             params.add(source);
         }
 
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'cond' table.");
-        return ints;
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'cond' table updated.");
     }
     
     @Override

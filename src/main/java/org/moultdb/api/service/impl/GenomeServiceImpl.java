@@ -5,11 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.model.Genome;
-import org.moultdb.api.model.Taxon;
 import org.moultdb.api.repository.dao.GenomeDAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.GenomeTO;
-import org.moultdb.api.repository.dto.TaxonTO;
 import org.moultdb.api.service.GenomeService;
 import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.importer.genome.GenomeParser;
@@ -17,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,7 +48,7 @@ public class GenomeServiceImpl implements GenomeService {
     }
     
     @Override
-    public Integer updateGenomes(MultipartFile file) {
+    public void updateGenomes(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
             throw new IllegalArgumentException("File name cannot be blank.");
@@ -66,15 +63,12 @@ public class GenomeServiceImpl implements GenomeService {
             Set<GenomeTO> genomeTOs = importer.getGenomeTOs(file, taxonDAO);
             
             logger.info("Load genomes in db...");
-            int[] ints = genomeDAO.batchUpdate(genomeTOs);
-            count = Arrays.stream(ints).sum();
+            genomeDAO.batchUpdate(genomeTOs);
             
         } catch (Exception e) {
             throw new ImportException("Unable to import genomes from " + file.getOriginalFilename() + ". " +
                     "Error: " + e.getMessage());
         }
         logger.info("End genomes import.");
-        
-        return count;
     }
 }

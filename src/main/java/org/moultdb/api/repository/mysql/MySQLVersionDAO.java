@@ -3,7 +3,6 @@ package org.moultdb.api.repository.mysql;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.VersionDAO;
-import org.moultdb.api.repository.dto.TaxonAnnotationTO;
 import org.moultdb.api.repository.dto.TransfertObject;
 import org.moultdb.api.repository.dto.UserTO;
 import org.moultdb.api.repository.dto.VersionTO;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -59,8 +57,8 @@ public class MySQLVersionDAO implements VersionDAO {
     }
     
     @Override
-    public int insert(VersionTO versionTO) {
-        return batchUpdate(Collections.singleton(versionTO))[0];
+    public void insert(VersionTO versionTO) {
+        batchUpdate(Collections.singleton(versionTO));
     }
     
     @Override
@@ -75,12 +73,14 @@ public class MySQLVersionDAO implements VersionDAO {
     }
     
     @Override
-    public int[] batchUpdate(Set<VersionTO> versionTOs) {
-        String insertStmt = "INSERT INTO version (id, creation_user_id, creation_date," +
-                " last_update_user_id, last_update_date, version_number) " +
+    public void batchUpdate(Set<VersionTO> versionTOs) {
+        String insertStmt = "INSERT INTO version (id, creation_user_id, creation_date, " +
+                "last_update_user_id, last_update_date, version_number) " +
                 "VALUES (:id, :creation_user_id, :creation_date, " +
-                ":last_update_user_id, :last_update_date, :version_number) ";
-        
+                ":last_update_user_id, :last_update_date, :version_number) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE last_update_user_id = new.last_update_user_id, " +
+                "last_update_date = new.last_update_date, version_number = new.version_number";
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (VersionTO versionTO : versionTOs) {
             MapSqlParameterSource source = new MapSqlParameterSource();
@@ -92,9 +92,8 @@ public class MySQLVersionDAO implements VersionDAO {
             source.addValue("version_number", versionTO.getVersionNumber());
             params.add(source);
         }
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'version' table.");
-        return ints;
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'version' table updated.");
     }
     
     private static class VersionRowMapper implements RowMapper<VersionTO> {

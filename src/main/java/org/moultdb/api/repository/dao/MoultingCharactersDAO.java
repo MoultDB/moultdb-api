@@ -19,7 +19,7 @@ public interface MoultingCharactersDAO extends DAO<MoultingCharactersTO> {
     
     Integer getLastId();
     
-    int insert(MoultingCharactersTO moultingCharactersTO);
+    void insert(MoultingCharactersTO moultingCharactersTO);
     
-    int[] batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs);
+    void batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs);
 }

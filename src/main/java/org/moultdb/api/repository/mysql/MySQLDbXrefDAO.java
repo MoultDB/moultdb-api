@@ -16,14 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -105,14 +98,13 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
     }
     
     @Override
-    public int insert(DbXrefTO dbXrefTO) {
-        int[] ints = batchUpdate(Collections.singleton(dbXrefTO));
-        return ints[0];
+    public void insert(DbXrefTO dbXrefTO) {
+        batchUpdate(Collections.singleton(dbXrefTO));
     }
     
     @Transactional
     @Override
-    public int[] batchUpdate(Set<DbXrefTO> dbXrefTOs) {
+    public void batchUpdate(Set<DbXrefTO> dbXrefTOs) {
         String insertStmt = "INSERT INTO db_xref (id, accession, data_source_id) " +
                 "VALUES (:id, :accession, :data_source_id) " +
                 "AS new " +
@@ -125,9 +117,8 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
             source.addValue("data_source_id", dbXrefTO.getDataSourceTO().getId());
             params.add(source);
         }
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'db_xref' table.");
-        return ints;
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'db_xref' table updated.");
     }
     
     @Override

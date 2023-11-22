@@ -17,15 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -76,14 +68,13 @@ public class MySQLArticleDAO implements ArticleDAO {
     }
     
     @Override
-    public int insert(ArticleTO articleTO) {
-        int[] ints = batchUpdate(Collections.singleton(articleTO));
-        return ints[0];
+    public void insert(ArticleTO articleTO) {
+        batchUpdate(Collections.singleton(articleTO));
     }
     
     @Transactional
     @Override
-    public int[] batchUpdate(Set<ArticleTO> articleTOs) {
+    public void batchUpdate(Set<ArticleTO> articleTOs) {
         String insertStmt = "INSERT INTO article (id, citation, title, authors) " +
                 "VALUES (:id, :citation, :title, :authors) " +
                 "AS new " +
@@ -97,9 +88,8 @@ public class MySQLArticleDAO implements ArticleDAO {
             source.addValue("authors", articleTO.getAuthors());
             params.add(source);
         }
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.debug(Arrays.stream(ints).sum()+ " updated row(s) in 'article' table.");
-        return ints;
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.debug("'article' table updated.");
     }
     
     @Override

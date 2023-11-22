@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -35,13 +34,12 @@ public class MySQLStorageLocationDAO implements StorageLocationDAO {
     }
     
     @Override
-    public int insert(StorageLocationTO storageLocationTO) {
-        int[] ints = batchUpdate(Collections.singleton(storageLocationTO));
-        return ints[0];
+    public void insert(StorageLocationTO storageLocationTO) {
+        batchUpdate(Collections.singleton(storageLocationTO));
     }
     
     @Override
-    public int[] batchUpdate(Set<StorageLocationTO> storageLocationTOs) {
+    public void batchUpdate(Set<StorageLocationTO> storageLocationTOs) {
         String insertStmt = "INSERT INTO storage_location (id, name) " +
                 "VALUES (:id, :name) " +
                 "AS new " +
@@ -53,9 +51,8 @@ public class MySQLStorageLocationDAO implements StorageLocationDAO {
             source.addValue("name", storageLocationTO.getName());
             params.add(source);
         }
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'storage_location' table.");
-        return ints;
+        template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'storage_location' table updated.");
     }
     
     @Override

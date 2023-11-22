@@ -80,13 +80,12 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
-    public int insert(TaxonTO taxonTO) {
-        int[] ints = batchUpdate(Collections.singleton(taxonTO));
-        return ints[0];
+    public void insert(TaxonTO taxonTO) {
+        batchUpdate(Collections.singleton(taxonTO));
     }
     
     @Override
-    public int[] batchUpdate(Set<TaxonTO> taxonTOs) {
+    public void batchUpdate(Set<TaxonTO> taxonTOs) {
         String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, " +
                 "parent_taxon_path, extinct) " +
                 "VALUES (:path, :scientific_name, :common_name, :parent_taxon_path, :extinct) " +
@@ -134,20 +133,18 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 taxonToDbXrefParams.add(taxonToDbXrefSource);
             }
         }
-        int[] taxonRowCounts = null ;
         try {
-            taxonRowCounts = template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug(Arrays.stream(taxonRowCounts).sum() + " updated row(s) in 'taxon' table.");
+            template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug("'taxon' table updated.");
 
-            int[] dbXrefRowCounts = template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug(Arrays.stream(dbXrefRowCounts).sum() + " updated row(s) in 'db_xref' table.");
+            template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug("'db_xref' table updated.");
             
-            int[] taxonToDbXrefRowCounts = template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug(Arrays.stream(taxonToDbXrefRowCounts).sum() + " updated row(s) in 'taxon_db_xref' table.");
+            template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug("'taxon_db_xref' table updated.");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of taxa failed: " + e.getMessage());
         }
-        return taxonRowCounts;
     }
     
     private static class TaxonResultSetExtractor implements ResultSetExtractor<List<TaxonTO>> {

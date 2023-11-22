@@ -34,17 +34,15 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     }
     
     @Override
-    public Integer updateGeologicalAges() {
+    public void updateGeologicalAges() {
         logger.info("Start geological ages import...");
     
         GeologicalAgeImporter importer = new GeologicalAgeImporter();
         Set<GeologicalAgeTO> geologicalAgeTOs = importer.getGeologicalAgeTOs();
     
-        Integer newGeoAgeCount = geologicalAgeDAO.batchUpdate(geologicalAgeTOs);
+        geologicalAgeDAO.batchUpdate(geologicalAgeTOs);
     
         logger.info("End geological ages import.");
-    
-        return newGeoAgeCount;
     }
     
     private static Set<GeologicalAgeTO> convertToDTOs(Collection<GeologicalAge> geoAges) {

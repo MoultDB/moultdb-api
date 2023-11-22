@@ -60,13 +60,12 @@ public class MySQLGenomeDAO implements GenomeDAO {
     }
     
     @Override
-    public int insert(GenomeTO genomeTO) {
-        int[] ints = batchUpdate(Collections.singleton(genomeTO));
-        return ints[0];
+    public void insert(GenomeTO genomeTO) {
+        batchUpdate(Collections.singleton(genomeTO));
     }
     
     @Override
-    public int[] batchUpdate(Set<GenomeTO> genomeTOs) {
+    public void batchUpdate(Set<GenomeTO> genomeTOs) {
         String genomeSql = "INSERT INTO genome (genbank_acc, taxon_path, submission_date, length, scaffolds, " +
                 "scaffold_l50, scaffold_n50, annotation_date, total_genes, complete_busco, single_busco, " +
                 "duplicated_busco, fragmented_busco, missing_busco) " +
@@ -100,14 +99,12 @@ public class MySQLGenomeDAO implements GenomeDAO {
             genomeParams.add(source);
         }
         
-        int[] genomeRowCounts = null ;
         try {
-            genomeRowCounts = template.batchUpdate(genomeSql, genomeParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug(Arrays.stream(genomeRowCounts).sum() + " updated row(s) in 'genome' table.");
+            template.batchUpdate(genomeSql, genomeParams.toArray(MapSqlParameterSource[]::new));
+            logger.debug("'genome' table updated.");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of genome(s) failed: " + e.getMessage());
         }
-        return genomeRowCounts;
     }
     
     private static class GenomeRowMapper implements RowMapper<GenomeTO> {

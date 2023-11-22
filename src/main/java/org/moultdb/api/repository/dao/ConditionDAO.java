@@ -17,9 +17,9 @@ public interface ConditionDAO extends DAO<ConditionTO> {
     
     List<ConditionTO> find(Integer ageInDays, String sex, String moultingStep);
     
-    int insert(ConditionTO conditionTO);
+    void insert(ConditionTO conditionTO);
     
-    int[] batchUpdate(Set<ConditionTO> conditionTOs);
+    void batchUpdate(Set<ConditionTO> conditionTOs);
     
     Integer getLastId();
 }

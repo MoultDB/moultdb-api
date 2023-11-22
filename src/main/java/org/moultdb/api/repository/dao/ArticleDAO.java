@@ -19,9 +19,9 @@ public interface ArticleDAO extends DAO<ArticleTO> {
     
     ArticleTO findByCitation(String citation);
     
-    int insert(ArticleTO articleTO);
+    void insert(ArticleTO articleTO);
     
-    int[] batchUpdate(Set<ArticleTO> articleTOs);
+    void batchUpdate(Set<ArticleTO> articleTOs);
     
     Integer getLastId();
 }

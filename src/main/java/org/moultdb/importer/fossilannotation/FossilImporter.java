@@ -134,7 +134,7 @@ public class FossilImporter {
                 versionDAO, userDAO);
     }
     
-    public void insertFossilAnnotation(List<FossilAnnotationBean> fossilAnnotationBeans, ArticleDAO articleDAO,
+    public int insertFossilAnnotation(List<FossilAnnotationBean> fossilAnnotationBeans, ArticleDAO articleDAO,
                                        ArticleToDbXrefDAO articleToDbXrefDAO, ConditionDAO conditionDAO,
                                        DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO, DevStageDAO devStageDAO,
                                        GeologicalAgeDAO geologicalAgeDAO, MoultingCharactersDAO moultingCharactersDAO,
@@ -289,7 +289,8 @@ public class FossilImporter {
         articleToDbXrefDAO.batchUpdate(articleToDbXrefTOs);
         conditionDAO.batchUpdate(conditionTOs);
         versionDAO.batchUpdate(versionTOs);
-        taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
+        int[] ints = taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
+        return Arrays.stream(ints).sum();
     }
     
     private static Integer getNextId(Integer articleDAO) {

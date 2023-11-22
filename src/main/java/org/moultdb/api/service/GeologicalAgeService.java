@@ -12,5 +12,5 @@ public interface GeologicalAgeService {
     
     public List<GeologicalAge> getAllGeologicalAges();
     
-    public Integer updateGeologicalAges();
+    public void updateGeologicalAges();
 }

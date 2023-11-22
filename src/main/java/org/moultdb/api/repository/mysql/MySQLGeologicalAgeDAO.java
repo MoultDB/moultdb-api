@@ -14,16 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -78,7 +69,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
     
     @Transactional
     @Override
-    public Integer batchUpdate(Collection<GeologicalAgeTO> geoAgeTOs) {
+    public void batchUpdate(Collection<GeologicalAgeTO> geoAgeTOs) {
         String geoAgeSql = "INSERT INTO geological_age (notation, name, rank_type, younger_bound, " +
                 "younger_bound_imprecision, older_bound, older_bound_imprecision) " +
                 "VALUES (:notation, :name, :rank_type, :younger_bound, :younger_bound_imprecision," +
@@ -99,9 +90,8 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
             source.addValue("older_bound_imprecision", geoAgeTO.getOlderBoundImprecision());
             params.add(source);
         }
-        int[] ints = template.batchUpdate(geoAgeSql, params.toArray(MapSqlParameterSource[]::new));
-        int newGeoAgeCount = Arrays.stream(ints).sum();
-        logger.info(newGeoAgeCount + " updated row(s) in 'geological_age' table.");
+        template.batchUpdate(geoAgeSql, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'geological_age' table updated.");
     
         String synonymSql = "INSERT INTO geological_age_synonym (geological_age_notation, synonym) " +
                 "VALUES (:geological_age_notation, :synonym) " +
@@ -116,10 +106,8 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
                 params.add(source);
             }
         }
-        ints = template.batchUpdate(synonymSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'geological_age_synonym' table.");
-        
-        return newGeoAgeCount;
+        template.batchUpdate(synonymSql, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'geological_age_synonym' table updated.");
     }
     
     private static class GeologicalAgeResultSetExtractor implements ResultSetExtractor<List<GeologicalAgeTO>> {
