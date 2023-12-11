@@ -20,6 +20,7 @@ public class SampleSet {
     private final Set<String> geologicalFormations;
     private final Set<String> fossilPreservationTypes;
     private final Set<String> environments;
+    private final String biozone;
     private final Set<String> specimenTypes;
     private final Integer specimenCount;
     private final Boolean isFossil;
@@ -29,7 +30,7 @@ public class SampleSet {
     public SampleSet(TimePeriod timePeriod, Collection<String> collectionLocations,
                      Collection<String> storageAccessions, Collection<String> storageLocations,
                      Collection<String> geologicalFormations, Collection<String> fossilPreservationTypes,
-                     Collection<String> environments, Collection<String> specimenTypes,
+                     Collection<String> environments, String biozone, Collection<String> specimenTypes,
                      Integer specimenCount, Boolean isFossil, Boolean isCaptive) {
         this.timePeriod = timePeriod;
         this.collectionLocations = Collections.unmodifiableSet(collectionLocations == null ?
@@ -44,6 +45,7 @@ public class SampleSet {
                 new HashSet<>(): new HashSet<>(fossilPreservationTypes));
         this.environments = Collections.unmodifiableSet(environments == null ?
                 new HashSet<>(): new HashSet<>(environments));
+        this.biozone = biozone;
         this.specimenTypes = Collections.unmodifiableSet(specimenTypes == null ?
                 new HashSet<>(): new HashSet<>(specimenTypes));
         this.specimenCount = specimenCount;
@@ -77,6 +79,10 @@ public class SampleSet {
     
     public Set<String> getEnvironments() {
         return environments;
+    }
+    
+    public String getBiozone() {
+        return biozone;
     }
     
     public Set<String> getSpecimenTypes() {
@@ -124,6 +130,7 @@ public class SampleSet {
                 .add("fossilPreservationTypes=" + fossilPreservationTypes)
                 .add("specimenTypes=" + specimenTypes)
                 .add("environments=" + environments)
+                .add("biozone=" + biozone)
                 .add("specimenCount=" + specimenCount)
                 .add("isFossil=" + isFossil)
                 .add("isCaptive=" + isCaptive)

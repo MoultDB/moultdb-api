@@ -65,7 +65,8 @@ public class FossilImporter {
     private final static String CONTRIBUTOR_COL_NAME = "Contributor"; // ORCID ID
     private final static String MUSEUM_COLLECTION_COL_NAME = "Museum collection";
     private final static String MUSEUM_ACCESSION_COL_NAME = "Museum accession";
-    private final static String LOCATION_COL_NAME = "Location";
+    private final static String LOCATION_NAME_COL_NAME = "Location: name";
+    private final static String LOCATION_GPS_COL_NAME = "Location: GPS coordinates";
     private final static String GEOLOGICAL_FORMATION_COL_NAME = "Geological formation";
     private final static String GEOLOGICAL_AGE_COL_NAME = "Geological age";
     private final static String FOSSIL_PRESERVATION_TYPE_COL_NAME = "Fossil preservation type";
@@ -249,7 +250,7 @@ public class FossilImporter {
             boolean isFossil = specimenTypes != null && specimenTypes.contains("fossil(s)");
             SampleSetTO sampleSetTO = new SampleSetTO(ssNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
                     bean.getSpecimenCount(), isFossil, null, extractValues(bean.getMuseumAccession()),
-                    extractValues(bean.getMuseumCollection()), extractValues(bean.getLocation()),
+                    extractValues(bean.getMuseumCollection()), extractValues(bean.getLocationName()),
                     extractValues(bean.getFossilPreservationType()), extractValues(bean.getEnvironment()),
                     extractValues(bean.getGeologicalFormation()), specimenTypes, bean.getBiozone());
             sampleSetTOs.add(sampleSetTO);
@@ -391,7 +392,9 @@ public class FossilImporter {
                         -> new ParseCustomOptional(new Trim());
                 case MUSEUM_ACCESSION_COL_NAME
                         -> new ParseCustomOptional(new Trim());
-                case LOCATION_COL_NAME
+                case LOCATION_NAME_COL_NAME
+                        -> new StrNotNullOrEmpty(new Trim());
+                case LOCATION_GPS_COL_NAME
                         -> new StrNotNullOrEmpty(new Trim());
                 case GEOLOGICAL_FORMATION_COL_NAME
                         -> new ParseCustomOptional(new Trim());
@@ -418,8 +421,7 @@ public class FossilImporter {
                 case MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME
                         -> new ParseCustomOptional(new ParseInt());
                 case ADULT_STAGE_MOULTING_COL_NAME
-//                        -> new ParseCustomOptional(new ParseBool("yes", "no"));
-                        -> new ParseCustomOptional(new ParseBool("Continued moulting", "no"));
+                        -> new ParseCustomOptional(new ParseBool("yes", "no"));
                 case OBSERVED_MOULT_STAGES_COUNT_COL_NAME
                         -> new ParseCustomOptional(new ParseInt());
                 case OBSERVED_MOULT_STAGE_COL_NAME
@@ -510,7 +512,8 @@ public class FossilImporter {
                 case CONTRIBUTOR_COL_NAME -> "contributor";
                 case MUSEUM_COLLECTION_COL_NAME -> "museumCollection";
                 case MUSEUM_ACCESSION_COL_NAME -> "museumAccession";
-                case LOCATION_COL_NAME -> "location";
+                case LOCATION_NAME_COL_NAME -> "locationName";
+                case LOCATION_GPS_COL_NAME -> "locationGps";
                 case GEOLOGICAL_FORMATION_COL_NAME -> "geologicalFormation";
                 case GEOLOGICAL_AGE_COL_NAME -> "geologicalAge";
                 case FOSSIL_PRESERVATION_TYPE_COL_NAME -> "fossilPreservationType";

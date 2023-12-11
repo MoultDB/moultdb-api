@@ -20,7 +20,8 @@ public class FossilAnnotationBean {
     private String contributor;
     private String museumCollection;
     private String museumAccession;
-    private String location;
+    private String locationName;
+    private String locationGps;
     private String geologicalFormation;
     private String geologicalAge;
     private String fossilPreservationType;
@@ -131,12 +132,20 @@ public class FossilAnnotationBean {
         this.museumAccession = museumAccession;
     }
     
-    public String getLocation() {
-        return location;
+    public String getLocationName() {
+        return locationName;
     }
     
-    public void setLocation(String location) {
-        this.location = location;
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
+    }
+    
+    public String getLocationGps() {
+        return locationGps;
+    }
+    
+    public void setLocationGps(String locationGps) {
+        this.locationGps = locationGps;
     }
     
     public String getGeologicalFormation() {
@@ -493,7 +502,8 @@ public class FossilAnnotationBean {
                 && Objects.equals(contributor, that.contributor)
                 && Objects.equals(museumCollection, that.museumCollection)
                 && Objects.equals(museumAccession, that.museumAccession)
-                && Objects.equals(location, that.location)
+                && Objects.equals(locationName, that.locationName)
+                && Objects.equals(locationGps, that.locationGps)
                 && Objects.equals(geologicalFormation, that.geologicalFormation)
                 && Objects.equals(geologicalAge, that.geologicalAge)
                 && Objects.equals(fossilPreservationType, that.fossilPreservationType)
@@ -541,7 +551,7 @@ public class FossilAnnotationBean {
     @Override
     public int hashCode() {
         return Objects.hash(order, taxon, determinedBy, publishedReferenceText, publishedReferenceAcc, contributor,
-                museumCollection, museumAccession, location, geologicalFormation, geologicalAge, fossilPreservationType,
+                museumCollection, museumAccession, locationName, locationGps, geologicalFormation, geologicalAge, fossilPreservationType,
                 environment, biozone, specimenCount, specimenType, lifeHistoryStyle, lifeMode, juvenileMoultCount,
                 majorMorphologicalTransitionCount, adultStageMoulting, observedMoultStagesCount, observedMoultStage,
                 estimatedMoultStagesCount, segmentAdditionMode, bodySegmentCount, bodySegmentCountInAdults,
@@ -564,7 +574,8 @@ public class FossilAnnotationBean {
                 .add("contributor='" + contributor + "'")
                 .add("museumCollection='" + museumCollection + "'")
                 .add("museumAccession='" + museumAccession + "'")
-                .add("location='" + location + "'")
+                .add("locationName='" + locationName + "'")
+                .add("locationGps='" + locationGps + "'")
                 .add("geologicalFormation='" + geologicalFormation + "'")
                 .add("geologicalAge='" + geologicalAge + "'")
                 .add("fossilPreservationType='" + fossilPreservationType + "'")

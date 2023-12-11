@@ -100,7 +100,7 @@ public class ServiceUtils {
                 sampleSetTO.getCollectionLocationNames(),
                 sampleSetTO.getStorageAccessions(), sampleSetTO.getStorageLocationNames(),
                 sampleSetTO.getGeologicalFormations(), sampleSetTO.getFossilPreservationTypes(),
-                sampleSetTO.getEnvironments(), sampleSetTO.getSpecimenTypes(),
+                sampleSetTO.getEnvironments(), sampleSetTO.getBiozone(), sampleSetTO.getSpecimenTypes(),
                 sampleSetTO.getSpecimenCount(), sampleSetTO.isFossil(), sampleSetTO.isCaptive());
     }
     
