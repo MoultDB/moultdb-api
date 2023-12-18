@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,7 +120,6 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         return ints[0];
     }
     
-    @Transactional
     @Override
     public int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
         String sql = "INSERT INTO taxon_annotation (taxon_path, annotated_species_name, determined_by,  " +

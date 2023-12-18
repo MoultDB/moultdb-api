@@ -13,7 +13,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,7 +71,6 @@ public class MySQLArticleDAO implements ArticleDAO {
         batchUpdate(Collections.singleton(articleTO));
     }
     
-    @Transactional
     @Override
     public void batchUpdate(Set<ArticleTO> articleTOs) {
         String insertStmt = "INSERT INTO article (id, citation, title, authors) " +

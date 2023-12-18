@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -102,7 +101,6 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
         batchUpdate(Collections.singleton(dbXrefTO));
     }
     
-    @Transactional
     @Override
     public void batchUpdate(Set<DbXrefTO> dbXrefTOs) {
         String insertStmt = "INSERT INTO db_xref (id, accession, data_source_id) " +

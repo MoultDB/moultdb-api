@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -76,7 +75,6 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
         batchUpdate(Collections.singleton(moultingCharactersTO));
     }
     
-    @Transactional
     @Override
     public void batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs) {
     

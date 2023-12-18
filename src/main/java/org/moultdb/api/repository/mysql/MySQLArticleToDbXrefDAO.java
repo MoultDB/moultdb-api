@@ -7,7 +7,6 @@ import org.moultdb.api.repository.dto.ArticleToDbXrefTO;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +33,6 @@ public class MySQLArticleToDbXrefDAO implements ArticleToDbXrefDAO {
         batchUpdate(Collections.singleton(articleToDbXrefTO));
     }
     
-    @Transactional
     @Override
     public void batchUpdate(Set<ArticleToDbXrefTO> articleToDbXrefTOs) {
         String insertStmt = "INSERT INTO article_db_xref (article_id, db_xref_id) " +
