@@ -10,7 +10,13 @@ public interface TaxonService {
 
     public List<Taxon> getAllTaxa();
     
+    public List<Taxon> getTaxonByText(String searchedText);
+    
     public Taxon getTaxonByScientificName(String scientificName);
+    
+    public Taxon getTaxonByDbXref(String datasource, String accession);
+    
+    public List<Taxon> getTaxonLineage(String taxonPath);
     
     public void insertTaxon(Taxon taxon);
     

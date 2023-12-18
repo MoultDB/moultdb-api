@@ -12,6 +12,8 @@ import java.util.Set;
 public interface TaxonDAO extends DAO<TaxonTO> {
     
     List<TaxonTO> findAll();
+
+    List<TaxonTO> findByText(String searchedText);
     
     TaxonTO findByScientificName(String taxonScientificName);
     
@@ -20,6 +22,8 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     TaxonTO findByPath(String id);
     
     List<TaxonTO> findByPaths(Set<String> taxonIds);
+    
+    List<TaxonTO> findLineageByPath(String taxonPath);
     
     void insert(TaxonTO taxon);
     

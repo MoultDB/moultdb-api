@@ -25,6 +25,8 @@ public interface TaxonAnnotationService {
         
     public List<TaxonAnnotation> getTaxonAnnotationsByTaxonName(String taxonName);
     
+    public List<TaxonAnnotation> getTaxonAnnotationsByDbXref(String datasource, String accession);
+    
     public Integer importTaxonAnnotations(@RequestParam("file") MultipartFile file) throws IOException;
     
     public void deleteTaxonAnnotationsByImageFilename(String imageFilename);

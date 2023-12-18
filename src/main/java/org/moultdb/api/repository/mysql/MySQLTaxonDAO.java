@@ -6,10 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
-import org.moultdb.api.repository.dto.DbXrefTO;
-import org.moultdb.api.repository.dto.TaxonTO;
-import org.moultdb.api.repository.dto.TaxonToDbXrefTO;
-import org.moultdb.api.repository.dto.TransfertObject;
+import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -50,6 +47,16 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public List<TaxonTO> findByText(String searchedText) {
+        if (StringUtils.isBlank(searchedText)) {
+            throw new UnsupportedOperationException("Empty searched text not supported");
+        }
+        return template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) like :searched_text",
+                new MapSqlParameterSource().addValue("searched_text", "%" + searchedText.trim().toLowerCase() + "%"),
+                new TaxonResultSetExtractor());
+    }
+    
+    @Override
     public TaxonTO findByScientificName(String taxonScientificName) {
         return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) = lower(:scientific_name)",
                 new MapSqlParameterSource().addValue("scientific_name", taxonScientificName), new TaxonResultSetExtractor()));
@@ -61,9 +68,14 @@ public class MySQLTaxonDAO implements TaxonDAO {
             throw new UnsupportedOperationException("Empty parameters not supported: accession [" + accession + 
                     "] ; datasourceName [" + datasourceName + "]" );
         }
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + 
-                        "WHERE x.accession = :accession " +
-                        "AND ds.name = :datasourceName ",
+        // To get all x-refs, we should do a subquery to retrieve path then the main query to retrieve all data
+        String sql = SELECT_STATEMENT +" WHERE t.path = (SELECT t.path from taxon t " +
+                "LEFT JOIN taxon_db_xref tx ON t.path = tx.taxon_path " +
+                "LEFT JOIN db_xref x ON tx.db_xref_id = x.id " +
+                "LEFT JOIN data_source ds ON (x.data_source_id = ds.id) " +
+                "WHERE x.accession = :accession " +
+                "AND ds.name = :datasourceName)";
+        return TransfertObject.getOneTO(template.query(sql,
                 new MapSqlParameterSource().addValue("accession", accession).addValue("datasourceName", datasourceName),
                 new TaxonResultSetExtractor()));
     }
@@ -77,6 +89,17 @@ public class MySQLTaxonDAO implements TaxonDAO {
     public List<TaxonTO> findByPaths(Set<String> taxonPaths) {
         return template.query(SELECT_STATEMENT + "WHERE t.path IN (:taxonPaths)",
                 new MapSqlParameterSource().addValue("taxonPaths", taxonPaths), new TaxonResultSetExtractor());
+    }
+    
+    @Override
+    public List<TaxonTO> findLineageByPath(String taxonPath) {
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE :taxonPath LIKE CONCAT(path, '%') ",
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), new TaxonResultSetExtractor());
+        // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
+        if (taxonTOs != null) {
+            taxonTOs.sort(Comparator.comparing(TaxonTO::getPath));
+        }
+        return taxonTOs;
     }
     
     @Override
@@ -164,9 +187,17 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 }
                 dbXrefTOs.add(dbXrefTO);
     
+                TaxonToDbXrefTO taxonToDbXrefTO = new TaxonToDbXrefTO(rs.getString("tx.taxon_path"),
+                        rs.getInt("tx.db_xref_id"), rs.getBoolean("tx.main"));
+                Set<TaxonToDbXrefTO> taxonToDbXrefTOs = taxonTO == null ? null: new HashSet<>(taxonTO.getTaxonToDbXrefTOs());
+                if (taxonToDbXrefTOs == null) {
+                    taxonToDbXrefTOs = new HashSet<>();
+                }
+                taxonToDbXrefTOs.add(taxonToDbXrefTO);
+                
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs);
+                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
     
                 taxa.put(taxonPath, taxonTO);
             }

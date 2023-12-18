@@ -6,7 +6,7 @@ import org.moultdb.api.repository.dao.DbXrefDAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.GenomeTO;
 import org.moultdb.api.repository.dto.TaxonTO;
-import org.moultdb.importer.ImportUtils;
+import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.importer.taxon.TaxonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,7 +114,7 @@ public class GenomeParser {
         Set<String> notFoundTaxa = new HashSet<>();
         Set<String> subspecies = new HashSet<>();
         for (GenomeBean bean: genomeBeans) {
-            TaxonTO taxonTO = taxonDAO.findByAccession(bean.getTaxonId(), ImportUtils.NCBI_TAXONOMY_DATASOURCE_NAME);
+            TaxonTO taxonTO = taxonDAO.findByAccession(bean.getTaxonId(), DatasourceEnum.NCBI.getStringRepresentation());
             if (taxonTO == null) {
                 notFoundTaxa.add(bean.getTaxonId() + " - " + bean.getSpecies());
                 continue;

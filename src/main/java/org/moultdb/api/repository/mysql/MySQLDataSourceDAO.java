@@ -34,7 +34,7 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
     
     @Override
     public DataSourceTO findByName(String name) {
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE name = :name",
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE LOWER(name) = LOWER(:name)",
                 new MapSqlParameterSource().addValue("name", name), new DataSourceRowMapper()));
     }
     
@@ -42,7 +42,8 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
         @Override
         public DataSourceTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new DataSourceTO(rs.getInt("id"), rs.getString("name"), rs.getString("description"),
-                    rs.getString("base_url"), rs.getDate("last_import_date"), rs.getString("release_version"));
+                    rs.getString("short_name"), rs.getString("base_url"), rs.getString("xref_url"),
+                    rs.getDate("last_import_date"), rs.getString("release_version"));
         }
     }
 }

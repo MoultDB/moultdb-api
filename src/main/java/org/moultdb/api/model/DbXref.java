@@ -1,7 +1,11 @@
 package org.moultdb.api.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 import java.util.StringJoiner;
+
+import static org.moultdb.api.model.DataSource.X_REF_TAG;
 
 /**
  * @author Valentine Rech de Laval
@@ -15,10 +19,13 @@ public class DbXref {
     
     private final DataSource dataSource;
     
-    public DbXref(String accession, String name, DataSource dataSource) {
+    private final Boolean main;
+    
+    public DbXref(String accession, String name, DataSource dataSource, Boolean main) {
         this.accession = accession;
         this.name = name;
         this.dataSource = dataSource;
+        this.main = main;
     }
     
     public String getAccession() {
@@ -33,6 +40,24 @@ public class DbXref {
         return dataSource;
     }
     
+    public String getXrefURL() {
+        if (StringUtils.isBlank(this.getAccession())) {
+            return null;
+        }
+        String xRefUrl = this.getDataSource().getXrefURL();
+        if (StringUtils.isBlank(xRefUrl)) {
+            return null;
+        }
+        if (xRefUrl.contains(X_REF_TAG)) {
+            xRefUrl = xRefUrl.replace(X_REF_TAG, this.getAccession());
+        }
+        return xRefUrl;
+    }
+    
+    public Boolean isMain() {
+        return main;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -42,12 +67,13 @@ public class DbXref {
         DbXref dbXref = (DbXref) o;
         return Objects.equals(accession, dbXref.accession)
                 && Objects.equals(name, dbXref.name)
-                && Objects.equals(dataSource, dbXref.dataSource);
+                && Objects.equals(dataSource, dbXref.dataSource)
+                && Objects.equals(main, dbXref.main);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(accession, name, dataSource);
+        return Objects.hash(accession, name, dataSource, main);
     }
     
     @Override
@@ -56,6 +82,7 @@ public class DbXref {
                 .add("accession='" + accession + "'")
                 .add("name='" + name + "'")
                 .add("dataSource=" + dataSource)
+                .add("main=" + main)
                 .toString();
     }
 }

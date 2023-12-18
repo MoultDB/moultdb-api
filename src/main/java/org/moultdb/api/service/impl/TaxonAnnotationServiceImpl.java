@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.model.TaxonAnnotation;
+import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ServiceUtils;
@@ -77,6 +78,16 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     @Override
     public List<TaxonAnnotation> getTaxonAnnotationsByTaxonName(String taxonName) {
         TaxonTO taxonTO = taxonDAO.findByScientificName(taxonName);
+        if (taxonTO == null) {
+            return new ArrayList<>();
+        }
+        return getTaxonAnnotationsByTaxonPath(taxonTO.getPath());
+    }
+    
+    @Override
+    public List<TaxonAnnotation> getTaxonAnnotationsByDbXref(String datasource, String accession) {
+        DatasourceEnum datasourceEnum = DatasourceEnum.valueOfByStringRepresentation(datasource);
+        TaxonTO taxonTO = taxonDAO.findByAccession(accession, datasourceEnum.getStringRepresentation());
         if (taxonTO == null) {
             return new ArrayList<>();
         }

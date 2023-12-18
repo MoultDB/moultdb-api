@@ -32,6 +32,22 @@ public class TaxonController {
         return generateValidResponse(taxonService.getTaxonByScientificName(name));
     }
     
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, List<Taxon>>> getByText(@RequestParam String text) {
+        return generateValidResponse(taxonService.getTaxonByText(text));
+    }
+    
+    @GetMapping("/lineage")
+    public ResponseEntity<Map<String, List<Taxon>>> getTaxonLineage(@RequestParam("path") String path) {
+        return generateValidResponse(taxonService.getTaxonLineage(path));
+    }
+    
+    @GetMapping("/dbxref")
+    public ResponseEntity<Map<String, Taxon>> getTaxonByDbXref(
+            @RequestParam("datasource") String datasource, @RequestParam("accession") String accession) {
+        return generateValidResponse(taxonService.getTaxonByDbXref(datasource, accession));
+    }
+    
     @PostMapping(value = "/import-file")
     public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam("file") MultipartFile file) {
         Integer integer;

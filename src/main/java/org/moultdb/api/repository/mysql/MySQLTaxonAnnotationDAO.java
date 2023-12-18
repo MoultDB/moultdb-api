@@ -6,8 +6,9 @@ import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.TaxonAnnotationDAO;
 import org.moultdb.api.repository.dto.*;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -31,18 +29,20 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, dx1.*, c.*, ds.*, ae.*, a.*, dx2.*," +
+    private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, tdx.*, dx1.*, ds1.*, c.*, ds.*, ae.*, a.*, dx2.*, ds2.*, " +
             " i.*, eco.*, cio.*, v.*, uc.*, um.* " +
             "FROM taxon_annotation ta " +
             "LEFT JOIN taxon t ON t.path = ta.taxon_path " +
             "LEFT JOIN taxon_db_xref tdx ON t.path = tdx.taxon_path " +
             "LEFT JOIN db_xref dx1 ON tdx.db_xref_id = dx1.id " +
+            "LEFT JOIN data_source ds1 ON dx1.data_source_id = ds1.id " +
             "LEFT JOIN cond c ON c.id = ta.condition_id " +
             "LEFT JOIN developmental_stage ds ON ds.id = c.dev_stage_id " +
             "LEFT JOIN anatomical_entity ae ON ae.id = c.anatomical_entity_id " +
             "LEFT JOIN article a ON a.id = ta.article_id " +
             "LEFT JOIN article_db_xref adx ON a.id = adx.article_id " +
             "LEFT JOIN db_xref dx2 ON adx.db_xref_id = dx2.id " +
+            "LEFT JOIN data_source ds2 ON dx2.data_source_id = ds2.id " +
             "LEFT JOIN image i ON i.id = ta.image_id " +
             "LEFT JOIN eco ON eco.id = ta.eco_id " +
             "LEFT JOIN cio ON cio.id = ta.cio_id " +
@@ -58,25 +58,25 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     @Override
     public List<TaxonAnnotationTO> findAll() {
-        return template.query(SELECT_STATEMENT + ORDER_BY_STATEMENT, new TaxonAnnotationRowMapper());
+        return template.query(SELECT_STATEMENT + ORDER_BY_STATEMENT, new TaxonAnnotationResultSetExtractor());
     }
     
     @Override
     public List<TaxonAnnotationTO> findLast(int limit) {
-        return template.query(SELECT_STATEMENT + " ORDER BY v.creation_date DESC LIMIT " + limit, new TaxonAnnotationRowMapper());
+        return template.query(SELECT_STATEMENT + " ORDER BY v.creation_date DESC LIMIT " + limit, new TaxonAnnotationResultSetExtractor());
     }
 
     @Override
     public List<TaxonAnnotationTO> findByUser(String email, Integer limit) {
         String limitSql = limit != null ? " LIMIT " + limit : "";
         return template.query(SELECT_STATEMENT + "WHERE uc.email = :email ORDER BY v.creation_date DESC " + limitSql,
-                new MapSqlParameterSource().addValue("email", email), new TaxonAnnotationRowMapper());
+                new MapSqlParameterSource().addValue("email", email), new TaxonAnnotationResultSetExtractor());
     }
     
     @Override
     public List<TaxonAnnotationTO> findByTaxonPath(String taxonPath) {
         return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath " + ORDER_BY_STATEMENT,
-                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new TaxonAnnotationRowMapper());
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new TaxonAnnotationResultSetExtractor());
     }
     
     @Override
@@ -84,7 +84,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         String sql = SELECT_STATEMENT + "WHERE i.file_name LIKE :imageFilename ";
         return TransfertObject.getOneTO(template.query(sql,
                 new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"),
-                new TaxonAnnotationRowMapper()));
+                new TaxonAnnotationResultSetExtractor()));
     }
     
     @Override
@@ -160,56 +160,98 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         template.update(sql, new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"));
     }
     
-    // FIXME convert to ResultSetExtractor<List<TaxonAnnotationTO>> to be able to add x-refs
-    private static class TaxonAnnotationRowMapper implements RowMapper<TaxonAnnotationTO> {
+    private static class TaxonAnnotationResultSetExtractor implements ResultSetExtractor<List<TaxonAnnotationTO>> {
+        
         @Override
-        public TaxonAnnotationTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            
-            // TODO: add dbXrefTOs
-            TaxonTO taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                    rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), null);
-            
-            DevStageTO devStageTO = null;
-            if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
-                devStageTO = new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
-                        rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound"));
+        public List<TaxonAnnotationTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            Map<Integer, TaxonAnnotationTO> taxonAnnotationTOs = new HashMap<>();
+            while(rs.next()) {
+                int id = rs.getInt("ta.id");
+                TaxonAnnotationTO taxonAnnotationTO = taxonAnnotationTOs.get(id);
+                
+                TaxonTO taxonTO = null;
+                if (taxonAnnotationTO != null) {
+                    taxonTO = taxonAnnotationTO.getTaxonTO();
+                }
+                
+                // Build DbXrefs
+                // FIXME do some refactoring
+                DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx1", "ds1");
+                Set<DbXrefTO> dbXrefTOs = taxonTO == null? null : new HashSet<>(taxonTO.getDbXrefTOs());
+                if (dbXrefTOs == null) {
+                    dbXrefTOs = new HashSet<>();
+                }
+                dbXrefTOs.add(dbXrefTO);
+                
+                TaxonToDbXrefTO taxonToDbXrefTO = new TaxonToDbXrefTO(rs.getString("tdx.taxon_path"),
+                        rs.getInt("tdx.db_xref_id"), rs.getBoolean("tdx.main"));
+                Set<TaxonToDbXrefTO> taxonToDbXrefTOs = taxonTO == null ? null: new HashSet<>(taxonTO.getTaxonToDbXrefTOs());
+                if (taxonToDbXrefTOs == null) {
+                    taxonToDbXrefTOs = new HashSet<>();
+                }
+                taxonToDbXrefTOs.add(taxonToDbXrefTO);
+                
+                // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
+                taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
+                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                
+                DevStageTO devStageTO = null;
+                if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
+                    devStageTO = new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
+                            rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound"));
+                }
+                AnatEntityTO anatEntityTO = null;
+                if (StringUtils.isNotBlank(rs.getString("c.anatomical_entity_id"))) {
+                    anatEntityTO= new AnatEntityTO(rs.getString("ae.id"), rs.getString("ae.name"), rs.getString("ae.description"));
+                }
+                
+                ConditionTO conditionTO = null;
+                if (DAO.getInteger(rs, "ta.condition_id") != null) {
+                    conditionTO = new ConditionTO(rs.getInt("c.id"), devStageTO, anatEntityTO,
+                            rs.getString("c.sex"), rs.getString("c.moulting_step"));
+                }
+                
+                ArticleTO articleTO = null;
+                if (DAO.getInteger(rs, "ta.article_id") != null) {
+                    if (taxonAnnotationTO != null) {
+                        articleTO = taxonAnnotationTO.getArticleTO();
+                    }
+                    
+                    // Build DbXrefs
+                    DbXrefTO articleDbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx2", "ds2");
+                    Set<DbXrefTO> articleDbXrefTOs = null;
+                    if (articleDbXrefTO.getAccession() != null) {
+                        articleDbXrefTOs = articleTO == null? null : new HashSet<>(articleTO.getDbXrefTOs());
+                        if (articleDbXrefTOs == null) {
+                            articleDbXrefTOs = new HashSet<>();
+                        }
+                        articleDbXrefTOs.add(articleDbXrefTO);
+                    }
+                    articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
+                            rs.getString("a.title"), rs.getString("a.authors"), articleDbXrefTOs);
+                }
+                
+                
+                ImageTO imageTO = null;
+                if (DAO.getInteger(rs, "ta.image_id") != null) {
+                    imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.description"));
+                }
+                
+                TermTO ecoTO = null;
+                if (StringUtils.isNotBlank(rs.getString("ta.eco_id"))) {
+                    ecoTO = new TermTO(rs.getString("ecoTO.id"), rs.getString("ecoTO.name"), rs.getString("ecoTO.description"));
+                }
+                
+                TermTO cioTO = null;
+                if (StringUtils.isNotBlank(rs.getString("ta.cio_id"))) {
+                    cioTO = new TermTO(rs.getString("cioTO.id"), rs.getString("cioTO.name"), rs.getString("cioTO.description"));
+                }
+                
+                taxonAnnotationTOs.put(id, new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
+                        rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), conditionTO, articleTO,
+                        imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"), ecoTO, cioTO, rs.getInt("ta.version_id")));
             }
-            AnatEntityTO anatEntityTO = null;
-            if (StringUtils.isNotBlank(rs.getString("c.anatomical_entity_id"))) {
-                anatEntityTO= new AnatEntityTO(rs.getString("ae.id"), rs.getString("ae.name"), rs.getString("ae.description"));
-            }
-            
-            ConditionTO conditionTO = null;
-            if (DAO.getInteger(rs, "ta.condition_id") != null) {
-                conditionTO = new ConditionTO(rs.getInt("c.id"), devStageTO, anatEntityTO,
-                        rs.getString("c.sex"), rs.getString("c.moulting_step"));
-            }
-            
-            ArticleTO articleTO = null;
-            if (DAO.getInteger(rs, "ta.article_id") != null) {
-                // TODO: add dbXrefTOs
-                articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
-                        rs.getString("a.title"), rs.getString("a.authors"), null);
-            }
-            
-            ImageTO imageTO = null;
-            if (DAO.getInteger(rs, "ta.image_id") != null) {
-                imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.description"));
-            }
-            
-            TermTO ecoTO = null;
-            if (StringUtils.isNotBlank(rs.getString("ta.eco_id"))) {
-                ecoTO = new TermTO(rs.getString("ecoTO.id"), rs.getString("ecoTO.name"), rs.getString("ecoTO.description"));
-            }
-            
-            TermTO cioTO = null;
-            if (StringUtils.isNotBlank(rs.getString("ta.cio_id"))) {
-                cioTO = new TermTO(rs.getString("cioTO.id"), rs.getString("cioTO.name"), rs.getString("cioTO.description"));
-            }
-            
-            return new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
-                    rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), conditionTO, articleTO,
-                    imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"), ecoTO, cioTO, rs.getInt("ta.version_id"));
+            return new ArrayList<>(taxonAnnotationTOs.values());
         }
     }
 }

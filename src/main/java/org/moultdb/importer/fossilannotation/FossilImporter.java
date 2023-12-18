@@ -212,6 +212,8 @@ public class FossilImporter {
                 throw new IllegalArgumentException("You should provide the published reference citation " +
                         "when you provide a published reference accession: " + bean.getPublishedReferenceAcc());
             }
+            
+            Set<DbXrefTO> articleDbXrefTOs = new HashSet<>();
             if (bean.getPublishedReferenceAcc() != null) {
                 for (String acc : bean.getPublishedReferenceAcc().split(";")) {
                     Matcher m = Pattern.compile("^([A-Z]+): (\\S+)$").matcher(String.valueOf(acc));
@@ -222,9 +224,11 @@ public class FossilImporter {
                         }
                         DbXrefTO dbXrefTO = dbXrefDAO.findByAccessionAndDatasource(m.group(2), dataSourceTO.getId());
                         if (dbXrefTO == null) {
-                            dbXrefTOs.add(new DbXrefTO(dbXrefNextId, m.group(2), null, dataSourceTO));
+                            dbXrefTO = new DbXrefTO(dbXrefNextId, m.group(2), null, dataSourceTO);
+                            dbXrefTOs.add(dbXrefTO);
                             dbXrefNextId++;
                         }
+                        articleDbXrefTOs.add(dbXrefTO);
                     }
                 }
             }
@@ -236,9 +240,9 @@ public class FossilImporter {
                     articleTO = new ArticleTO(articleNextId, bean.getPublishedReferenceText(), null, null, dbXrefTOs);
                     articleTOs.add(articleTO);
                     articleNextId ++;
-                    for (DbXrefTO dbXrefTO : dbXrefTOs) {
-                        articleToDbXrefTOs.add(new ArticleToDbXrefTO(articleTO.getId(), dbXrefTO.getId()));
-                    }
+                }
+                for (DbXrefTO dbXrefTO : articleDbXrefTOs) {
+                    articleToDbXrefTOs.add(new ArticleToDbXrefTO(articleTO.getId(), dbXrefTO.getId()));
                 }
                 viewedArticleCitations.put(bean.getPublishedReferenceText(), articleTO);
             }
@@ -294,10 +298,8 @@ public class FossilImporter {
         return Arrays.stream(ints).sum();
     }
     
-    private static Integer getNextId(Integer articleDAO) {
-        Integer articleLastId = articleDAO;
-        Integer articleNextId = articleLastId == null ? 1 : articleLastId + 1;
-        return articleNextId;
+    private static Integer getNextId(Integer lastId) {
+        return lastId == null ? 1 : lastId + 1;
     }
     
     private Set<String> extractValues(String s) {

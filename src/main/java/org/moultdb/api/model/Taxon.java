@@ -47,7 +47,7 @@ public class Taxon extends NamedEntity<String> {
         return extinct;
     }
     
-    public Set<DbXref> getDbXref() {
+    public Set<DbXref> getDbXrefs() {
         return dbXrefs;
     }
     

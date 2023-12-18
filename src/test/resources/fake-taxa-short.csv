@@ -1,10 +1,5 @@
-id,ncbi_id,gbif_taxon_id,Index,ncbi_canonicalName,canonicalName,ncbi_synonyms_names,gbif_synonyms_names,gbif_synonyms_ids
-0,6656,54,1 ,Arthropoda,Arthropoda,arthropods; arthropods,,
-1,197563,-1,1.1 ,Mandibulata,,mandibulates,,
-2,6843,-1,1.2 ,Chelicerata,,chelicerates,,
-184,61985,-1,1.1.2 ,Myriapoda,,myriapods,,
-530,7540,360,1.1.2.1 ,Chilopoda,Chilopoda,centipede; centipedes; centipedes,,
-186,6854,367,1.2.2 ,Arachnida,Arachnida,arachnids; arachnids,,
-587,41356,756,1.2.2.4 ,Solifugae,Solifugae,camel spiders; solpugida; solpugids; sun spiders; sun spiders; wind scorpions,solpugida,11039601
-98,-1,4632816,1.98 ,,Lemoneites,,,
-409,-1,11148278,1.98.1 ,,Lemoneites mirabilis,,lemoneites gomphocaudatus; lemoneites ambiguus; lemoneites simplex,11353923; 11311982; 11241119
+id,path,ncbi_taxon_id,gbif_taxon_id,ncbi_canonical_name,gbif_canonical_name,gbif_synonyms_ids,gbif_synonyms_names,ncbi_synonyms_names
+1,1 ,6656,54,Arthropoda,Arthropoda,,,arthropods; arthropods
+533,1.1.2.1 ,7540,360,Chilopoda,Chilopoda,,,centipede; centipedes; centipedes
+590,1.2.2.4 ,41356,756,Solifugae,Solifugae,11039601,solpugida,camel spiders; solpugida; solpugids; sun spiders; sun spiders; wind scorpions
+12,1.11 ,-1,4666708,,Anomalocarididae,3255688; 9505495,anomalocaridae; anomalocardidae,

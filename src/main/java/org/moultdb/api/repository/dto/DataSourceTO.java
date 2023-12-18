@@ -13,21 +13,33 @@ public class DataSourceTO extends NamedEntityTO<Integer> {
     @Serial
     private static final long serialVersionUID = 8715798341643627122L;
     
+    private final String shortName;
     private final String baseURL;
+    private final String xrefURL;
     private final Date lastImportDate;
     private final String releaseVersion;
     
-    public DataSourceTO(Integer id, String name, String description, String baseURL,
-                        Date lastImportDate, String releaseVersion)
+    public DataSourceTO(Integer id, String name, String description, String shortName, String baseURL,
+                        String xrefURL, Date lastImportDate, String releaseVersion)
             throws IllegalArgumentException {
         super(id, name, description);
+        this.shortName = shortName;
         this.baseURL = baseURL;
+        this.xrefURL = xrefURL;
         this.lastImportDate = lastImportDate;
         this.releaseVersion = releaseVersion;
     }
     
+    public String getShortName() {
+        return shortName;
+    }
+    
     public String getBaseURL() {
         return baseURL;
+    }
+    
+    public String getXrefURL() {
+        return xrefURL;
     }
     
     public Date getLastImportDate() {
@@ -44,7 +56,9 @@ public class DataSourceTO extends NamedEntityTO<Integer> {
                 .add("id='" + getId() + "'")
                 .add("name='" + getName() + "'")
                 .add("description='" + getDescription() + "'")
+                .add("shortName='" + shortName + "'")
                 .add("baseURL='" + baseURL + "'")
+                .add("xrefURL='" + xrefURL + "'")
                 .add("lastImportDate=" + lastImportDate)
                 .add("releaseVersion='" + releaseVersion + "'")
                 .toString();

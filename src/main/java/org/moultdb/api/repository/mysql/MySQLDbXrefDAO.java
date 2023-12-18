@@ -135,19 +135,16 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
     protected static class DbXrefRowMapper implements RowMapper<DbXrefTO> {
         @Override
         public DbXrefTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"), rs.getString("x.name"),
-                    new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("description"),
-                            rs.getString("ds.base_url"), rs.getDate("ds.last_import_date"), rs.getString("ds.release_version")));
+            return mapRow(rs, rowNum, "x", "ds");
         }
-    }
-    
-    private static class ArticleDbXrefRowMapper implements RowMapper<Map.Entry<Integer, DbXrefTO>> {
-        @Override
-        public Map.Entry<Integer, DbXrefTO> mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new AbstractMap.SimpleEntry<>(rs.getInt("adx.article_id"),
-                    new DbXrefTO(rs.getInt("x.id"), rs.getString("x.accession"), rs.getString("x.name"),
-                            new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("description"),
-                                    rs.getString("ds.base_url"), rs.getDate("ds.last_import_date"), rs.getString("ds.release_version"))));
+        
+        public DbXrefTO mapRow(ResultSet rs, int rowNum, String dbXrefAlias, String datasourceAlias) throws SQLException {
+            return new DbXrefTO(rs.getInt(dbXrefAlias + ".id"), rs.getString(dbXrefAlias + ".accession"),
+                    rs.getString(dbXrefAlias + ".name"),
+                    new DataSourceTO(rs.getInt(datasourceAlias + ".id"), rs.getString(datasourceAlias + ".name"),
+                            rs.getString(datasourceAlias + ".description"), rs.getString(datasourceAlias + ".short_name"),
+                            rs.getString(datasourceAlias + ".base_url"), rs.getString(datasourceAlias + ".xref_url"),
+                            rs.getDate(datasourceAlias + ".last_import_date"), rs.getString(datasourceAlias + ".release_version")));
         }
     }
 }

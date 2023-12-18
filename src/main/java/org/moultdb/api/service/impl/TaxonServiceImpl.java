@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.Taxon;
+import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.DataSourceDAO;
 import org.moultdb.api.repository.dao.DbXrefDAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
@@ -39,12 +40,32 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     @Override
+    public List<Taxon> getTaxonByText(String searchedText) {
+        return getTaxons(taxonDAO.findByText(searchedText));
+    }
+    
+    @Override
     public Taxon getTaxonByScientificName(String scientificName) {
         TaxonTO taxonTO = taxonDAO.findByScientificName(scientificName);
         if (taxonTO != null) {
             return getTaxons(Collections.singletonList(taxonTO)).get(0);
         }
         return null;
+    }
+    
+    @Override
+    public Taxon getTaxonByDbXref(String datasource, String accession) {
+        DatasourceEnum datasourceEnum = DatasourceEnum.valueOfByStringRepresentation(datasource);
+        TaxonTO taxonTO = taxonDAO.findByAccession(accession, datasourceEnum.getStringRepresentation());
+        if (taxonTO != null) {
+            return getTaxons(Collections.singletonList(taxonTO)).get(0);
+        }
+        return null;
+    }
+    
+    @Override
+    public List<Taxon> getTaxonLineage(String taxonPath) {
+        return getTaxons(taxonDAO.findLineageByPath(taxonPath));
     }
     
     private List<Taxon> getTaxons(List<TaxonTO> taxonTOs) {
@@ -176,7 +197,7 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     private TaxonTO convertToDto(Taxon taxon) {
-        Set<DbXrefTO> dbXrefTOs = taxon.getDbXref().stream()
+        Set<DbXrefTO> dbXrefTOs = taxon.getDbXrefs().stream()
                                        .map(xref -> {
                                            DataSourceTO dataSourceTO = dataSourceDAO.findByName(xref.getDataSource().getName());
                                            return new DbXrefTO(null, xref.getAccession(), xref.getName(), dataSourceTO);

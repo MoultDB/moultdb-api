@@ -7,11 +7,11 @@ import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -41,8 +41,8 @@ public class ServiceUtils {
         if (dataSourceTO == null) {
             return null;
         }
-        return new DataSource(dataSourceTO.getName(), dataSourceTO.getDescription(),
-                dataSourceTO.getBaseURL(), dataSourceTO.getLastImportDate(),
+        return new DataSource(dataSourceTO.getName(), dataSourceTO.getShortName(), dataSourceTO.getDescription(),
+                dataSourceTO.getBaseURL(), dataSourceTO.getXrefURL(), dataSourceTO.getLastImportDate(),
                 dataSourceTO.getReleaseVersion());
     }
     
@@ -129,11 +129,26 @@ public class ServiceUtils {
         return new Condition(devStage, anatEntity, conditionTO.getSex(),moultingStep);
     }
     
-    public static DbXref mapFromTO(DbXrefTO dbXrefTO) {
+    private static DbXref mapFromTO(DbXrefTO dbXrefTO, Map<Integer, TaxonToDbXrefTO> dbXrefIdToTaxonToDbXrefTO) {
         if (dbXrefTO == null) {
             return null;
         }
-        return new DbXref(dbXrefTO.getAccession(), dbXrefTO.getName(), mapFromTO(dbXrefTO.getDataSourceTO()));
+        Boolean isMain = null;
+        if (dbXrefIdToTaxonToDbXrefTO != null && dbXrefIdToTaxonToDbXrefTO.get(dbXrefTO.getId()) != null) {
+            isMain = dbXrefIdToTaxonToDbXrefTO.get(dbXrefTO.getId()).getMain();
+        }
+        return new DbXref(dbXrefTO.getAccession(), dbXrefTO.getName(), mapFromTO(dbXrefTO.getDataSourceTO()), isMain);
+    }
+    
+    public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs, Set<TaxonToDbXrefTO> taxonToDbXrefTOs) {
+        if (dbXrefTOs == null) {
+            return null;
+        }
+        Map<Integer, TaxonToDbXrefTO> dbXrefIdToTaxonToDbXrefTO = taxonToDbXrefTOs.stream()
+                .collect(Collectors.toMap(TaxonToDbXrefTO::getDbXrefId, Function.identity()));
+        return dbXrefTOs.stream()
+                .map(dbXrefTO -> mapFromTO(dbXrefTO, dbXrefIdToTaxonToDbXrefTO))
+                .collect(Collectors.toSet());
     }
     
     public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
@@ -141,8 +156,8 @@ public class ServiceUtils {
             return null;
         }
         return dbXrefTOs.stream()
-                        .map(ServiceUtils::mapFromTO)
-                        .collect(Collectors.toSet());
+                .map(dbXrefTO -> mapFromTO(dbXrefTO, null))
+                .collect(Collectors.toSet());
     }
     
     public static MoultingCharacters mapFromTO(MoultingCharactersTO mcTO) {
@@ -183,7 +198,8 @@ public class ServiceUtils {
             return null;
         }
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(),
-                taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs()));
+                taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs(),
+                taxonTO.getTaxonToDbXrefTOs()));
     }
     
     public static Article mapFromTO(ArticleTO articleTO) {

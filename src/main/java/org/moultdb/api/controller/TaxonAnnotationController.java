@@ -51,8 +51,14 @@ public class TaxonAnnotationController {
     }
     
     @GetMapping("/species/path")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByTaxonPath(@RequestParam("path") String path) {
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonPath(path));
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByTaxonPath(@RequestParam("taxonPath") String taxonPath) {
+        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonPath(taxonPath));
+    }
+    
+    @GetMapping("/species/dbxref")
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByDbXref(
+            @RequestParam("datasource") String datasource, @RequestParam("accession") String accession) {
+        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
     }
     
     //FIXME change postmapping to deletemapping

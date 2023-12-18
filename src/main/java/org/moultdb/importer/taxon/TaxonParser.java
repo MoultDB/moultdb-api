@@ -3,6 +3,7 @@ package org.moultdb.importer.taxon;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.DataSourceDAO;
 import org.moultdb.api.repository.dao.DbXrefDAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
@@ -10,7 +11,6 @@ import org.moultdb.api.repository.dto.DataSourceTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TaxonTO;
 import org.moultdb.api.repository.dto.TaxonToDbXrefTO;
-import org.moultdb.importer.ImportUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
@@ -97,8 +97,8 @@ public class TaxonParser {
         Integer dbXrefLastId = dbXrefDAO.getLastId();
         Integer dbXrefNextId = dbXrefLastId == null ? 1 : dbXrefLastId + 1;
         
-        DataSourceTO ncbiTO = dataSourceDAO.findByName(ImportUtils.NCBI_TAXONOMY_DATASOURCE_NAME);
-        DataSourceTO gbifTO = dataSourceDAO.findByName(ImportUtils.GBIF_TAXONOMY_DATASOURCE_NAME);
+        DataSourceTO ncbiTO = dataSourceDAO.findByName(DatasourceEnum.NCBI.getStringRepresentation());
+        DataSourceTO gbifTO = dataSourceDAO.findByName(DatasourceEnum.GBIF.getStringRepresentation());
         if (ncbiTO == null || gbifTO == null) {
             throw new IllegalArgumentException("Unknown data source(s).");
         }
@@ -123,13 +123,13 @@ public class TaxonParser {
             dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, gbifTO, cleanId(bean.getGbifId()), cleanName(bean.getGbifName()),
                     bean.getPath(), true, dbXrefTOs, taxonToDbXrefTOs);
             
-            List<String> synonymGbifIds = extractValues(bean.getSynonymGbifIds());
-            List<String> synonymGbifNames = extractValues(bean.getSynonymGbifNames());
+            List<String> synonymGbifIds = extractListValues(bean.getSynonymGbifIds());
+            List<String> synonymGbifNames = extractListValues(bean.getSynonymGbifNames());
             for (int i = 0; i < synonymGbifIds.size(); i++) {
                 dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, gbifTO, cleanId(synonymGbifIds.get(i)),
                         cleanSynonym(synonymGbifNames.get(i)), bean.getPath(), false, dbXrefTOs, taxonToDbXrefTOs);
             }
-            for (String ncbiName : extractValues(bean.getSynonymNcbiNames())) {
+            for (String ncbiName : extractSetValues(bean.getSynonymNcbiNames())) {
                 dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, ncbiTO, null, cleanSynonym(ncbiName),
                         bean.getPath(), false, dbXrefTOs, taxonToDbXrefTOs);
             }
@@ -179,13 +179,22 @@ public class TaxonParser {
         return dbXrefNextId;
     }
     
-    private List<String> extractValues(String s) {
+    private List<String> extractListValues(String s) {
         if (StringUtils.isBlank(s)) {
             return new ArrayList<>();
         }
         return Arrays.stream(s.split(LIST_SEPARATOR))
                      .map(String::trim)
                      .collect(Collectors.toList());
+    }
+    
+    private Set<String> extractSetValues(String s) {
+        if (StringUtils.isBlank(s)) {
+            return new HashSet<>();
+        }
+        return Arrays.stream(s.split(LIST_SEPARATOR))
+                .map(String::trim)
+                .collect(Collectors.toSet());
     }
     
     public Set<TaxonBean> getTaxonBeans(MultipartFile uploadedFile) {
