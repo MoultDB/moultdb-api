@@ -1,6 +1,8 @@
 package org.moultdb.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.RegistrationException;
 import org.moultdb.api.exception.UserNotFoundException;
@@ -14,7 +16,10 @@ import org.moultdb.api.service.TokenService;
 import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -33,6 +38,8 @@ import static org.moultdb.api.service.impl.TokenServiceImpl.getShortTokenValidit
 @Service
 public class UserServiceImpl implements UserService {
     
+    private final static Logger logger = LogManager.getLogger(UserServiceImpl.class.getName());
+    
     @Autowired
     private UserDAO userDAO;
     
@@ -45,6 +52,8 @@ public class UserServiceImpl implements UserService {
     @Value("${url.webapp}")
     private String WEBAPP_URL;
     
+    private static final String ROLE_SEPARATOR = ",";
+    
     @Override
     public void saveUser(MoultDBUser user) {
         saveUser(user, Role.ROLE_USER.getStringRepresentation());
@@ -54,7 +63,7 @@ public class UserServiceImpl implements UserService {
     public void saveAdmin(MoultDBUser user) {
         String authorities = user.getAuthorities().stream()
                            .map(GrantedAuthority::getAuthority)
-                           .collect(Collectors.joining(","));
+                           .collect(Collectors.joining(ROLE_SEPARATOR));
         saveUser(user, authorities);
     }
     
@@ -97,8 +106,8 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isBlank(email) || StringUtils.isBlank(token)) {
             throw new IllegalArgumentException("E-mail or token is empty");
         }
-        int[] ints = userDAO.updateUserAsVerified(email);
         tokenService.validateToken(email, token);
+        int[] ints = userDAO.updateUserAsVerified(email);
         // Returns true if the user has been set to 'verified'
         return ints.length > 0 && ints[0] == 1;
     }
@@ -125,9 +134,9 @@ public class UserServiceImpl implements UserService {
         if (userTO == null) {
             throw new UserNotFoundException(email);
         }
-    
+        String[] roles = getRoles(userTO);
         // Get token with short validity
-        String token = tokenService.generateShortExpirationToken(userTO.getEmail());
+        String token = tokenService.generateShortExpirationToken(userTO.getEmail(), roles);
         int tokenValidityMin = (int) (getShortTokenValidity() / 60000);
     
         // Send e-mail with link to reset password
@@ -139,7 +148,16 @@ public class UserServiceImpl implements UserService {
                 "If the link doesn't work, please copy and paste it into your browser.\n\n" +
                 "Thank you,\n\n" +
                 "The MoultDB team";
+        logger.debug(resetPasswordLink);
         mailService.sendEmail(userTO.getEmail(), "[MoultDB] Reset your password", message);
+    }
+    
+    private static String[] getRoles(UserTO userTO) {
+        String[] roles = new String[0];
+        if (StringUtils.isNotBlank(userTO.getRoles())) {
+            roles = userTO.getRoles().split(ROLE_SEPARATOR); 
+        }
+        return roles;
     }
     
     @Override
@@ -153,7 +171,7 @@ public class UserServiceImpl implements UserService {
         }
     
         // Get token with long validity
-        String token = tokenService.generateLongExpirationToken(userTO.getEmail());
+        String token = tokenService.generateLongExpirationToken(userTO.getEmail(), getRoles(userTO));
         int tokenValidityMin = (int) (getLongTokenValidity() / 60000 / 1440);
         
         // Send e-mail with link to reset password
@@ -182,7 +200,7 @@ public class UserServiceImpl implements UserService {
         return MoultDBUser.builder()
                           .username(userTO.getEmail())
                           .password(userTO.getPassword())
-                          .roles("USER")
+                          .roles(getRoles(userTO))
                           .build();
     }
 }

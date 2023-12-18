@@ -31,24 +31,25 @@ public class TokenServiceImpl implements TokenService {
     private static final long SHORT_TOKEN_VALIDITY = 10 * 60 * 1000; // 10 minutes
     
     @Override
-    public String generateLongExpirationToken(String email) {
-        return generateToken(email, LONG_TOKEN_VALIDITY);
+    public String generateLongExpirationToken(String email, String[] roles) {
+        return generateToken(email, roles, LONG_TOKEN_VALIDITY);
     }
     
     @Override
-    public String generateMiddleExpirationToken(String email) {
-        return generateToken(email, MIDDLE_TOKEN_VALIDITY);
+    public String generateMiddleExpirationToken(String email, String[] roles) {
+        return generateToken(email, roles, MIDDLE_TOKEN_VALIDITY);
     }
     
     @Override
-    public String generateShortExpirationToken(String email) {
-        return generateToken(email, SHORT_TOKEN_VALIDITY);
+    public String generateShortExpirationToken(String email, String[] roles) {
+        return generateToken(email, roles, SHORT_TOKEN_VALIDITY);
     }
     
-    private String generateToken(String email, long validity) {
+    private String generateToken(String email, String[] roles, long validity) {
         return Jwts.builder()
                    .setHeaderParam("typ","JWT")
                    .setSubject(email)
+                   .claim("roles", roles)
                    .setIssuedAt(new Date(System.currentTimeMillis()))
                    .setExpiration(new Date(System.currentTimeMillis() + validity))
                    .signWith(getSecretKey(), SignatureAlgorithm.HS256)

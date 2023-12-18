@@ -12,9 +12,16 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.moultdb.api.exception.AuthenticationException;
+import org.moultdb.api.model.moutldbenum.Role;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static org.moultdb.api.config.TokenFilterConfig.SECURED_ADMIN_URL;
+import static org.moultdb.api.config.TokenFilterConfig.SECURED_USER_URL;
 
 /**
  * @author Valentine Rech de Laval
@@ -36,7 +43,9 @@ public class TokenFilter extends GenericFilterBean {
         final String authHeader = request.getHeader("Authorization");
     
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AuthenticationException("No token or token does not begin with 'Bearer '");
+            response.getWriter().write("No token or token does not begin with 'Bearer '");
+            response.setStatus(403);
+            return;
         }
         // JWT Token is in the form "Bearer token". Remove Bearer word and get only the Token
         final String token = authHeader.substring(7);
@@ -55,16 +64,29 @@ public class TokenFilter extends GenericFilterBean {
         request.setAttribute("claims", claims);
         request.setAttribute("user", servletRequest.getParameter("id"));
         
-        // Stocke le token dans TokenHolder
+        // Store the token in TokenHolder
         UserHolder.setEmail(claims.getSubject());
         
-        try {
-            // Continue la chaîne de filtres
-            filterChain.doFilter(request, response);
-        } finally {
-            // Nettoie le token une fois que la demande a été traitée
-            UserHolder.clearEmail();
+        if(!hasAuthorizedRole(request, response, claims, SECURED_ADMIN_URL, Role.ROLE_ADMIN) 
+            || !hasAuthorizedRole(request, response, claims, SECURED_USER_URL, Role.ROLE_USER)) {
+            response.getWriter().write("Access Denied. Insufficient privileges for this URL.");
+            response.setStatus(403);
+            return;
         }
         
+        try {
+            // Continue filter chain
+            filterChain.doFilter(request, response);
+        } finally {
+            // Clean the token once the request has been processed
+            UserHolder.clearEmail();
+        }
+    }
+    
+    private boolean hasAuthorizedRole(HttpServletRequest request, HttpServletResponse response, Claims claims,
+                                   String[] securedUrl, Role role) throws IOException {
+        return Arrays.stream(securedUrl).noneMatch(u -> Pattern.compile(u).matcher(request.getRequestURI()).find())
+                || claims == null
+                || claims.get("roles", List.class).contains(role.getStringRepresentation());
     }
 }

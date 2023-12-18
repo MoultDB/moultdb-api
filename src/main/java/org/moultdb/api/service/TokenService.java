@@ -10,9 +10,9 @@ public interface TokenService {
     
     boolean validateToken(String email, String token);
     
-    String generateLongExpirationToken(String email);
+    String generateLongExpirationToken(String email, String[] roles);
     
-    String generateMiddleExpirationToken(String email);
+    String generateMiddleExpirationToken(String email, String[] roles);
     
-    String generateShortExpirationToken(String email);
+    String generateShortExpirationToken(String email, String[] roles);
 }

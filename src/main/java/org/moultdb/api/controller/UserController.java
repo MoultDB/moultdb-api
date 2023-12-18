@@ -6,6 +6,7 @@ import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -64,7 +65,8 @@ public class UserController {
         userResp.put("name", user.getName());
         userResp.put("authorities", user.getAuthorities());
         userResp.put("orcidId", user.getOrcidId());
-        userResp.put("token", tokenService.generateMiddleExpirationToken(user.getEmail()));
+        userResp.put("token", tokenService.generateMiddleExpirationToken(user.getEmail(),
+                user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray(String[]::new)));
     
         return generateValidResponse("User logged in", userResp);
     }
