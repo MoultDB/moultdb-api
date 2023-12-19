@@ -109,12 +109,11 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
     @Override
     public void batchUpdate(Set<TaxonTO> taxonTOs) {
-        String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, " +
-                "parent_taxon_path, extinct) " +
-                "VALUES (:path, :scientific_name, :common_name, :parent_taxon_path, :extinct) " +
+        String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, extinct) " +
+                "VALUES (:path, :scientific_name, :common_name, :extinct) " +
                 "AS new " +
-                "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name," +
-                " parent_taxon_path = new.parent_taxon_path, extinct = new.extinct";
+                "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name, " +
+                " extinct = new.extinct";
         
         String dbXrefSql = "INSERT INTO db_xref (id, accession, data_source_id) " +
                 "VALUES (:id, :accession, :data_source_id) " +
@@ -135,7 +134,6 @@ public class MySQLTaxonDAO implements TaxonDAO {
             taxonSource.addValue("path", taxonTO.getPath());
             taxonSource.addValue("scientific_name", taxonTO.getScientificName());
             taxonSource.addValue("common_name", taxonTO.getCommonName());
-            taxonSource.addValue("parent_taxon_path", taxonTO.getParentTaxonPath());
             taxonSource.addValue("extinct", taxonTO.isExtincted());
             taxonParams.add(taxonSource);
             
@@ -197,7 +195,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                        DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
     
                 taxa.put(taxonPath, taxonTO);
             }

@@ -204,7 +204,6 @@ public class TaxonServiceImpl implements TaxonService {
                                        })
                                        .collect(Collectors.toSet());
         
-        return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.getParentTaxonPath(),
-                taxon.isExtinct(), dbXrefTOs);
+        return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.isExtinct(), dbXrefTOs);
     }
 }

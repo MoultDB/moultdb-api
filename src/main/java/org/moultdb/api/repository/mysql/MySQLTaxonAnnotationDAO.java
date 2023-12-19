@@ -191,7 +191,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                        DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
                 
                 DevStageTO devStageTO = null;
                 if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {

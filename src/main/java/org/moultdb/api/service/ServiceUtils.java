@@ -198,8 +198,7 @@ public class ServiceUtils {
             return null;
         }
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(),
-                taxonTO.getParentTaxonPath(), taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs(),
-                taxonTO.getTaxonToDbXrefTOs()));
+                taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs(), taxonTO.getTaxonToDbXrefTOs()));
     }
     
     public static Article mapFromTO(ArticleTO articleTO) {

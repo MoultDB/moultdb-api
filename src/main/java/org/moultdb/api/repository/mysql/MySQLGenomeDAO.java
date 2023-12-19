@@ -8,7 +8,6 @@ import org.moultdb.api.repository.dao.GenomeDAO;
 import org.moultdb.api.repository.dto.*;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -142,7 +141,7 @@ public class MySQLGenomeDAO implements GenomeDAO {
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        rs.getString("t.parent_taxon_path"), DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                        DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
                 
                 java.sql.Date submissionDate = rs.getDate("submission_date");
                 LocalDate submissionLocalDate = submissionDate.toLocalDate();
