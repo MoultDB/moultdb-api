@@ -278,7 +278,7 @@ public class TaxonParser {
 
         public Object execute(Object value, CsvContext context) {
             String stringValue = String.valueOf(value);
-            if (StringUtils.isBlank(stringValue) || stringValue.equals("-1")) {
+            if (StringUtils.isBlank(stringValue) || stringValue.equals("-1") || stringValue.equals("null")) {
                 return null;
             }
             return next.execute(value, context);
