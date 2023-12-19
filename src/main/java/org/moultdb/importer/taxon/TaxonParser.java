@@ -134,7 +134,7 @@ public class TaxonParser {
                         bean.getPath(), false, dbXrefTOs, taxonToDbXrefTOs);
             }
             
-            taxonTOs.add(new TaxonTO(bean.getPath(), scientificName, null, null, null, dbXrefTOs, taxonToDbXrefTOs));
+            taxonTOs.add(new TaxonTO(bean.getPath(), scientificName, null, null, dbXrefTOs, taxonToDbXrefTOs));
         }
         return taxonTOs;
     }
