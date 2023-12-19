@@ -145,17 +145,20 @@ public class TaxonServiceImpl implements TaxonService {
         
         
         for (Set<TaxonBean> taxonBeanSubset : taxonBeanSubsets) {
-            logger.info("# Start parsing taxon beans...");
-            long startTimePoint = System.currentTimeMillis();
+            logger.info("# Start subset taxon import...");
+            logger.debug("# Start parsing taxon beans...");
+            long startTimePoint1 = System.currentTimeMillis();
             Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, taxonDAO, dataSourceDAO, dbXrefDAO);
             long endTimePoint = System.currentTimeMillis();
-            logger.info("# End parsing taxon beans. " + getExecutionTime(startTimePoint, endTimePoint));
+            logger.debug("# End parsing taxon beans. " + getExecutionTime(startTimePoint1, endTimePoint));
             
-            logger.info("# Start of taxon insertion...");
-            startTimePoint = System.currentTimeMillis();
+            logger.debug("# Start of taxon insertion...");
+            long startTimePoint2 = System.currentTimeMillis();
             taxonDAO.batchUpdate(taxonTOs);
             endTimePoint = System.currentTimeMillis();
-            logger.info("# End of taxon insertion. " + getExecutionTime(startTimePoint, endTimePoint));
+            logger.debug("# End of taxon insertion. " + getExecutionTime(startTimePoint2, endTimePoint));
+            logger.info("# End of subset taxon import. " + getExecutionTime(startTimePoint1, endTimePoint));
+            
         }
         long endImportTimePoint = System.currentTimeMillis();
         
@@ -165,7 +168,7 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     private static Set<Set<TaxonBean>> splitBeans(Set<TaxonBean> originalSet) {
-        int subsetSize = 100000;
+        int subsetSize = 50000;
         
         Set<Set<TaxonBean>> allSubsets = new HashSet<>();
         Set<TaxonBean> currentSubset = new HashSet<>();
