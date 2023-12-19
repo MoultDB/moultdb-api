@@ -115,10 +115,11 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name, " +
                 " extinct = new.extinct";
         
-        String dbXrefSql = "INSERT INTO db_xref (id, accession, data_source_id) " +
-                "VALUES (:id, :accession, :data_source_id) " +
+        String dbXrefSql = "INSERT INTO db_xref (id, accession, name, data_source_id) " +
+                "VALUES (:id, :accession, :name, :data_source_id) " +
                 "AS new " +
-                "ON DUPLICATE KEY UPDATE accession = new.accession";
+                "ON DUPLICATE KEY UPDATE accession = new.accession, name = new.name, " +
+                " data_source_id = new.data_source_id ";
         
         String taxonToDbXrefSql = "INSERT INTO taxon_db_xref (taxon_path, db_xref_id, main) " +
                 "VALUES (:taxon_path, :db_xref_id, :main) " +
@@ -141,9 +142,9 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 MapSqlParameterSource dbXrefSource = new MapSqlParameterSource();
                 dbXrefSource.addValue("id", dbXrefTO.getId());
                 dbXrefSource.addValue("accession", dbXrefTO.getAccession());
+                dbXrefSource.addValue("name", dbXrefTO.getName());
                 dbXrefSource.addValue("data_source_id", dbXrefTO.getDataSourceTO().getId());
                 dbXrefParams.add(dbXrefSource);
-                
             }
             
             for (TaxonToDbXrefTO taxonToDbXrefTO : taxonTO.getTaxonToDbXrefTOs()) {
