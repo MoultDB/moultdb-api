@@ -39,26 +39,26 @@ public class GenomeParser {
     
     private final static Logger logger = LogManager.getLogger(TaxonParser.class.getName());
     
-    private final static CsvPreference CSV_COMMENTED = new CsvPreference.Builder(CsvPreference.STANDARD_PREFERENCE).build();
+    private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
-    private final static String GENBANK_ACC_COL_NAME = "GenBank";
+    private final static String GENBANK_ACC_COL_NAME = "Genbank Accession";
     private final static String SUBMISSION_DATE_COL_NAME = "Submission Date";
     private final static String TAXID_COL_NAME = "TaxId";
     private final static String SUBPHYLUM_COL_NAME = "SubPhylum";
     private final static String ORDER_COL_NAME = "Order";
     private final static String GENUS_COL_NAME = "Genus";
     private final static String SPECIES_COL_NAME = "Species";
-    private final static String LENGTH_COL_NAME = "Length";
-    private final static String SCAFFOLDS_COL_NAME = "Scaffolds";
+    private final static String LENGTH_COL_NAME = "Total length";
+    private final static String SCAFFOLDS_COL_NAME = "Number of scaffolds";
     private final static String SCAFFOLD_L50_COL_NAME = "Scaffold L50";
     private final static String SCAFFOLD_N50_COL_NAME = "Scaffold N50";
     private final static String ANNOTATION_DATE_COL_NAME = "Annotation Date";
     private final static String TOTAL_GENES_COL_NAME = "Total genes";
-    private final static String ARTHROPODA_COMPLETE_COL_NAME = "Arthropoda Complete";
-    private final static String ARTHROPODA_SINGLE_COL_NAME = "Arthropoda Single";
-    private final static String ARTHROPODA_DUPLICATED_COL_NAME = "Arthropoda Duplicated";
-    private final static String ARTHROPODA_FRAGMENTED_COL_NAME = "Arthropoda Fragmented";
-    private final static String ARTHROPODA_MISSING_COL_NAME = "Arthropoda Missing";
+    private final static String ARTHROPODA_COMPLETE_COL_NAME = "Arthropoda Complete BUSCO";
+    private final static String ARTHROPODA_SINGLE_COL_NAME = "Arthropoda Single BUSCO";
+    private final static String ARTHROPODA_DUPLICATED_COL_NAME = "Arthropoda Duplicated BUSCO";
+    private final static String ARTHROPODA_FRAGMENTED_COL_NAME = "Arthropoda Fragmented BUSCO";
+    private final static String ARTHROPODA_MISSING_COL_NAME = "Arthropoda Missing BUSCO";
     
     public static void main(String[] args) {
         logger.traceEntry(Arrays.toString(args));
@@ -78,7 +78,7 @@ public class GenomeParser {
     public Set<GenomeBean> parseGenomeFile(String fileName) {
         logger.info("Start parsing of genome file " + fileName + "...");
         
-        try (ICsvBeanReader genomeReader = new CsvBeanReader(new FileReader(fileName), CSV_COMMENTED)) {
+        try (ICsvBeanReader genomeReader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
             
             logger.info("End parsing of genome file");
             
@@ -102,8 +102,10 @@ public class GenomeParser {
     
     public Set<GenomeTO> getGenomeTOs(Set<GenomeBean> genomeBeans, TaxonDAO taxonDAO) {
 
-        Map<String, List<GenomeBean>> multipleGenomes = genomeBeans.stream().collect(Collectors.groupingBy(GenomeBean::getTaxonId));
-        if (!multipleGenomes.isEmpty()) {
+        Map<String, List<GenomeBean>> multipleGenomes = genomeBeans.stream()
+                .collect(Collectors.groupingBy(GenomeBean::getTaxonId));
+        if (!multipleGenomes.isEmpty() 
+                && multipleGenomes.entrySet().stream().anyMatch(e -> e.getValue().size() > 1)) {
             throw new IllegalArgumentException(multipleGenomes.entrySet().stream()
                     .filter(e -> e.getValue().size() > 1)
                     .map(e-> e.getKey() + " " + e.getValue().stream().map(GenomeBean::getGenbankAcc).toList())
@@ -157,7 +159,7 @@ public class GenomeParser {
     }
     
     public Set<GenomeBean> getGenomeBeans(MultipartFile uploadedFile) {
-        try (ICsvBeanReader genomeReader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), CSV_COMMENTED)) {
+        try (ICsvBeanReader genomeReader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), TSV_COMMENTED)) {
             return logger.traceExit(getGenomeBeans(genomeReader));
         } catch (SuperCsvException e) {
             throw new IllegalArgumentException("The provided file " + uploadedFile.getOriginalFilename()
@@ -191,6 +193,7 @@ public class GenomeParser {
         String dateFormat = "yyyy-MM-dd";
         
         for (int i = 0; i < header.length; i++) {
+            // Remove "," for thousands separator and '.0' to get Integer
             processors[i] = switch (header[i]) {
                 case GENBANK_ACC_COL_NAME -> new StrNotNullOrEmpty(new Trim());
                 case TAXID_COL_NAME -> new StrNotNullOrEmpty(new Trim());
@@ -204,7 +207,8 @@ public class GenomeParser {
                 case SCAFFOLD_L50_COL_NAME -> new StrReplace(",", "", new ParseInt());
                 case SCAFFOLD_N50_COL_NAME -> new StrReplace(",", "", new ParseInt());
                 case ANNOTATION_DATE_COL_NAME -> new ParseCustomOptional(new ParseDate(dateFormat));
-                case TOTAL_GENES_COL_NAME -> new ParseCustomOptional(new StrReplace(",", "", new ParseInt()));
+                case TOTAL_GENES_COL_NAME -> new ParseCustomOptional(
+                        new StrReplace(".0", "", new StrReplace(",", "", new ParseInt())));
                 case ARTHROPODA_COMPLETE_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_SINGLE_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_DUPLICATED_COL_NAME -> new ParseCustomOptional(new ParseDouble());
