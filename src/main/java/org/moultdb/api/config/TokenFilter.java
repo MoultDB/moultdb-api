@@ -67,9 +67,10 @@ public class TokenFilter extends GenericFilterBean {
         // Store the token in TokenHolder
         UserHolder.setEmail(claims.getSubject());
         
-        if(!hasAuthorizedRole(request, response, claims, SECURED_ADMIN_URL, Role.ROLE_ADMIN) 
-            || !hasAuthorizedRole(request, response, claims, SECURED_USER_URL, Role.ROLE_USER)) {
-            response.getWriter().write("Access Denied. Insufficient privileges for this URL.");
+        if(!hasAuthorizedRole(request, claims, SECURED_ADMIN_URL, Role.ROLE_ADMIN) 
+            || !hasAuthorizedRole(request, claims, SECURED_USER_URL, Role.ROLE_USER)) {
+            response.getWriter().write("Access Denied. Insufficient privileges for this URL [" + request.getRequestURI() +
+                    "] with these privileges [" + claims.get("roles", List.class) + "]");
             response.setStatus(403);
             return;
         }
@@ -83,8 +84,7 @@ public class TokenFilter extends GenericFilterBean {
         }
     }
     
-    private boolean hasAuthorizedRole(HttpServletRequest request, HttpServletResponse response, Claims claims,
-                                   String[] securedUrl, Role role) throws IOException {
+    private boolean hasAuthorizedRole(HttpServletRequest request, Claims claims, String[] securedUrl, Role role) {
         return Arrays.stream(securedUrl).noneMatch(u -> Pattern.compile(u).matcher(request.getRequestURI()).find())
                 || claims == null
                 || claims.get("roles", List.class).contains(role.getStringRepresentation());

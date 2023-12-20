@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -45,6 +44,7 @@ public class MailServiceImpl implements MailService {
             message.setText(content);
     
             logger.debug("Sending...");
+            logger.debug(message);
             Transport.send(message);
             logger.debug("Sent message successfully....");
         } catch (Exception e) {
