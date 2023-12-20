@@ -236,9 +236,8 @@ public class TaxonParser {
                 case PATH_COL_NAME
                         -> new StrNotNullOrEmpty(new Trim());
                 case NCBI_NAME_COL_NAME, GBIF_NAME_COL_NAME, 
-                        SYNONYM_GBIF_IDS_COL_NAME, SYNONYM_GBIF_NAMES_COL_NAME, SYNONYM_NCBI_NAMES_COL_NAME
-                        -> new Optional(new Trim());
-                case NCBI_ID_COL_NAME, GBIF_ID_COL_NAME
+                        SYNONYM_GBIF_IDS_COL_NAME, SYNONYM_GBIF_NAMES_COL_NAME, SYNONYM_NCBI_NAMES_COL_NAME,
+                        NCBI_ID_COL_NAME, GBIF_ID_COL_NAME
                         -> new NegativeIsEmptyOptional(new Trim());
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonBean");
             };
