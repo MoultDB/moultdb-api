@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Valentine Rech de Laval
@@ -51,9 +52,14 @@ public class MySQLTaxonDAO implements TaxonDAO {
         if (StringUtils.isBlank(searchedText)) {
             throw new UnsupportedOperationException("Empty searched text not supported");
         }
-        return template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) like :searched_text",
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) like :searched_text",
                 new MapSqlParameterSource().addValue("searched_text", "%" + searchedText.trim().toLowerCase() + "%"),
                 new TaxonResultSetExtractor());
+        // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
+        if (taxonTOs != null) {
+            taxonTOs.sort(Comparator.comparing(TaxonTO::getScientificName));
+        }
+        return taxonTOs;
     }
     
     @Override
