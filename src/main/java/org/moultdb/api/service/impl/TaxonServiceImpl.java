@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class TaxonServiceImpl implements TaxonService {
     
     private final static Logger logger = LogManager.getLogger(TaxonServiceImpl.class.getName());
+    private final static int TAXON_SUBSET_SIZE = 30000;
     
     @Autowired
     DataSourceDAO dataSourceDAO;
@@ -143,9 +144,9 @@ public class TaxonServiceImpl implements TaxonService {
         Set<Set<TaxonBean>> taxonBeanSubsets = splitBeans(taxonBeans);
         int sum = 0;
         
-        
+        int idx = 1;
         for (Set<TaxonBean> taxonBeanSubset : taxonBeanSubsets) {
-            logger.info("# Start subset taxon import...");
+            logger.info("# Start subset taxon import " + idx + "/" + taxonBeanSubsets.size() + "...");
             logger.debug("# Start parsing taxon beans...");
             long startTimePoint1 = System.currentTimeMillis();
             Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, taxonDAO, dataSourceDAO, dbXrefDAO);
@@ -158,7 +159,7 @@ public class TaxonServiceImpl implements TaxonService {
             endTimePoint = System.currentTimeMillis();
             logger.debug("# End of taxon insertion. " + getExecutionTime(startTimePoint2, endTimePoint));
             logger.info("# End of subset taxon import. " + getExecutionTime(startTimePoint1, endTimePoint));
-            
+            idx++;
         }
         long endImportTimePoint = System.currentTimeMillis();
         
@@ -168,7 +169,6 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     private static Set<Set<TaxonBean>> splitBeans(Set<TaxonBean> originalSet) {
-        int subsetSize = 50000;
         
         Set<Set<TaxonBean>> allSubsets = new HashSet<>();
         Set<TaxonBean> currentSubset = new HashSet<>();
@@ -176,7 +176,7 @@ public class TaxonServiceImpl implements TaxonService {
         for (TaxonBean element : originalSet) {
             currentSubset.add(element);
             
-            if (currentSubset.size() == subsetSize) {
+            if (currentSubset.size() == TAXON_SUBSET_SIZE) {
                 allSubsets.add(currentSubset);
                 currentSubset = new HashSet<>(); // Reinitialize current subset
             }
