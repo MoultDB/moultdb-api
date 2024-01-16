@@ -99,7 +99,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
     @Override
     public List<TaxonTO> findLineageByPath(String taxonPath) {
-        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE :taxonPath LIKE CONCAT(path, '%') ",
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE :taxonPath LIKE CONCAT(path, '\\.',  '%') ",
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath), new TaxonResultSetExtractor());
         // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
         if (taxonTOs != null) {
