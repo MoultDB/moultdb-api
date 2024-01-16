@@ -1,5 +1,7 @@
 package org.moultdb.api.model;
 
+import org.moultdb.api.model.moutldbenum.MoultingStep;
+
 import java.util.StringJoiner;
 
 /**
@@ -8,28 +10,28 @@ import java.util.StringJoiner;
  */
 public class Condition {
     
-    private final Integer devStageId;
-    private final Integer anatomicalEntityId;
-    private final Integer sexId;
+    private final DevStage devStage;
+    private final AnatEntity anatomicalEntity;
+    private final String sex;
     private final MoultingStep moultingStep;
     
-    public Condition(Integer devStageId, Integer anatomicalEntityId, Integer sexId, MoultingStep moultingStep) {
-        this.devStageId = devStageId;
-        this.anatomicalEntityId = anatomicalEntityId;
-        this.sexId = sexId;
+    public Condition(DevStage devStage, AnatEntity anatomicalEntity, String sex, MoultingStep moultingStep) {
+        this.devStage = devStage;
+        this.anatomicalEntity = anatomicalEntity;
+        this.sex = sex;
         this.moultingStep = moultingStep;
     }
     
-    public Integer getDevStageId() {
-        return devStageId;
+    public DevStage getDevStage() {
+        return devStage;
     }
     
-    public Integer getAnatomicalEntityId() {
-        return anatomicalEntityId;
+    public AnatEntity getAnatomicalEntity() {
+        return anatomicalEntity;
     }
     
-    public Integer getSexId() {
-        return sexId;
+    public String getSex() {
+        return sex;
     }
     
     public MoultingStep getMoultingStep() {
@@ -39,9 +41,9 @@ public class Condition {
     @Override
     public String toString() {
         return new StringJoiner(", ", Condition.class.getSimpleName() + "[", "]")
-                .add("devStageId=" + devStageId)
-                .add("anatomicalEntityId=" + anatomicalEntityId)
-                .add("sexId=" + sexId)
+                .add("devStage=" + devStage)
+                .add("anatomicalEntity=" + anatomicalEntity)
+                .add("sex=" + sex)
                 .add("moultingStep=" + moultingStep)
                 .toString();
     }

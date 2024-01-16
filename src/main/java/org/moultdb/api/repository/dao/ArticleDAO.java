@@ -3,7 +3,6 @@ package org.moultdb.api.repository.dao;
 import org.moultdb.api.repository.dto.ArticleTO;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,7 +17,11 @@ public interface ArticleDAO extends DAO<ArticleTO> {
     
     List<ArticleTO> findByIds(Set<Integer> ids);
     
-    Map<Integer, Set<ArticleTO>> findBySampleIds(Set<Integer> sampleIds);
+    ArticleTO findByCitation(String citation);
     
-    Map<Integer, Set<ArticleTO>> findByTaxonIds(Set<Integer> taxonIds);
+    void insert(ArticleTO articleTO);
+    
+    void batchUpdate(Set<ArticleTO> articleTOs);
+    
+    Integer getLastId();
 }

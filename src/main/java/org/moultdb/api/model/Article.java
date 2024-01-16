@@ -13,14 +13,20 @@ import java.util.StringJoiner;
  */
 public class Article {
     
+    private final String citation;
     private final String title;
     private final String authors;
     private final Set<DbXref> dbXrefs;
     
-    public Article(String title, String authors, Collection<DbXref> dbXrefs) {
+    public Article(String citation, String title, String authors, Collection<DbXref> dbXrefs) {
+        this.citation = citation;
         this.title = title;
         this.authors = authors;
         this.dbXrefs = Collections.unmodifiableSet(dbXrefs == null ? new HashSet<>(): new HashSet<>(dbXrefs));
+    }
+    
+    public String getCitation() {
+        return citation;
     }
     
     public String getTitle() {
@@ -42,18 +48,20 @@ public class Article {
         if (o == null || getClass() != o.getClass())
             return false;
         Article article = (Article) o;
-        return Objects.equals(title, article.title)
+        return Objects.equals(citation, article.citation)
+                && Objects.equals(title, article.title)
                 && Objects.equals(authors, article.authors);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(title, authors);
+        return Objects.hash(citation, title, authors);
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", Article.class.getSimpleName() + "[", "]")
+                .add("citation='" + citation + "'")
                 .add("title='" + title + "'")
                 .add("authors='" + authors + "'")
                 .add("dbXrefs=" + dbXrefs)

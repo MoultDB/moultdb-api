@@ -8,16 +8,16 @@ import java.util.StringJoiner;
  * @author Valentine Rech de Laval
  * @since 2021-10-25
  */
-public class VersionTO extends EntityTO {
+public class VersionTO extends EntityTO<Integer> {
     
     @Serial
     private static final long serialVersionUID = -7821054265189878804L;
     
-    public final UserTO creationUserTO;
-    public final Timestamp creationDate;
-    public final UserTO lastUpdateUserTO;
-    public final Timestamp lastUpdateDate;
-    public final Integer versionNumber;
+    private final UserTO creationUserTO;
+    private final Timestamp creationDate;
+    private final UserTO lastUpdateUserTO;
+    private final Timestamp lastUpdateDate;
+    private final Integer versionNumber;
     
     public VersionTO(Integer id, UserTO creationUserTO, Timestamp creationDate,
                      UserTO lastUpdateUserTO, Timestamp lastUpdateDate, Integer versionNumber) {

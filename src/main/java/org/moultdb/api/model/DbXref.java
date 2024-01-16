@@ -1,7 +1,11 @@
 package org.moultdb.api.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 import java.util.StringJoiner;
+
+import static org.moultdb.api.model.DataSource.X_REF_TAG;
 
 /**
  * @author Valentine Rech de Laval
@@ -11,19 +15,47 @@ public class DbXref {
     
     private final String accession;
     
+    private final String name;
+    
     private final DataSource dataSource;
     
-    public DbXref(String accession, DataSource dataSource) {
+    private final Boolean main;
+    
+    public DbXref(String accession, String name, DataSource dataSource, Boolean main) {
         this.accession = accession;
+        this.name = name;
         this.dataSource = dataSource;
+        this.main = main;
     }
     
     public String getAccession() {
         return accession;
     }
     
+    public String getName() {
+        return name;
+    }
+    
     public DataSource getDataSource() {
         return dataSource;
+    }
+    
+    public String getXrefURL() {
+        if (StringUtils.isBlank(this.getAccession())) {
+            return null;
+        }
+        String xRefUrl = this.getDataSource().getXrefURL();
+        if (StringUtils.isBlank(xRefUrl)) {
+            return null;
+        }
+        if (xRefUrl.contains(X_REF_TAG)) {
+            xRefUrl = xRefUrl.replace(X_REF_TAG, this.getAccession());
+        }
+        return xRefUrl;
+    }
+    
+    public Boolean isMain() {
+        return main;
     }
     
     @Override
@@ -34,19 +66,23 @@ public class DbXref {
             return false;
         DbXref dbXref = (DbXref) o;
         return Objects.equals(accession, dbXref.accession)
-                && Objects.equals(dataSource, dbXref.dataSource);
+                && Objects.equals(name, dbXref.name)
+                && Objects.equals(dataSource, dbXref.dataSource)
+                && Objects.equals(main, dbXref.main);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(accession, dataSource);
+        return Objects.hash(accession, name, dataSource, main);
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", DbXref.class.getSimpleName() + "[", "]")
                 .add("accession='" + accession + "'")
+                .add("name='" + name + "'")
                 .add("dataSource=" + dataSource)
+                .add("main=" + main)
                 .toString();
     }
 }

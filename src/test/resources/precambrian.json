@@ -1,0 +1,452 @@
+{
+  "format": "linked-data-api",
+  "version": "0.2",
+  "result": {
+    "_about": "https://vocabs.ardc.edu.au/repository/api/lda/csiro/international-chronostratigraphic-chart/geologic-time-scale-2020/resource.json?uri=http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+    "definition": "https://vocabs.ardc.edu.au/repository/api/lda/csiro/international-chronostratigraphic-chart/geologic-time-scale-2020/resource.json?uri=http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+    "extendedMetadataVersion": "https://vocabs.ardc.edu.au/repository/api/lda/csiro/international-chronostratigraphic-chart/geologic-time-scale-2020/resource.json?_metadata=all&uri=http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+    "primaryTopic": {
+      "_about": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+      "comment": [
+        {
+          "_value": "older bound -4567 +|-1 Ma",
+          "_lang": "en"
+        },
+        {
+          "_value": "younger bound -541.0 +|-1.0 Ma",
+          "_lang": "en"
+        }
+      ],
+      "hasBeginning": {
+        "_about": "http://resource.geosciml.org/classifier/ics/ischart/FormationOfEarth",
+        "label": {
+          "_value": "Formation of the Earth",
+          "_lang": "en"
+        }
+      },
+      "hasEnd": {
+        "_about": "http://resource.geosciml.org/classifier/ics/ischart/BasePhanerozoic",
+        "label": {
+          "_value": "Base of Phanerozoic",
+          "_lang": "en"
+        }
+      },
+      "inScheme": {
+        "_about": "http://resource.geosciml.org/vocabulary/timescale/gts2020",
+        "component": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "hasTopConcept": [
+          "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+        ],
+        "label": {
+          "_value": "Geologic Time Scale (2020)",
+          "_lang": "en"
+        }
+      },
+      "intervalContains": {
+        "_about": "http://resource.geosciml.org/classifier/ics/ischart/Archean",
+        "broader": [
+          "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+        ],
+        "intervalDuring": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "intervalIn": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "label": {
+          "_value": "Archean Eon",
+          "_lang": "en"
+        }
+      },
+      "intervalFinishedBy": {
+        "_about": "http://resource.geosciml.org/classifier/ics/ischart/Proterozoic",
+        "broader": [
+          "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+        ],
+        "intervalFinishes": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "intervalIn": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "label": {
+          "_value": "Proterozoic Eon",
+          "_lang": "en"
+        }
+      },
+      "intervalMeets": [
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Cambrian",
+          "intervalMetBy": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Cambrian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Fortunian",
+          "intervalMetBy": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Fortunian Age",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Paleozoic",
+          "intervalMetBy": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Paleozoic Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Phanerozoic",
+          "intervalMetBy": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Phanerozoic Eon",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Terreneuvian",
+          "intervalMetBy": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Terreneuvian Epoch",
+            "_lang": "en"
+          }
+        }
+      ],
+      "intervalStartedBy": {
+        "_about": "http://resource.geosciml.org/classifier/ics/ischart/Hadean",
+        "broader": [
+          "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+        ],
+        "intervalIn": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "intervalStarts": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "label": {
+          "_value": "Hadean Eon",
+          "_lang": "en"
+        }
+      },
+      "label": {
+        "_value": "Precambrian Supereon",
+        "_lang": "en"
+      },
+      "narrower": [
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Archean",
+          "broader": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "intervalDuring": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "intervalIn": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Archean Eon",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Hadean",
+          "broader": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "intervalIn": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "intervalStarts": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Hadean Eon",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Proterozoic",
+          "broader": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "intervalFinishes": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "intervalIn": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+          "label": {
+            "_value": "Proterozoic Eon",
+            "_lang": "en"
+          }
+        }
+      ],
+      "narrowerTransitive": [
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Calymmian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Calymmian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Cryogenian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Cryogenian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Ectasian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Ectasian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Ediacaran",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Ediacaran Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Eoarchean",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Eoarchean Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Mesoarchean",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Mesoarchean Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Mesoproterozoic",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Mesoproterozoic Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Neoarchean",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Neoarchean Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Neoproterozoic",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Neoproterozoic Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Orosirian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Orosirian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Paleoarchean",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Paleoarchean Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Paleoproterozoic",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Paleoproterozoic Era",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Rhyacian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Rhyacian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Siderian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Siderian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Statherian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Statherian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Stenian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Stenian Period",
+            "_lang": "en"
+          }
+        },
+        {
+          "_about": "http://resource.geosciml.org/classifier/ics/ischart/Tonian",
+          "broaderTransitive": [
+            "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+          ],
+          "label": {
+            "_value": "Tonian Period",
+            "_lang": "en"
+          }
+        }
+      ],
+      "notation": "a2",
+      "prefLabel": [
+        {
+          "_value": "Precambrian",
+          "_lang": "en"
+        },
+        {
+          "_value": "Precambrium",
+          "_lang": "nl"
+        },
+        {
+          "_value": "Precámbrico",
+          "_lang": "es"
+        },
+        {
+          "_value": "Precâmbrico",
+          "_lang": "pt"
+        },
+        {
+          "_value": "Prekambr",
+          "_lang": "pl"
+        },
+        {
+          "_value": "Prekambras",
+          "_lang": "lt"
+        },
+        {
+          "_value": "Prekambri",
+          "_lang": "fi"
+        },
+        {
+          "_value": "Prekambrium",
+          "_lang": "cs"
+        },
+        {
+          "_value": "Prekambrium",
+          "_lang": "et"
+        },
+        {
+          "_value": "Prekambrium",
+          "_lang": "no"
+        },
+        {
+          "_value": "Präkambrium",
+          "_lang": "de"
+        },
+        {
+          "_value": "Prækambrium",
+          "_lang": "da"
+        },
+        {
+          "_value": "Précambrien",
+          "_lang": "fr"
+        },
+        {
+          "_value": "precambriano",
+          "_lang": "it"
+        },
+        {
+          "_value": "predkambrij",
+          "_lang": "sl"
+        },
+        {
+          "_value": "prekambrium",
+          "_lang": "hu"
+        },
+        {
+          "_value": "prekambrium",
+          "_lang": "sk"
+        },
+        {
+          "_value": "prekambrium",
+          "_lang": "sv"
+        },
+        {
+          "_value": "Прекамбрий",
+          "_lang": "bg"
+        },
+        {
+          "_value": "先カンブリア時代",
+          "_lang": "ja"
+        },
+        {
+          "_value": "前寒武纪",
+          "_lang": "zh"
+        }
+      ],
+      "primaryTopicOf": "http://sweetontology.net/stateTimeGeologic/Precambrian",
+      "rank": "http://resource.geosciml.org/ontology/timescale/rank/Super-Eon",
+      "sameAs": "http://dbpedia.org/resource/Precambrian",
+      "status": "Informal",
+      "topConceptOf": {
+        "_about": "http://resource.geosciml.org/vocabulary/timescale/gts2020",
+        "component": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+        "hasTopConcept": [
+          "http://resource.geosciml.org/classifier/ics/ischart/Precambrian"
+        ],
+        "label": {
+          "_value": "Geologic Time Scale (2020)",
+          "_lang": "en"
+        }
+      },
+      "type": [
+        "http://resource.geosciml.org/ontology/timescale/gts#GeochronologicEra",
+        "http://resource.geosciml.org/ontology/timescale/gts#Super-Eon",
+        "http://www.w3.org/2000/01/rdf-schema#Resource",
+        "http://www.w3.org/2004/02/skos/core#Concept",
+        "http://www.w3.org/2006/time#ProperInterval"
+      ]
+    },
+    "type": [
+      "http://purl.org/linked-data/api/vocab#ItemEndpoint",
+      "http://purl.org/linked-data/api/vocab#Page"
+    ]
+  }
+}

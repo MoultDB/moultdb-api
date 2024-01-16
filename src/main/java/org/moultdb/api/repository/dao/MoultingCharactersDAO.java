@@ -17,4 +17,9 @@ public interface MoultingCharactersDAO extends DAO<MoultingCharactersTO> {
     
     List<MoultingCharactersTO> findByIds(Set<Integer> id);
     
+    Integer getLastId();
+    
+    void insert(MoultingCharactersTO moultingCharactersTO);
+    
+    void batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs);
 }

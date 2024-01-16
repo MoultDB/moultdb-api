@@ -2,6 +2,7 @@ package org.moultdb.api.repository.dao;
 
 import org.moultdb.api.repository.dto.GeologicalAgeTO;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +14,13 @@ public interface GeologicalAgeDAO extends DAO<GeologicalAgeTO> {
     
     List<GeologicalAgeTO> findAll();
     
-    GeologicalAgeTO findById(Integer id);
+    GeologicalAgeTO findByNotation(String id);
     
-    List<GeologicalAgeTO> findByIds(Set<Integer> ids);
+    List<GeologicalAgeTO> findByNotations(Set<String> ids);
+    
+    public GeologicalAgeTO findByLabelOrSynonym(String label);
+    
+    public List<GeologicalAgeTO> findByLabelsOrSynonyms(Set<String> labels);
+    
+    void batchUpdate(Collection<GeologicalAgeTO> geoAgeTOs);
 }

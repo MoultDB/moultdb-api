@@ -12,12 +12,20 @@ import java.util.Set;
 public interface TaxonDAO extends DAO<TaxonTO> {
     
     List<TaxonTO> findAll();
+
+    List<TaxonTO> findByText(String searchedText);
     
-    List<TaxonTO> findByScientificName(String taxonScientificName);
+    TaxonTO findByScientificName(String taxonScientificName);
     
-    TaxonTO findById(int id);
+    TaxonTO findByAccession(String accession, String datasourceName);
     
-    List<TaxonTO> findByIds(Set<Integer> taxonIds);
+    TaxonTO findByPath(String id);
     
-    void insertTaxon(TaxonTO taxon);
+    List<TaxonTO> findByPaths(Set<String> taxonIds);
+    
+    List<TaxonTO> findLineageByPath(String taxonPath);
+    
+    void insert(TaxonTO taxon);
+    
+    void batchUpdate(Set<TaxonTO> taxonTOs);
 }
