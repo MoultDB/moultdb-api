@@ -41,7 +41,7 @@ public class GenomeParser {
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
-    private final static String GENBANK_ACC_COL_NAME = "Genbank Accession";
+    private final static String GENBANK_ACC_COL_NAME = "RefSeq/GenBank Accession";
     private final static String SUBMISSION_DATE_COL_NAME = "Submission Date";
     private final static String TAXID_COL_NAME = "TaxId";
     private final static String SUBPHYLUM_COL_NAME = "SubPhylum";
