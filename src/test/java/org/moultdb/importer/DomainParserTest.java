@@ -20,7 +20,7 @@ class DomainParserTest {
         DomainParser parser = new DomainParser();
         
         String file = this.getClass().getResource(DOMAIN_TSV).getFile();
-        Set<DomainBean> geneBeans = parser.parseDomainFile(file);
-        logger.debug(gson.toJson(geneBeans));
+        Set<DomainBean> domainBeans = parser.parseDomainFile(file);
+        logger.debug(gson.toJson(domainBeans));
     }
 }

@@ -50,11 +50,11 @@ public class DomainParser {
     }
     
     public Set<DomainBean> parseDomainFile(String fileName) {
-        logger.info("Start parsing of gene file " + fileName + "...");
+        logger.info("Start parsing of domain file " + fileName + "...");
         
         try (ICsvBeanReader domainReader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
             
-            logger.info("End parsing of gene file");
+            logger.info("End parsing of domain file");
             
             return logger.traceExit(getDomainBeans(domainReader));
             
@@ -78,7 +78,7 @@ public class DomainParser {
             domainBeans.add(domainBean);
         }
         if (domainBeans.isEmpty()) {
-            throw new IllegalArgumentException("The provided file did not allow to retrieve any genomeBean");
+            throw new IllegalArgumentException("The provided file did not allow to retrieve any domainBean");
         }
         
         return domainBeans;
@@ -109,7 +109,7 @@ public class DomainParser {
                 case DOMAIN_START_COL_NAME -> new ParseInt();
                 case DOMAIN_END_COL_NAME -> new ParseInt();
                 case DOMAIN_DESCRIPTION_COL_NAME -> new StrNotNullOrEmpty(new Trim());
-                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GenomeBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for DomainBean");
             };
         }
         return processors;
