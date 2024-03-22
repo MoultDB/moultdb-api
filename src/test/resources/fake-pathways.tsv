@@ -1,0 +1,11 @@
+cluster_id	protein_id	taxid	gene_name	known_function	genome_id	identifier	reference	description
+204872	XP_052132808.1	133901	HR3	early_genes	GCF_000697945.3	MP004	https://doi.org/10.32942/X2DS4S	
+204872	XP_023290751.1	222816	HR3	early_genes	GCF_000612105.2	MP004	https://doi.org/10.32942/X2DS4S	
+135148	KAH7938415.1	543639	Blimp-1	early_genes	GCA_013339745.2	MP004	https://doi.org/10.32942/X2DS4S	
+135148	GIX89238.1	172846	Blimp-1	early_genes	GCA_021605095.1	MP004	https://doi.org/10.32942/X2DS4S	
+109727	XP_049855381.1	7010	EHR	ecdysis_neuromotor	GCF_023897955.1	MP005	https://doi.org/10.32942/X2DS4S	
+109727	XP_049273380.1	34632	EHR	ecdysis_neuromotor	GCF_013339695.2	MP005	https://doi.org/10.32942/X2DS4S	
+109727	KNC25378.1	7375	EHR	ecdysis_neuromotor	GCA_001187945.1	MP005	https://doi.org/10.32942/X2DS4S	
+186274	ODM87406.1	48709	ETHR	ecdysis_neuromotor	GCA_001718145.1	MP005	https://doi.org/10.32942/X2DS4S	
+186274	XP_037030488.1	38358	ETHR	ecdysis_neuromotor	GCF_014529535.1	MP005	https://doi.org/10.32942/X2DS4S	
+
