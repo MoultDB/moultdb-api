@@ -21,7 +21,7 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT * from data_source ";
+    private static final String SELECT_STATEMENT = "SELECT * from data_source ds ";
     
     public MySQLDataSourceDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -34,16 +34,16 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
     
     @Override
     public DataSourceTO findByName(String name) {
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE LOWER(name) = LOWER(:name)",
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE LOWER(ds.name) = LOWER(:name)",
                 new MapSqlParameterSource().addValue("name", name), new DataSourceRowMapper()));
     }
     
-    private static class DataSourceRowMapper implements RowMapper<DataSourceTO> {
+    protected static class DataSourceRowMapper implements RowMapper<DataSourceTO> {
         @Override
         public DataSourceTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new DataSourceTO(rs.getInt("id"), rs.getString("name"), rs.getString("description"),
-                    rs.getString("short_name"), rs.getString("base_url"), rs.getString("xref_url"),
-                    rs.getDate("last_import_date"), rs.getString("release_version"));
+            return new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
+                    rs.getString("ds.short_name"), rs.getString("ds.base_url"), rs.getString("ds.xref_url"),
+                    rs.getDate("ds.last_import_date"), rs.getString("ds.release_version"));
         }
     }
 }
