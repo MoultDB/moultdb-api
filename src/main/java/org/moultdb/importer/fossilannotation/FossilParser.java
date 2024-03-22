@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author Valentine Rech de Laval
  * @since 2021-12-13
  */
-public class FossilImporter {
+public class FossilParser {
     
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
@@ -50,7 +50,7 @@ public class FossilImporter {
     @Autowired UserDAO userDAO;
     @Autowired VersionDAO versionDAO;
     
-    private final static Logger logger = LogManager.getLogger(FossilImporter.class.getName());
+    private final static Logger logger = LogManager.getLogger(FossilParser.class.getName());
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
@@ -110,7 +110,7 @@ public class FossilImporter {
     private final static String CONFIDENCE_COL_NAME = "Confidence";
     private final static String GENERAL_COMMENTS_COL_NAME = "General Comments";
     
-    public FossilImporter() {
+    public FossilParser() {
     }
     
     public static void main(String[] args) {
@@ -121,7 +121,7 @@ public class FossilImporter {
                     args.length + " provided.");
         }
     
-        FossilImporter parser = new FossilImporter();
+        FossilParser parser = new FossilParser();
         List<FossilAnnotationBean> fossilAnnotationBeans = parser.parseFossilAnnotation(args[0]);
     
         parser.insertFossilAnnotation(fossilAnnotationBeans);

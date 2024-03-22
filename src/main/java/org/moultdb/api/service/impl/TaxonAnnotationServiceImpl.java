@@ -10,7 +10,7 @@ import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TaxonAnnotationService;
 import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
-import org.moultdb.importer.fossilannotation.FossilImporter;
+import org.moultdb.importer.fossilannotation.FossilParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -135,7 +135,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
         logger.info("Start taxon annotations import...");
         
-        FossilImporter importer = new FossilImporter();
+        FossilParser importer = new FossilParser();
         int count;
         try {
             logger.info("Parse annotation file " + file.getOriginalFilename() + "...");
