@@ -1,4 +1,4 @@
-package org.moultdb.importer.genome;
+package org.moultdb.importer.genomics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -120,14 +120,13 @@ public class GenomeParser {
             if (taxonTO == null) {
                 notFoundTaxa.add(bean.getTaxonId() + " - " + bean.getSpecies());
                 continue;
-            } else {
-                if (!taxonTO.getScientificName().equals(bean.getSpecies())) {
-                    if (!bean.getSpecies().startsWith(taxonTO.getScientificName())) {
-                        subspecies.add(bean.getSpecies() + " - " +taxonTO.getScientificName());
-                    } else {
-                        throw new IllegalArgumentException("Provided species name [" + bean.getSpecies()
-                                + "] is different from the taxon in the database: " + taxonTO);
-                    }
+            }
+            if (!taxonTO.getScientificName().equals(bean.getSpecies())) {
+                if (!bean.getSpecies().startsWith(taxonTO.getScientificName())) {
+                    subspecies.add(bean.getSpecies() + " - " +taxonTO.getScientificName());
+                } else {
+                    throw new IllegalArgumentException("Provided species name [" + bean.getSpecies()
+                            + "] is different from the taxon in the database: " + taxonTO);
                 }
             }
             
@@ -214,7 +213,7 @@ public class GenomeParser {
                 case ARTHROPODA_DUPLICATED_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_FRAGMENTED_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_MISSING_COL_NAME -> new ParseCustomOptional(new ParseDouble());
-                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for GenomeBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GenomeBean");
             };
         }
         return processors;
@@ -242,7 +241,7 @@ public class GenomeParser {
                 case ARTHROPODA_DUPLICATED_COL_NAME -> "duplicatedBusco";
                 case ARTHROPODA_FRAGMENTED_COL_NAME -> "fragmentedBusco";
                 case ARTHROPODA_MISSING_COL_NAME -> "missingBusco";
-                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for GenomeBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GenomeBean");
             };
         }
         return mapping;

@@ -1,4 +1,4 @@
-package org.moultdb.importer.genome;
+package org.moultdb.importer.genomics;
 
 import java.util.Date;
 import java.util.Objects;

@@ -10,7 +10,7 @@ import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.GenomeTO;
 import org.moultdb.api.service.GenomeService;
 import org.moultdb.api.service.ServiceUtils;
-import org.moultdb.importer.genome.GenomeParser;
+import org.moultdb.importer.genomics.GenomeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
