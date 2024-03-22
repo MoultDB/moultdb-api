@@ -40,20 +40,29 @@ public class GeneParser {
     private final static String ORIGIN_COL_NAME = "origin";
     private final static String GENOME_ID_COL_NAME = "genome_id";
     
+    private final static String ORTHOGROUP_ID_COL_NAME = "orthogroup_id";
+    private final static String TAX_ID_COL_NAME = "taxid";
+    private final static String VERSION_COL_NAME = "version";
+    
     private final static String ORIGIN_REFSEQ = "NCBI RefSeq assembly";
     private final static String ORIGIN_GENBANK = "Submitted GenBank assembly";
     
     public static void main(String[] args) {
         logger.traceEntry(Arrays.toString(args));
         
-        if (args.length != 1) {
-            throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
+        if (args.length != 1 || args.length != 2) {
+            throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 or 2 arguments, " +
                     args.length + " provided.");
         }
         
         GeneParser parser = new GeneParser();
         Set<GeneBean> geneBeans = parser.parseGeneFile(args[0]);
-//        parser.getGeneTOs(geneBeans);
+        Set<OrthogroupBean> orthogroupBeans = new HashSet<>();
+        if (args.length != 2) {
+            orthogroupBeans.addAll(parser.parseOrthogroupFile(args[1]));
+            
+        }
+//        parser.getGeneTOs(geneBeans, orthogroupBeans);
         
         logger.traceExit();
     }
@@ -66,6 +75,22 @@ public class GeneParser {
             logger.info("End parsing of gene file");
             
             return logger.traceExit(getGeneBeans(geneReader));
+            
+        } catch (SuperCsvException e) {
+            throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Can not read file " + fileName, e);
+        }
+    }
+    
+    public Set<OrthogroupBean> parseOrthogroupFile(String fileName) {
+        logger.info("Start parsing of orthogroup file " + fileName + "...");
+        
+        try (ICsvBeanReader geneReader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
+            
+            logger.info("End parsing of gene file");
+            
+            return logger.traceExit(getOrthogroupBeans(geneReader));
             
         } catch (SuperCsvException e) {
             throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed", e);
@@ -87,11 +112,31 @@ public class GeneParser {
             geneBeans.add(geneBean);
         }
         if (geneBeans.isEmpty()) {
-            throw new IllegalArgumentException("The provided file did not allow to retrieve any genomeBean");
+            throw new IllegalArgumentException("The provided file did not allow to retrieve any geneBean");
         }
         
         return geneBeans;
     }
+    
+    private Set<OrthogroupBean> getOrthogroupBeans(ICsvBeanReader orthogroupReader) throws IOException {
+        Set<OrthogroupBean> orthogroupBeans = new HashSet<>();
+        
+        final String[] header = orthogroupReader.getHeader(true);
+        
+        String[] attributeMapping = mapOrthogroupHeaderToAttributes(header);
+        CellProcessor[] cellProcessorMapping = mapOrthogroupHeaderToCellProcessors(header);
+        OrthogroupBean orthogroupBean;
+        
+        while((orthogroupBean = orthogroupReader.read(OrthogroupBean.class, attributeMapping, cellProcessorMapping)) != null) {
+            orthogroupBeans.add(orthogroupBean);
+        }
+        if (orthogroupBeans.isEmpty()) {
+            throw new IllegalArgumentException("The provided file did not allow to retrieve any orthogroupBean");
+        }
+        
+        return orthogroupBeans;
+    }
+    
     
     private String[] mapGeneHeaderToAttributes(String[] header) {
         String[] mapping = new String[header.length];
@@ -113,6 +158,20 @@ public class GeneParser {
         return mapping;
     }
     
+    private String[] mapOrthogroupHeaderToAttributes(String[] header) {
+        String[] mapping = new String[header.length];
+        for (int i = 0; i < header.length; i++) {
+            mapping[i] = switch (header[i]) {
+                case ORTHOGROUP_ID_COL_NAME -> "orthogroupId";
+                case TAX_ID_COL_NAME -> "taxonId";
+                case PROTEIN_ID_COL_NAME -> "proteinId";
+                case VERSION_COL_NAME -> "version";
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for OrthogroupBean");
+            };
+        }
+        return mapping;
+    }
+    
     private CellProcessor[] mapGeneHeaderToCellProcessors(String[] header) {
         CellProcessor[] processors = new CellProcessor[header.length];
         
@@ -129,7 +188,23 @@ public class GeneParser {
                 case ORIGIN_COL_NAME -> new IsElementOf(Stream.of(ORIGIN_REFSEQ, ORIGIN_GENBANK)
                         .collect(Collectors.toSet()));
                 case GENOME_ID_COL_NAME -> new StrNotNullOrEmpty(new Trim());
-                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GenomeBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GeneBean");
+            };
+        }
+        return processors;
+    }
+
+    private CellProcessor[] mapOrthogroupHeaderToCellProcessors(String[] header) {
+        CellProcessor[] processors = new CellProcessor[header.length];
+        String dateFormat = "yyyy-MM-dd";
+        
+        for (int i = 0; i < header.length; i++) {
+            processors[i] = switch (header[i]) {
+                case ORTHOGROUP_ID_COL_NAME -> new ParseInt();
+                case TAX_ID_COL_NAME -> new ParseInt();
+                case PROTEIN_ID_COL_NAME -> new StrNotNullOrEmpty(new Trim());
+                case VERSION_COL_NAME -> new ParseDate(dateFormat);
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for OrthogroupBean");
             };
         }
         return processors;

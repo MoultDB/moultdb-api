@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import org.moultdb.importer.genomics.GeneBean;
 import org.moultdb.importer.genomics.GeneParser;
+import org.moultdb.importer.genomics.OrthogroupBean;
 
 import java.util.Set;
 
@@ -14,6 +15,7 @@ class GeneParserTest {
     private final static Logger logger = LogManager.getLogger(GeneParserTest.class.getName());
     private static final String REFSEQ_TSV = "/fake-refseq-genes.tsv";
     private static final String GENBANK_TSV = "/fake-genebank-genes.tsv";
+    private static final String ORTHOGROUPS_TSV = "/fake-orthogroups.tsv";
     
     @Test
     public void test() {
@@ -27,5 +29,9 @@ class GeneParserTest {
         file = this.getClass().getResource(GENBANK_TSV).getFile();
         geneBeans = parser.parseGeneFile(file);
         logger.debug(gson.toJson(geneBeans));
+        
+        file = this.getClass().getResource(ORTHOGROUPS_TSV).getFile();
+        Set<OrthogroupBean> orthogroupBeans = parser.parseOrthogroupFile(file);
+        logger.debug(gson.toJson(orthogroupBeans));
     }
 }
