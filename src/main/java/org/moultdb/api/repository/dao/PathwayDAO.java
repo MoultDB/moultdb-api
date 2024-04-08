@@ -15,6 +15,8 @@ public interface PathwayDAO extends DAO<PathwayTO> {
     
     PathwayTO findById(String id);
     
+    List<PathwayTO> findByIds(Set<String> ids);
+    
     void insert(PathwayTO pathwayTO);
     
     void batchUpdate(Set<PathwayTO> pathwayTOs);

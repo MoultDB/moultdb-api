@@ -16,6 +16,7 @@ public class GeneTO extends EntityTO<Integer> {
     private final String geneName;
     private final String locusTag;
     private final String genomeAcc;
+    private final String taxonPath;
     private final Integer orthogroupId;
     private final String transcriptId;
     private final String transcriptUrlSuffix;
@@ -23,18 +24,20 @@ public class GeneTO extends EntityTO<Integer> {
     private final String proteinDescription;
     private final Integer proteinLength;
     private final DataSourceTO dataSourceTO;
-    private final Set<DomainTO> domainTOs;
     private final PathwayTO pathwayTO;
+    private final String annotatedGeneName;
     
-    public GeneTO(Integer id, String geneId, String geneName, String locusTag, String genomeAcc, Integer orthogroupId,
-                  String transcriptId, String transcriptUrlSuffix, String proteinId, String proteinDescription,
-                  Integer proteinLength, DataSourceTO dataSourceTO,
-                  Collection<DomainTO> domainTOs, PathwayTO pathwayTO) throws IllegalArgumentException {
+    public GeneTO(Integer id, String geneId, String geneName, String locusTag, String genomeAcc, String taxonPath,
+                  Integer orthogroupId, String transcriptId, String transcriptUrlSuffix,
+                  String proteinId, String proteinDescription, Integer proteinLength,
+                  DataSourceTO dataSourceTO, PathwayTO pathwayTO, String annotatedGeneName)
+            throws IllegalArgumentException {
         super(id);
         this.geneId = geneId;
         this.geneName = geneName;
         this.locusTag = locusTag;
         this.genomeAcc = genomeAcc;
+        this.taxonPath = taxonPath;
         this.orthogroupId = orthogroupId;
         this.transcriptId = transcriptId;
         this.transcriptUrlSuffix = transcriptUrlSuffix;
@@ -42,9 +45,8 @@ public class GeneTO extends EntityTO<Integer> {
         this.proteinDescription = proteinDescription;
         this.proteinLength = proteinLength;
         this.dataSourceTO = dataSourceTO;
-        this.domainTOs = Collections.unmodifiableSet(domainTOs == null ?
-                new HashSet<>(): new HashSet<>(domainTOs));
         this.pathwayTO = pathwayTO;
+        this.annotatedGeneName = annotatedGeneName;
     }
     
     public String getGeneId() {
@@ -61,6 +63,10 @@ public class GeneTO extends EntityTO<Integer> {
     
     public String getGenomeAcc() {
         return genomeAcc;
+    }
+    
+    public String getTaxonPath() {
+        return taxonPath;
     }
     
     public Integer getOrthogroupId() {
@@ -91,12 +97,12 @@ public class GeneTO extends EntityTO<Integer> {
         return dataSourceTO;
     }
     
-    public Set<DomainTO> getDomainTOs() {
-        return domainTOs;
-    }
-    
     public PathwayTO getPathwayTO() {
         return pathwayTO;
+    }
+    
+    public String getAnnotatedGeneName() {
+        return annotatedGeneName;
     }
     
     @Override
@@ -106,6 +112,7 @@ public class GeneTO extends EntityTO<Integer> {
                 .add("geneName='" + geneName + "'")
                 .add("locusTag='" + locusTag + "'")
                 .add("genomeAcc=" + genomeAcc)
+                .add("taxonPath=" + taxonPath)
                 .add("orthogroupId=" + orthogroupId)
                 .add("transcriptId='" + transcriptId + "'")
                 .add("transcriptUrlSuffix='" + transcriptUrlSuffix + "'")
@@ -113,8 +120,8 @@ public class GeneTO extends EntityTO<Integer> {
                 .add("proteinDescription='" + proteinDescription + "'")
                 .add("proteinLength=" + proteinLength)
                 .add("dataSourceTO=" + dataSourceTO)
-                .add("domainTOs=" + domainTOs)
                 .add("pathwayTO=" + pathwayTO)
+                .add("annotatedGeneName='" + annotatedGeneName + "'")
                 .toString();
     }
 }

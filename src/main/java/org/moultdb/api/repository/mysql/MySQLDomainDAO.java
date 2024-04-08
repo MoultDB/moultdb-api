@@ -8,25 +8,24 @@ import org.moultdb.api.repository.dto.TransfertObject;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
  * @since 2024-03-22
  */
+@Repository
 public class MySQLDomainDAO implements DomainDAO {
     
     private final static Logger logger = LogManager.getLogger(MySQLDomainDAO.class.getName());
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT * FROM domain ";
+    private static final String SELECT_STATEMENT = "SELECT * FROM domain d ";
     
     public MySQLDomainDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -39,8 +38,16 @@ public class MySQLDomainDAO implements DomainDAO {
     
     @Override
     public DomainTO findById(String id) {
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE LOWER(id) = LOWER(:id)",
-                new MapSqlParameterSource().addValue("id", id), new DomainRowMapper()));
+        return TransfertObject.getOneTO(findByIds(Collections.singleton(id)));
+    }
+    
+    @Override
+    public List<DomainTO> findByIds(Collection<String> ids) {
+        if (ids == null || ids.isEmpty() || ids.stream().anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException("An ID can not be null");
+        }
+        return template.query(SELECT_STATEMENT + "WHERE LOWER(id) IN (:ids)",
+                new MapSqlParameterSource().addValue("ids", ids), new DomainRowMapper());
     }
     
     @Override
@@ -68,7 +75,7 @@ public class MySQLDomainDAO implements DomainDAO {
     protected static class DomainRowMapper implements RowMapper<DomainTO> {
         @Override
         public DomainTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new DomainTO(rs.getString("id"), rs.getString("description"));
+            return new DomainTO(rs.getString("d.id"), rs.getString("d.description"));
         }
     }
 }

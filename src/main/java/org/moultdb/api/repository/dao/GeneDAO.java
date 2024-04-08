@@ -19,7 +19,13 @@ public interface GeneDAO extends DAO<GeneTO> {
     
     List<GeneTO> findByPathwayId(String pathwayId);
     
+    List<GeneTO> findByDomainId(String domainId);
+    
     GeneTO findByProteinId(String proteinId);
+    
+    List<GeneTO> findByProteinIds(Set<String> proteinIds);
+    
+    List<GeneTO> findByTaxon(String taxonPath, Boolean inAMoultingPathway);
 
     Integer getLastId();
     

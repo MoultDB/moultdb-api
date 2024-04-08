@@ -40,7 +40,7 @@ public class MySQLGenomeDAO implements GenomeDAO {
     
     @Override
     public List<GenomeTO> findAll() {
-        return template.query(SELECT_STATEMENT, new MySQLGenomeDAO.GenomeResultSetExtractor());
+        return template.query(SELECT_STATEMENT, new GenomeResultSetExtractor());
     }
     
     @Override
@@ -51,14 +51,23 @@ public class MySQLGenomeDAO implements GenomeDAO {
             sql = SELECT_STATEMENT + "WHERE t.path = :taxonPath OR t.path LIKE :childrenTaxonPath ";
             source.addValue("childrenTaxonPath", taxonPath + ".%");
         }
-        return template.query(sql, source, new MySQLGenomeDAO.GenomeResultSetExtractor());
+        return template.query(sql, source, new GenomeResultSetExtractor());
     }
     
     @Override
     public GenomeTO findByGenbankAcc(String genbankAcc) {
         String sql = SELECT_STATEMENT + "WHERE g.genbank_acc = :genbank_acc ";
         MapSqlParameterSource source = new MapSqlParameterSource().addValue("genbank_acc", genbankAcc);
-        return TransfertObject.getOneTO(template.query(sql, source, new MySQLGenomeDAO.GenomeResultSetExtractor()));
+        return TransfertObject.getOneTO(template.query(sql, source, new GenomeResultSetExtractor()));
+    }
+    
+    @Override
+    public List<GenomeTO> findByGenbankAccs(Set<String> genomeAccs) {
+        if (genomeAccs == null || genomeAccs.stream().anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException("A genome accession can not be null");
+        }
+        return template.query(SELECT_STATEMENT + "WHERE g.genbank_acc IN (:accs)",
+                new MapSqlParameterSource().addValue("accs", genomeAccs), new GenomeResultSetExtractor());
     }
     
     @Override

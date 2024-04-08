@@ -16,6 +16,8 @@ public interface GenomeDAO extends DAO<GenomeTO> {
     List<GenomeTO> findByTaxonPath(String taxonPath, boolean withSubspeciesGenomes);
     
     GenomeTO findByGenbankAcc(String genbankAcc);
+
+    List<GenomeTO> findByGenbankAccs(Set<String> genomeAccs);
     
     void insert(GenomeTO taxon);
     
