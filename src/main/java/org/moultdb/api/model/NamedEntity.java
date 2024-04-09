@@ -16,7 +16,7 @@ public abstract class NamedEntity<T extends Comparable<T>> extends Entity<T> {
     public NamedEntity(T id, String name, String description) throws IllegalArgumentException {
         super(id);
         if (name == null) {
-            throw new IllegalArgumentException("the name provided cannot be blank.");
+            throw new IllegalArgumentException("The name provided cannot be blank");
         }
         this.name = name;
         this.description = description;

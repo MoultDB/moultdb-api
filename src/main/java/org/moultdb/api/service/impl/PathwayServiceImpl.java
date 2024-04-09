@@ -48,7 +48,7 @@ public class PathwayServiceImpl implements PathwayService {
     public void importPathways(MultipartFile pathwayCvFile) {
         String originalFilename = pathwayCvFile.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         
         logger.info("Start pathways import...");
@@ -66,14 +66,14 @@ public class PathwayServiceImpl implements PathwayService {
             throw new ImportException("Unable to import pathways from " + originalFilename + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End pathways import.");
+        logger.info("End pathways import");
     }
     
     @Override
     public void importPathwayData(MultipartFile geneToPathwayFile) {
         String originalFilename = geneToPathwayFile.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         
         logger.info("Start pathway data import...");
@@ -91,7 +91,7 @@ public class PathwayServiceImpl implements PathwayService {
             throw new ImportException("Unable to import pathway data from " + originalFilename + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End pathway data import.");
+        logger.info("End pathway data import");
     }
     
     private List<Pathway> getPathways(List<PathwayTO> pathwayTOs) {

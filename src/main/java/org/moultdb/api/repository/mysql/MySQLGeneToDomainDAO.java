@@ -75,7 +75,7 @@ public class MySQLGeneToDomainDAO implements GeneToDomainDAO {
         
         try {
             template.batchUpdate(geneSql, params.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'gene_domain' table updated.");
+            logger.debug("'gene_domain' table updated");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of gene_domain(s) failed: " + e.getMessage());
         }

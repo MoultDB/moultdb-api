@@ -70,7 +70,7 @@ public class MySQLPathwayDAO implements PathwayDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'pathway' table updated.");
+        logger.info("'pathway' table updated");
     }
     
     protected static class PathwayRowMapper implements RowMapper<PathwayTO> {

@@ -118,7 +118,7 @@ public class FossilParser {
         
         if (args.length != 1) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
     
         FossilParser parser = new FossilParser();
@@ -187,7 +187,7 @@ public class FossilParser {
                 // Try to find genus taxon
                 String genus = bean.getTaxon().split(" ")[0];
                 logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
-                        "Search for genus '" + genus + "'.");
+                        "Search for genus '" + genus + "'...");
                 taxonTO = taxonDAO.findByScientificName(genus);
             }
             if (taxonTO == null) {

@@ -110,7 +110,7 @@ public class MySQLGenomeDAO implements GenomeDAO {
         
         try {
             template.batchUpdate(genomeSql, genomeParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'genome' table updated.");
+            logger.debug("'genome' table updated");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of genome(s) failed: " + e.getMessage());
         }

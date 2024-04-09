@@ -63,7 +63,7 @@ public class GenomeServiceImpl implements GenomeService {
     public void updateGenomes(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         
         logger.info("Start genomes import...");
@@ -71,16 +71,16 @@ public class GenomeServiceImpl implements GenomeService {
         int count;
         GenomeParser importer = new GenomeParser();
         try {
-            logger.info("Parse genome file " + file.getOriginalFilename() + "...");
+            logger.info("Parse genome file " + originalFilename + "...");
             Set<GenomeTO> genomeTOs = importer.getGenomeTOs(file, taxonDAO);
             
             logger.info("Load genomes in db...");
             genomeDAO.batchUpdate(genomeTOs);
             
         } catch (Exception e) {
-            throw new ImportException("Unable to import genomes from " + file.getOriginalFilename() + ". " +
+            throw new ImportException("Unable to import genomes from " + originalFilename + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End genomes import.");
+        logger.info("End genomes import");
     }
 }

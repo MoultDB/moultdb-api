@@ -87,7 +87,7 @@ public class MySQLArticleDAO implements ArticleDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.debug("'article' table updated.");
+        logger.debug("'article' table updated");
     }
     
     @Override

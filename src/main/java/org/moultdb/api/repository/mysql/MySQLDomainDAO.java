@@ -69,7 +69,7 @@ public class MySQLDomainDAO implements DomainDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'domain' table updated.");
+        logger.info("'domain' table updated");
     }
     
     protected static class DomainRowMapper implements RowMapper<DomainTO> {

@@ -163,13 +163,13 @@ public class MySQLTaxonDAO implements TaxonDAO {
         }
         try {
             template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'taxon' table updated.");
+            logger.debug("'taxon' table updated");
 
             template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'db_xref' table updated.");
+            logger.debug("'db_xref' table updated");
             
             template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'taxon_db_xref' table updated.");
+            logger.debug("'taxon_db_xref' table updated");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of taxa failed: " + e.getMessage());
         }

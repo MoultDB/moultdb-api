@@ -65,7 +65,7 @@ public class GeneServiceImpl implements GeneService {
     public void importGenes(MultipartFile geneFile) {
         String originalGeneFilename = geneFile.getOriginalFilename();
         if (StringUtils.isBlank(originalGeneFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         
         logger.info("Start genes import...");
@@ -82,7 +82,7 @@ public class GeneServiceImpl implements GeneService {
             throw new ImportException("Unable to import genes from " + originalGeneFilename + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End genes import.");
+        logger.info("End genes import");
     }
     
     private Gene getGene(GeneTO geneTO) {

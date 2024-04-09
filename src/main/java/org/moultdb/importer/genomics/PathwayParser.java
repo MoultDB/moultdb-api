@@ -56,7 +56,7 @@ public class PathwayParser {
         
         if (args.length != 2) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 2 arguments, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
         
         PathwayParser parser = new PathwayParser();

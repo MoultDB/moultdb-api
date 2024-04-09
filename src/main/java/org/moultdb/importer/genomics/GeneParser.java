@@ -72,7 +72,7 @@ public class GeneParser {
         
         if (args.length != 1) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
         
         GeneParser parser = new GeneParser();
@@ -96,22 +96,22 @@ public class GeneParser {
         // Sanity checks
         Set<String> origins = geneBeans.stream().map(GeneBean::getOrigin).collect(Collectors.toSet());
         if (origins.size() != 1) {
-            throw new IllegalArgumentException("One file should contains only one origin.");
+            throw new IllegalArgumentException("One file should contains only one origin");
         }
         String origin = origins.iterator().next();
         DataSourceTO dataSourceTO = dataSourceDAO.findByName(originToDatasourceName.get(origin));
         if (dataSourceTO == null) {
-            throw new IllegalArgumentException("Unknown origin '" + origin + "'.");
+            throw new IllegalArgumentException("Unknown origin '" + origin + "'");
         }
         
         Set<String> genomeAccs = geneBeans.stream().map(GeneBean::getGenomeAcc).collect(Collectors.toSet());
         if (genomeAccs.size() != 1) {
-            throw new IllegalArgumentException("One file should contains only one genome accession.");
+            throw new IllegalArgumentException("One file should contains only one genome accession");
         }
         String genomeAcc = genomeAccs.iterator().next();
         GenomeTO genomeTO = genomeDAO.findByGenbankAcc(genomeAcc);
         if (genomeTO == null) {
-            logger.warn("Unknown genome accession '" + genomeAcc + "'. No genes imported.");
+            logger.warn("Unknown genome accession '" + genomeAcc + "': no genes imported");
             return new HashSet<>();
         }
         

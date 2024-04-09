@@ -156,7 +156,7 @@ public class MySQLGeneDAO implements GeneDAO {
         
         try {
             template.batchUpdate(geneSql, geneParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'gene' table updated.");
+            logger.debug("'gene' table updated");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of gene(s) failed: " + e.getMessage());
         }

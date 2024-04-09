@@ -46,7 +46,7 @@ public class OrthogroupParser {
         
         if (args.length != 1) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
         
         OrthogroupParser parser = new OrthogroupParser();

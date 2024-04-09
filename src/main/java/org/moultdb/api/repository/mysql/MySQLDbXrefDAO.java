@@ -116,7 +116,7 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'db_xref' table updated.");
+        logger.info("'db_xref' table updated");
     }
     
     @Override

@@ -42,7 +42,7 @@ public class GeologicalAgeServiceImpl implements GeologicalAgeService {
     
         geologicalAgeDAO.batchUpdate(geologicalAgeTOs);
     
-        logger.info("End geological ages import.");
+        logger.info("End geological ages import");
     }
     
     private static Set<GeologicalAgeTO> convertToDTOs(Collection<GeologicalAge> geoAges) {

@@ -150,7 +150,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             throw new ImportException("Unable to import annotations from " + file.getOriginalFilename() + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End taxon annotations import.");
+        logger.info("End taxon annotations import");
         
         return count;
     }

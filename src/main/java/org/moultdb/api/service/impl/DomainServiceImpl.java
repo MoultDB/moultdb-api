@@ -50,7 +50,7 @@ public class DomainServiceImpl implements DomainService {
     public void updateDomains(MultipartFile file) {
         String originalGeneFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalGeneFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         
         logger.info("Start domains import...");
@@ -70,7 +70,7 @@ public class DomainServiceImpl implements DomainService {
             throw new ImportException("Unable to import domains from " + originalGeneFilename + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End domains import.");
+        logger.info("End domains import");
     }
     
     private List<Domain> getDomains(List<DomainTO> domainTOs) {

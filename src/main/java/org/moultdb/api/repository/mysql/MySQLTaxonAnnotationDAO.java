@@ -115,7 +115,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         params.add(source);
     
         int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table");
     
         return ints[0];
     }
@@ -144,7 +144,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         }
         
         int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.debug(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table.");
+        logger.debug(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table");
         
         return ints;
     }
