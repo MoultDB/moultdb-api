@@ -2,7 +2,17 @@ package org.moultdb.importer.genomics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.supercsv.cellprocessor.*;
+import org.moultdb.api.repository.dao.DataSourceDAO;
+import org.moultdb.api.repository.dao.GeneDAO;
+import org.moultdb.api.repository.dao.GenomeDAO;
+import org.moultdb.api.repository.dto.DataSourceTO;
+import org.moultdb.api.repository.dto.GeneTO;
+import org.moultdb.api.repository.dto.GenomeTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
+import org.supercsv.cellprocessor.CellProcessorAdaptor;
+import org.supercsv.cellprocessor.ParseInt;
+import org.supercsv.cellprocessor.Trim;
 import org.supercsv.cellprocessor.constraint.IsElementOf;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
@@ -14,6 +24,7 @@ import org.supercsv.util.CsvContext;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +35,10 @@ import java.util.stream.Stream;
  * @since 2024-03-21
  */
 public class GeneParser {
+    
+    @Autowired DataSourceDAO dataSourceDAO;
+    @Autowired GeneDAO geneDAO;
+    @Autowired GenomeDAO genomeDAO;
     
     private final static Logger logger = LogManager.getLogger(GeneParser.class.getName());
     
@@ -39,35 +54,93 @@ public class GeneParser {
     private final static String PROTEIN_DESCRIPTION_COL_NAME = "protein_description";
     private final static String ORIGIN_COL_NAME = "origin";
     private final static String GENOME_ID_COL_NAME = "genome_id";
-    
-    private final static String ORTHOGROUP_ID_COL_NAME = "orthogroup_id";
-    private final static String TAX_ID_COL_NAME = "taxid";
-    private final static String VERSION_COL_NAME = "version";
-    
     private final static String ORIGIN_REFSEQ = "NCBI RefSeq assembly";
     private final static String ORIGIN_GENBANK = "Submitted GenBank assembly";
+    
+    private final static Map<String, String> originToDatasourceName;
+    
+    static {
+        Map<String, String> originToDatasourceNameMap = new HashMap<>();
+        originToDatasourceNameMap.put("NCBI RefSeq assembly", "RefSeq");
+        originToDatasourceNameMap.put("Submitted GenBank assembly", "GenBank");
+        
+        originToDatasourceName = Collections.unmodifiableMap(originToDatasourceNameMap);
+    }
     
     public static void main(String[] args) {
         logger.traceEntry(Arrays.toString(args));
         
-        if (args.length != 1 || args.length != 2) {
-            throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 or 2 arguments, " +
+        if (args.length != 1) {
+            throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
                     args.length + " provided.");
         }
         
         GeneParser parser = new GeneParser();
-        Set<GeneBean> geneBeans = parser.parseGeneFile(args[0]);
-        Set<OrthogroupBean> orthogroupBeans = new HashSet<>();
-        if (args.length != 2) {
-            orthogroupBeans.addAll(parser.parseOrthogroupFile(args[1]));
-            
-        }
-//        parser.getGeneTOs(geneBeans, orthogroupBeans);
+        Set<GeneBean> geneBeans = parser.getGeneBeans(args[0]);
+        parser.getGeneTOs(geneBeans);
         
         logger.traceExit();
     }
     
-    public Set<GeneBean> parseGeneFile(String fileName) {
+    public Set<GeneTO> getGeneTOs(MultipartFile geneFile, DataSourceDAO dataSourceDAO, GeneDAO geneDAO, GenomeDAO genomeDAO) {
+        Set<GeneBean> geneBeans = getGeneBeans(geneFile);
+        return getGeneTOs(geneBeans, dataSourceDAO, geneDAO, genomeDAO);
+    }
+    
+    private Set<GeneTO> getGeneTOs(Set<GeneBean> geneBeans) {
+        return getGeneTOs(geneBeans, dataSourceDAO, geneDAO, genomeDAO);
+    }
+    
+    private Set<GeneTO> getGeneTOs(Set<GeneBean> geneBeans, DataSourceDAO dataSourceDAO, GeneDAO geneDAO, GenomeDAO genomeDAO) {
+        
+        // Sanity checks
+        Set<String> origins = geneBeans.stream().map(GeneBean::getOrigin).collect(Collectors.toSet());
+        if (origins.size() != 1) {
+            throw new IllegalArgumentException("One file should contains only one origin.");
+        }
+        String origin = origins.iterator().next();
+        DataSourceTO dataSourceTO = dataSourceDAO.findByName(originToDatasourceName.get(origin));
+        if (dataSourceTO == null) {
+            throw new IllegalArgumentException("Unknown origin '" + origin + "'.");
+        }
+        
+        Set<String> genomeAccs = geneBeans.stream().map(GeneBean::getGenomeAcc).collect(Collectors.toSet());
+        if (genomeAccs.size() != 1) {
+            throw new IllegalArgumentException("One file should contains only one genome accession.");
+        }
+        String genomeAcc = genomeAccs.iterator().next();
+        GenomeTO genomeTO = genomeDAO.findByGenbankAcc(genomeAcc);
+        if (genomeTO == null) {
+            logger.warn("Unknown genome accession '" + genomeAcc + "'. No genes imported.");
+            return new HashSet<>();
+        }
+        
+        // Generate GeneTOs
+        Integer geneLastId = geneDAO.getLastId();
+        Integer geneNextId = geneLastId == null ? 1 : geneLastId + 1;
+        Set<GeneTO> geneTOs = new HashSet<>();
+        for (GeneBean geneBean: geneBeans) {
+            geneTOs.add(new GeneTO(geneNextId, geneBean.getGeneId(), geneBean.getGeneName(), geneBean.getLocusTag(),
+                    genomeTO.getGeneBankAcc(), null, null, 
+                    geneBean.getTranscriptId(), geneBean.getTranscriptUrlSuffix(), geneBean.getProteinId(),
+                    geneBean.getProteinDescription(), geneBean.getProteinLength(), dataSourceTO, null, null));
+            geneNextId++;
+        }
+        return geneTOs;
+    }
+    
+    private Set<GeneBean> getGeneBeans(MultipartFile geneFile) {
+        try (ICsvBeanReader geneReader = new CsvBeanReader(new InputStreamReader(geneFile.getInputStream()), TSV_COMMENTED)) {
+            return logger.traceExit(getGeneBeans(geneReader));
+        } catch (SuperCsvException e) {
+            throw new IllegalArgumentException("The provided file " + geneFile.getOriginalFilename()
+                    + " could not be properly parsed", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Can not read file " + geneFile.getOriginalFilename(), e);
+        }
+    }
+    
+    public Set<GeneBean> getGeneBeans(String fileName) {
         logger.info("Start parsing of gene file " + fileName + "...");
         
         try (ICsvBeanReader geneReader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
@@ -75,22 +148,6 @@ public class GeneParser {
             logger.info("End parsing of gene file");
             
             return logger.traceExit(getGeneBeans(geneReader));
-            
-        } catch (SuperCsvException e) {
-            throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed", e);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Can not read file " + fileName, e);
-        }
-    }
-    
-    public Set<OrthogroupBean> parseOrthogroupFile(String fileName) {
-        logger.info("Start parsing of orthogroup file " + fileName + "...");
-        
-        try (ICsvBeanReader geneReader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
-            
-            logger.info("End parsing of gene file");
-            
-            return logger.traceExit(getOrthogroupBeans(geneReader));
             
         } catch (SuperCsvException e) {
             throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed", e);
@@ -118,26 +175,6 @@ public class GeneParser {
         return geneBeans;
     }
     
-    private Set<OrthogroupBean> getOrthogroupBeans(ICsvBeanReader orthogroupReader) throws IOException {
-        Set<OrthogroupBean> orthogroupBeans = new HashSet<>();
-        
-        final String[] header = orthogroupReader.getHeader(true);
-        
-        String[] attributeMapping = mapOrthogroupHeaderToAttributes(header);
-        CellProcessor[] cellProcessorMapping = mapOrthogroupHeaderToCellProcessors(header);
-        OrthogroupBean orthogroupBean;
-        
-        while((orthogroupBean = orthogroupReader.read(OrthogroupBean.class, attributeMapping, cellProcessorMapping)) != null) {
-            orthogroupBeans.add(orthogroupBean);
-        }
-        if (orthogroupBeans.isEmpty()) {
-            throw new IllegalArgumentException("The provided file did not allow to retrieve any orthogroupBean");
-        }
-        
-        return orthogroupBeans;
-    }
-    
-    
     private String[] mapGeneHeaderToAttributes(String[] header) {
         String[] mapping = new String[header.length];
         for (int i = 0; i < header.length; i++) {
@@ -153,20 +190,6 @@ public class GeneParser {
                 case ORIGIN_COL_NAME -> "origin";
                 case GENOME_ID_COL_NAME -> "genomeAcc";
                 default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GeneBean");
-            };
-        }
-        return mapping;
-    }
-    
-    private String[] mapOrthogroupHeaderToAttributes(String[] header) {
-        String[] mapping = new String[header.length];
-        for (int i = 0; i < header.length; i++) {
-            mapping[i] = switch (header[i]) {
-                case ORTHOGROUP_ID_COL_NAME -> "orthogroupId";
-                case TAX_ID_COL_NAME -> "taxonId";
-                case PROTEIN_ID_COL_NAME -> "proteinId";
-                case VERSION_COL_NAME -> "version";
-                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for OrthogroupBean");
             };
         }
         return mapping;
@@ -194,22 +217,6 @@ public class GeneParser {
         return processors;
     }
 
-    private CellProcessor[] mapOrthogroupHeaderToCellProcessors(String[] header) {
-        CellProcessor[] processors = new CellProcessor[header.length];
-        String dateFormat = "yyyy-MM-dd";
-        
-        for (int i = 0; i < header.length; i++) {
-            processors[i] = switch (header[i]) {
-                case ORTHOGROUP_ID_COL_NAME -> new ParseInt();
-                case TAX_ID_COL_NAME -> new ParseInt();
-                case PROTEIN_ID_COL_NAME -> new StrNotNullOrEmpty(new Trim());
-                case VERSION_COL_NAME -> new ParseDate(dateFormat);
-                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for OrthogroupBean");
-            };
-        }
-        return processors;
-    }
-    
     public static class ParseCustomOptional extends CellProcessorAdaptor {
         
         public ParseCustomOptional() {

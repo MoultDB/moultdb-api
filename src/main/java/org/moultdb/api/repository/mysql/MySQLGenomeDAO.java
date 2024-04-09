@@ -56,9 +56,7 @@ public class MySQLGenomeDAO implements GenomeDAO {
     
     @Override
     public GenomeTO findByGenbankAcc(String genbankAcc) {
-        String sql = SELECT_STATEMENT + "WHERE g.genbank_acc = :genbank_acc ";
-        MapSqlParameterSource source = new MapSqlParameterSource().addValue("genbank_acc", genbankAcc);
-        return TransfertObject.getOneTO(template.query(sql, source, new GenomeResultSetExtractor()));
+        return TransfertObject.getOneTO(findByGenbankAccs(Collections.singleton(genbankAcc)));
     }
     
     @Override

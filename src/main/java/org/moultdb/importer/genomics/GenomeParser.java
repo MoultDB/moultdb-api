@@ -96,7 +96,7 @@ public class GenomeParser {
         return getGenomeTOs(genomeBeans, taxonDAO);
     }
     
-    public Set<GenomeTO> getGenomeTOs(Set<GenomeBean> genomeBeans) {
+    private Set<GenomeTO> getGenomeTOs(Set<GenomeBean> genomeBeans) {
         return getGenomeTOs(genomeBeans, taxonDAO);
     }
     
@@ -157,7 +157,7 @@ public class GenomeParser {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
     
-    public Set<GenomeBean> getGenomeBeans(MultipartFile uploadedFile) {
+    private Set<GenomeBean> getGenomeBeans(MultipartFile uploadedFile) {
         try (ICsvBeanReader genomeReader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), TSV_COMMENTED)) {
             return logger.traceExit(getGenomeBeans(genomeReader));
         } catch (SuperCsvException e) {
@@ -206,8 +206,7 @@ public class GenomeParser {
                 case SCAFFOLD_L50_COL_NAME -> new StrReplace(",", "", new ParseInt());
                 case SCAFFOLD_N50_COL_NAME -> new StrReplace(",", "", new ParseInt());
                 case ANNOTATION_DATE_COL_NAME -> new ParseCustomOptional(new ParseDate(dateFormat));
-                case TOTAL_GENES_COL_NAME -> new ParseCustomOptional(
-                        new StrReplace(".0", "", new StrReplace(",", "", new ParseInt())));
+                case TOTAL_GENES_COL_NAME -> new ParseCustomOptionalInt(new ParseInt());
                 case ARTHROPODA_COMPLETE_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_SINGLE_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_DUPLICATED_COL_NAME -> new ParseCustomOptional(new ParseDouble());
@@ -264,6 +263,26 @@ public class GenomeParser {
                 return null;
             }
             return next.execute(value, context);
+        }
+    }
+    
+    public static class ParseCustomOptionalInt extends CellProcessorAdaptor {
+        
+        public ParseCustomOptionalInt() {
+            super();
+        }
+        
+        public ParseCustomOptionalInt(CellProcessor next) {
+            // this constructor allows other processors to be chained after this processor
+            super(next);
+        }
+        
+        public Object execute(Object value, CsvContext context) {
+            String stringValue = String.valueOf(value);
+            if (value == null || stringValue.equals("NA")) {
+                return null;
+            }
+            return next.execute(stringValue.replace(".0", "").replace(",", ""), context);
         }
     }
 }

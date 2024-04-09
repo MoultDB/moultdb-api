@@ -2,6 +2,12 @@ package org.moultdb.importer.genomics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.repository.dao.DomainDAO;
+import org.moultdb.api.repository.dao.GeneDAO;
+import org.moultdb.api.repository.dto.DomainTO;
+import org.moultdb.api.repository.dto.GeneTO;
+import org.moultdb.api.repository.dto.GeneToDomainTO;
+import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.Trim;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
@@ -13,10 +19,11 @@ import org.supercsv.prefs.CsvPreference;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Valentine Rech de Laval
@@ -113,5 +120,70 @@ public class DomainParser {
             };
         }
         return processors;
+    }
+    
+    public Set<GeneToDomainTO> getGeneToDomainTOs(MultipartFile file, GeneDAO geneDAO) {
+        Set<DomainBean> domainBeans = getDomainBeans(file);
+        return getGeneToDomainTOs(domainBeans, geneDAO);
+    }
+    
+    private Set<GeneToDomainTO> getGeneToDomainTOs(Set<DomainBean> domainBeans, GeneDAO geneDAO) {
+        Map<String, List<DomainBean>> proteinToDomainBean = domainBeans.stream()
+                .collect(Collectors.groupingBy(DomainBean::getProteinId));
+        Map<String, GeneTO> proteinToGeneTO = geneDAO.findByProteinIds(proteinToDomainBean.keySet()).stream()
+                .collect(Collectors.toMap(GeneTO::getProteinId, Function.identity()));
+        if (proteinToDomainBean.keySet().size() != proteinToGeneTO.keySet().size()) {
+            Set<String> proteinIds = new HashSet<>(proteinToDomainBean.keySet());
+            proteinIds.removeAll(proteinToGeneTO.keySet());
+            logger.error("Unknown protein ID(s): " + proteinIds);
+            // We continue without unknown proteins
+            proteinToDomainBean.keySet().removeAll(proteinIds);
+        }
+        
+        Set<GeneToDomainTO> geneToDomainTOs = new HashSet<>();
+        for (Map.Entry<String, List<DomainBean>> entry : proteinToDomainBean.entrySet()) {
+            for (DomainBean domainBean : entry.getValue()) {
+                GeneTO geneTO = proteinToGeneTO.get(entry.getKey());
+                assert geneTO != null;
+                geneToDomainTOs.add(new GeneToDomainTO(geneTO.getId(),
+                        new DomainTO(domainBean.getDomainId(), domainBean.getDomainDescription()),
+                        domainBean.getDomainStart(), domainBean.getDomainEnd()));
+            }
+        }
+        return geneToDomainTOs;
+    }
+    
+    private Set<DomainBean> getDomainBeans(MultipartFile domainFile) {
+        try (ICsvBeanReader geneToPathwayReader = new CsvBeanReader(new InputStreamReader(domainFile.getInputStream()), TSV_COMMENTED)) {
+            return logger.traceExit(getDomainBeans(geneToPathwayReader));
+        } catch (SuperCsvException e) {
+            throw new IllegalArgumentException("The provided file " + domainFile.getOriginalFilename()
+                    + " could not be properly parsed", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Can not read file " + domainFile.getOriginalFilename(), e);
+        }
+    }
+    
+    public Set<DomainTO> getDomainTOs(MultipartFile file) {
+        Set<DomainBean> domainBeans = new HashSet<>();
+        try (ICsvBeanReader geneToPathwayReader = new CsvBeanReader(new InputStreamReader(file.getInputStream()), TSV_COMMENTED)) {
+            domainBeans.addAll(getDomainBeans(geneToPathwayReader));
+        } catch (SuperCsvException e) {
+            throw new IllegalArgumentException("The provided file " + file.getOriginalFilename()
+                    + " could not be properly parsed", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Can not read file " + file.getOriginalFilename(), e);
+        }
+        
+        // Here we keep only one (random) DomainBean by domain ID 
+        Map<String, DomainBean> proteinToGeneTO = domainBeans.stream()
+                .collect(Collectors.toMap(DomainBean::getDomainId, Function.identity(),
+                        (existingValue, newValue) -> existingValue));
+        
+        Set<DomainTO> domainTOs = new HashSet<>();
+        for (DomainBean domainBean: proteinToGeneTO.values()) {
+            domainTOs.add(new DomainTO(domainBean.getDomainId(), domainBean.getDomainDescription()));
+        }
+        return domainTOs;
     }
 }

@@ -7,10 +7,7 @@ import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -140,7 +137,7 @@ public class ServiceUtils {
         return new DbXref(dbXrefTO.getAccession(), dbXrefTO.getName(), mapFromTO(dbXrefTO.getDataSourceTO()), isMain);
     }
     
-    public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs, Set<TaxonToDbXrefTO> taxonToDbXrefTOs) {
+    public static Set<DbXref> mapFromDbXrefTOs(Collection<DbXrefTO> dbXrefTOs, Set<TaxonToDbXrefTO> taxonToDbXrefTOs) {
         if (dbXrefTOs == null) {
             return null;
         }
@@ -151,7 +148,7 @@ public class ServiceUtils {
                 .collect(Collectors.toSet());
     }
     
-    public static Set<DbXref> mapFromTOs(Collection<DbXrefTO> dbXrefTOs) {
+    public static Set<DbXref> mapFromDbXrefTOs(Collection<DbXrefTO> dbXrefTOs) {
         if (dbXrefTOs == null) {
             return null;
         }
@@ -198,14 +195,15 @@ public class ServiceUtils {
             return null;
         }
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(),
-                taxonTO.isExtincted(), mapFromTOs(taxonTO.getDbXrefTOs(), taxonTO.getTaxonToDbXrefTOs()));
+                taxonTO.isExtincted(), mapFromDbXrefTOs(taxonTO.getDbXrefTOs(), taxonTO.getTaxonToDbXrefTOs()));
     }
     
     public static Article mapFromTO(ArticleTO articleTO) {
         if (articleTO == null) {
             return null;
         }
-        return new Article(articleTO.getCitation() , articleTO.getTitle(), articleTO.getAuthors(), mapFromTOs(articleTO.getDbXrefTOs()));
+        return new Article(articleTO.getCitation() , articleTO.getTitle(), articleTO.getAuthors(),
+                mapFromDbXrefTOs(articleTO.getDbXrefTOs()));
     }
     
     public static Version mapFromTO(VersionTO versionTO) {
@@ -241,5 +239,37 @@ public class ServiceUtils {
                 genomeTO.getAnnotationDate(), genomeTO.getTotalGenes(),genomeTO.getCompleteBusco(),
                 genomeTO.getSingleBusco(), genomeTO.getDuplicatedBusco(), genomeTO.getFragmentedBusco(),
                 genomeTO.getMissingBusco());
+    }
+    
+    public static Gene mapFromTO(GeneTO geneTO, Collection<GeneToDomainTO> geneToDomainTOs, TaxonTO taxonTO) {
+        if (geneTO == null) {
+            return null;
+        }
+        Set<Gene.GeneDomain> domains = null;
+        if (geneToDomainTOs != null){
+            domains = geneToDomainTOs.stream()
+                    .map(gd -> new Gene.GeneDomain(new Domain(gd.getDomainTO().getId(), gd.getDomainTO().getDescription()),
+                            gd.getStart(), gd.getEnd()))
+                    .collect(Collectors.toSet());
+        }
+        return new Gene(geneTO.getGeneId(), geneTO.getGeneName(),
+                geneTO.getLocusTag(),new Gene.GeneTaxon(taxonTO.getPath(), taxonTO.getScientificName()),
+                geneTO.getGenomeAcc(), geneTO.getOrthogroupId(), geneTO.getTranscriptId(),
+                geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(),geneTO.getProteinDescription(),
+                geneTO.getProteinLength(), mapFromTO(geneTO.getDataSourceTO()), domains,
+                mapFromTO(geneTO.getPathwayTO()), geneTO.getAnnotatedGeneName());
+    }
+    public static Domain mapFromTO(DomainTO domainTO) {
+        if (domainTO == null) {
+            return null;
+        }
+        return new Domain(domainTO.getId(), domainTO.getDescription());
+    }
+    
+    public static Pathway mapFromTO(PathwayTO pathwayTO) {
+        if (pathwayTO == null) {
+            return null;
+        }
+        return new Pathway(pathwayTO.getId(), pathwayTO.getName());
     }
 }

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.service.ServiceUtils.mapFromTO;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2023-11-21
@@ -39,6 +41,16 @@ public class GenomeServiceImpl implements GenomeService {
     @Override
     public List<Genome> getGenomesByTaxon(String taxonPath, boolean withSubspeciesGenomes) {
         return getGenomes(genomeDAO.findByTaxonPath(taxonPath, withSubspeciesGenomes));
+    }
+    
+    @Override
+    public Genome getGenomesByAcc(String genomeAcc) {
+        return mapFromTO(genomeDAO.findByGenbankAcc(genomeAcc));
+    }
+    
+    @Override
+    public List<Genome> getGenomesByAcc(Set<String> genomeAccs) {
+        return getGenomes(genomeDAO.findByGenbankAccs(genomeAccs));
     }
     
     private List<Genome> getGenomes(List<GenomeTO> genomeTOs) {
