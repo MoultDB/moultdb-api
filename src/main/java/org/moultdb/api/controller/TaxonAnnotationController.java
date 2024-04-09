@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  * @since 2021-10-27
  */
 @RestController
-@RequestMapping(path="/taxon-annotation")
+@RequestMapping(path="/taxon-annotations")
 //@CrossOrigin(origins = "http://localhost:3000")
 public class TaxonAnnotationController {
     
@@ -30,34 +31,39 @@ public class TaxonAnnotationController {
     @Autowired
     TokenService tokenService;
     
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Map<String, List<TaxonAnnotation>>> getAllTaxonAnnotations() {
         return generateValidResponse(taxonAnnotationService.getAllTaxonAnnotations());
     }
     
     @GetMapping("/user-specific")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam("email") String email) {
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam String email) {
         return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(email));
     }
     
-    @GetMapping("/one")
-    public ResponseEntity<Map<String, TaxonAnnotation>> getTaxonAnnotationByImageId(@RequestParam("imageFilename") String imageFilename) {
+    @GetMapping("/{imageFilename}")
+    public ResponseEntity<Map<String, TaxonAnnotation>> getTaxonAnnotationByImageId(@PathVariable String imageFilename) {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
     }
     
-    @GetMapping("/species/scientific-name")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByTaxonName(@RequestParam("name") String name) {
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonName(name));
-    }
-    
-    @GetMapping("/species/path")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByTaxonPath(@RequestParam("taxonPath") String taxonPath) {
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonPath(taxonPath));
-    }
-    
-    @GetMapping("/species/dbxref")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getTaxonAnnotationByDbXref(
-            @RequestParam("datasource") String datasource, @RequestParam("accession") String accession) {
+    @GetMapping("/species")
+    public ResponseEntity<Map<String, Object>> getTaxonAnnotationBySpecies(
+            @RequestParam(required = false) String scientificName,
+            @RequestParam(required = false) String taxonPath,
+            @RequestParam(required = false) String datasource,
+            @RequestParam(required = false) String accession
+            ) {
+        if (MoultdbController.hasMultipleParams(Arrays.asList(scientificName, taxonPath, datasource))) {
+            return generateErrorResponse("Invalid combination of parameters: " +
+                    "one parameter and one only must be specified between scientificName, taxonPath, or accession",
+                    HttpStatus.BAD_REQUEST);
+        }
+        if (scientificName != null) {
+            return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonName(scientificName));
+        } else if (taxonPath != null) {
+            return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonPath(taxonPath));
+        }
+        assert (datasource != null);
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
     }
     
@@ -80,7 +86,7 @@ public class TaxonAnnotationController {
     
     @PostMapping("/import-file")
     public
-    ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam("file") MultipartFile file) {
+    ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile file) {
         Integer integer;
         try {
             integer = taxonAnnotationService.importTaxonAnnotations(file);

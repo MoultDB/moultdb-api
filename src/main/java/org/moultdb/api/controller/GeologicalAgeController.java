@@ -16,12 +16,13 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  * @since 2022-05-16
  */
 @RestController
-@RequestMapping(path="/geological-age")
+@RequestMapping(path="/geological-ages")
 public class GeologicalAgeController {
     
     @Autowired
     GeologicalAgeService geologicalAgeService;
     
+    // FIXME improve service name to match conventions (ex: remove verb and set @PutMapping)
     @GetMapping(value = "/create")
     public ResponseEntity<Map<String, Object>> insertGeologicalAge() {
         geologicalAgeService.updateGeologicalAges();
