@@ -1,0 +1,2 @@
+RefSeq/GenBank Accession	Submission Date	TaxId	SubPhylum	Order	Genus	Species	Total length	Number of scaffolds	Scaffold L50	Scaffold N50	Annotation Date	Total genes	Arthropoda Complete BUSCO	Arthropoda Single BUSCO	Arthropoda Duplicated BUSCO	Arthropoda Fragmented BUSCO	Arthropoda Missing BUSCO
+GCA_006783055.1	2019-07-09	1923959	Crustacea	Amphipoda	Trinorchestia	Trinorchestia longiramus	886098277	30895	1717	120570	2019-07-09	26080.0	86.4	83.1	3.3	6.7	6.9
