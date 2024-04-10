@@ -21,7 +21,8 @@ public class TokenFilterConfig {
             "/geological-age/create",
             "/taxon-annotation/import-file",
             "/taxon/import-file",
-            "/genome/import-file"
+            "/genome/import-file",
+            "/user/*"
     };
     
     protected final static String[] SECURED_USER_URL = {
