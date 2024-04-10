@@ -25,7 +25,8 @@ public class TokenFilterConfig {
             "/genes/import-file",
             "/pathways/import-cv-file",
             "/pathways/import-data-file",
-            "/domains/import-file"
+            "/domains/import-file",
+            "/users/*"
     };
     
     protected final static String[] SECURED_USER_URL = {
