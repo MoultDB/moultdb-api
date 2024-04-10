@@ -22,4 +22,6 @@ public interface GenomeDAO extends DAO<GenomeTO> {
     void insert(GenomeTO taxon);
     
     void batchUpdate(Set<GenomeTO> genomeTOs);
+    
+    void deleteByIds(Set<String> genomeAccs);
 }

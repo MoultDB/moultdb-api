@@ -118,7 +118,7 @@ public class GenomeParser {
         for (GenomeBean bean: genomeBeans) {
             TaxonTO taxonTO = taxonDAO.findByAccession(bean.getTaxonId(), DatasourceEnum.NCBI.getStringRepresentation());
             if (taxonTO == null) {
-                notFoundTaxa.add(bean.getTaxonId() + " - " + bean.getSpecies());
+                notFoundTaxa.add(bean.getSpecies() + " (" + bean.getTaxonId() + ")");
                 continue;
             }
             if (!taxonTO.getScientificName().equals(bean.getSpecies())) {

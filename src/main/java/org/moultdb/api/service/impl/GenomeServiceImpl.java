@@ -74,6 +74,17 @@ public class GenomeServiceImpl implements GenomeService {
             logger.info("Parse genome file " + originalFilename + "...");
             Set<GenomeTO> genomeTOs = importer.getGenomeTOs(file, taxonDAO);
             
+            Set<String> dbGenomeIds = genomeDAO.findAll().stream()
+                    .map(GenomeTO::getId).collect(Collectors.toSet());
+            Set<String> newGenomeIds = genomeTOs.stream()
+                    .map(GenomeTO::getId).collect(Collectors.toSet());
+            dbGenomeIds.removeAll(newGenomeIds);
+            if (!dbGenomeIds.isEmpty()) {
+                logger.info("Delete genomes that are no longer in the input file...");
+                genomeDAO.deleteByIds(dbGenomeIds);
+                logger.warn("Deleted genomes: " + String.join(", ", dbGenomeIds));
+            }
+
             logger.info("Load genomes in db...");
             genomeDAO.batchUpdate(genomeTOs);
             

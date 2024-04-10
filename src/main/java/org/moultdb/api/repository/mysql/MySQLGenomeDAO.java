@@ -116,6 +116,12 @@ public class MySQLGenomeDAO implements GenomeDAO {
         }
     }
     
+    @Override
+    public void deleteByIds(Set<String> genomeAccs) {
+        String sql = "DELETE FROM genome WHERE genbank_acc IN (:accs)";
+        template.update(sql, new MapSqlParameterSource().addValue("accs", genomeAccs));
+    }
+    
     private static class GenomeResultSetExtractor implements ResultSetExtractor<List<GenomeTO>> {
         
         @Override
