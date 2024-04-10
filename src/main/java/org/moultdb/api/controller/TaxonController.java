@@ -45,6 +45,11 @@ public class TaxonController {
         return generateValidResponse(taxonService.getTaxonByText(text));
     }
     
+    @GetMapping("/{taxonPath}/lineage")
+    public ResponseEntity<Map<String, List<Taxon>>> getTaxonLineage(@PathVariable String taxonPath) {
+        return generateValidResponse(taxonService.getTaxonLineage(taxonPath));
+    }
+    
     @PostMapping(value = "/import-file")
     public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam MultipartFile file) {
         Integer integer;
