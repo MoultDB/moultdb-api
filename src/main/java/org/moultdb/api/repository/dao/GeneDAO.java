@@ -32,4 +32,6 @@ public interface GeneDAO extends DAO<GeneTO> {
     void insert(GeneTO geneTO);
     
     void batchUpdate(Set<GeneTO> geneTOs);
+    
+    void deleteByIds(Set<Integer> dbGeneIds);
 }

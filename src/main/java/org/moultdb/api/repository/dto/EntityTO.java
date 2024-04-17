@@ -1,7 +1,6 @@
 package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
-import java.util.Objects;
 
 /**
  * @author Valentine Rech de Laval

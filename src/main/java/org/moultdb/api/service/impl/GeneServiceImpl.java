@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -74,6 +71,26 @@ public class GeneServiceImpl implements GeneService {
         try {
             logger.info("Parse file " + originalGeneFilename + "...");
             Set<GeneTO> geneTOs = importer.getGeneTOs(geneFile, dataSourceDAO, geneDAO, genomeDAO);
+            
+            // FIXME Update comparator to remove transcript and protein IDs. There should be no duplicates.
+            Comparator<GeneTO> geneTOComparator =
+                    Comparator.comparing(GeneTO::getGeneId, Comparator.nullsFirst(Comparator.naturalOrder()))
+                            .thenComparing(GeneTO::getLocusTag, Comparator.nullsFirst(Comparator.naturalOrder()))
+                            .thenComparing(GeneTO::getTranscriptId, Comparator.nullsFirst(Comparator.naturalOrder()))
+                            .thenComparing(GeneTO::getProteinId);
+            
+            Set<GeneTO> genesToRemove = geneDAO.findAll().stream()
+                    .filter(dbGeneTO -> geneTOs.stream().noneMatch(item -> geneTOComparator.compare(dbGeneTO, item) == 0))
+                    .collect(Collectors.toSet());
+            
+            if (!genesToRemove.isEmpty()) {
+                logger.info("Delete genes that are no longer in the input file...");
+                Set<Integer> dbGeneIds = genesToRemove.stream()
+                        .map(EntityTO::getId)
+                        .collect(Collectors.toSet());
+                geneDAO.deleteByIds(dbGeneIds);
+                logger.warn("Deleted genes: " + dbGeneIds);
+            }
             
             logger.info("Load genes in db...");
             geneDAO.batchUpdate(geneTOs);

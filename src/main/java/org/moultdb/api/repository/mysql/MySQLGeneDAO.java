@@ -162,6 +162,12 @@ public class MySQLGeneDAO implements GeneDAO {
         }
     }
     
+    @Override
+    public void deleteByIds(Set<Integer> geneIds) {
+        String sql = "DELETE FROM gene WHERE id IN (:ids)";
+        template.update(sql, new MapSqlParameterSource().addValue("ids", geneIds));
+    }
+    
     private static class GeneResultSetExtractor implements ResultSetExtractor<List<GeneTO>> {
         
         @Override
