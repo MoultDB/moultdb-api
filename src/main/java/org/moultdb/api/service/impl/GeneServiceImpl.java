@@ -114,6 +114,9 @@ public class GeneServiceImpl implements GeneService {
     }
     
     private List<Gene> getGenes(List<GeneTO> geneTOs) {
+        if (geneTOs == null || geneTOs.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<GeneToDomainTO> geneToDomainTOs = geneToDomainDAO.findByGeneIds(
                 geneTOs.stream().map(GeneTO::getId).collect(Collectors.toSet()));
         Map<Integer, List<GeneToDomainTO>> domains = geneToDomainTOs.stream()

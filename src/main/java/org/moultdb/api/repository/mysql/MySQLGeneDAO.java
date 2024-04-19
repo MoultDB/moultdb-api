@@ -3,7 +3,6 @@ package org.moultdb.api.repository.mysql;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
-import org.moultdb.api.model.Taxon;
 import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.GeneDAO;
 import org.moultdb.api.repository.dto.*;
@@ -98,8 +97,8 @@ public class MySQLGeneDAO implements GeneDAO {
             pathwayCondition = "AND g.pathway_id IS NULL ";
         }
         
-        return template.query(SELECT_STATEMENT + "WHERE LOWER(t.path) = LOWER(:taxonPath) " + pathwayCondition,
-                new MapSqlParameterSource().addValue("taxonPath", taxonPath), new GeneResultSetExtractor());
+        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath " + pathwayCondition,
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new GeneResultSetExtractor());
     }
     
     @Override

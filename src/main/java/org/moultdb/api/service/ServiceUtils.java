@@ -252,8 +252,7 @@ public class ServiceUtils {
                             gd.getStart(), gd.getEnd()))
                     .collect(Collectors.toSet());
         }
-        return new Gene(geneTO.getGeneId(), geneTO.getGeneName(),
-                geneTO.getLocusTag(),new Gene.GeneTaxon(taxonTO.getPath(), taxonTO.getScientificName()),
+        return new Gene(geneTO.getGeneId(), geneTO.getGeneName(), geneTO.getLocusTag(), mapFromTO(taxonTO),
                 geneTO.getGenomeAcc(), geneTO.getOrthogroupId(), geneTO.getTranscriptId(),
                 geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(),geneTO.getProteinDescription(),
                 geneTO.getProteinLength(), mapFromTO(geneTO.getDataSourceTO()), domains,

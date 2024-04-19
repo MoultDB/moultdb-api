@@ -15,7 +15,7 @@ public class Gene {
     private final String name;
     private final String locusTag;
     private final String genomeAcc;
-    private final GeneTaxon geneTaxon;
+    private final Taxon taxon;
     private final Integer orthogroupId;
     private final String transcriptId;
     private final String transcriptUrlSuffix;
@@ -27,7 +27,7 @@ public class Gene {
     private final Pathway pathway;
     private final String annotatedName;
     
-    public Gene(String id, String name, String locusTag, GeneTaxon geneTaxon, String genomeAcc, Integer orthogroupId,
+    public Gene(String id, String name, String locusTag, Taxon taxon, String genomeAcc, Integer orthogroupId,
                 String transcriptId, String transcriptUrlSuffix,
                 String proteinId, String proteinDescription, Integer proteinLength,
                 DataSource dataSource, Set<GeneDomain> geneDomains, Pathway pathway, String annotatedName)
@@ -39,7 +39,7 @@ public class Gene {
         this.name = name;
         this.locusTag = locusTag;
         this.genomeAcc = genomeAcc;
-        this.geneTaxon = geneTaxon;
+        this.taxon = taxon;
         this.orthogroupId = orthogroupId;
         this.transcriptId = transcriptId;
         this.transcriptUrlSuffix = transcriptUrlSuffix;
@@ -69,8 +69,8 @@ public class Gene {
         return genomeAcc;
     }
     
-    public GeneTaxon getGeneTaxon() {
-        return geneTaxon;
+    public Taxon getTaxon() {
+        return taxon;
     }
     
     public Integer getOrthogroupId() {
@@ -133,7 +133,7 @@ public class Gene {
                 .add("name='" + name + "'")
                 .add("locusTag='" + locusTag + "'")
                 .add("genomeAcc=" + genomeAcc)
-                .add("geneTaxon=" + geneTaxon)
+                .add("taxon=" + taxon)
                 .add("orthogroupId=" + orthogroupId)
                 .add("transcriptId='" + transcriptId + "'")
                 .add("transcriptUrlSuffix='" + transcriptUrlSuffix + "'")
@@ -190,46 +190,6 @@ public class Gene {
                     .add("domain=" + domain)
                     .add("start=" + start)
                     .add("end=" + end)
-                    .toString();
-        }
-    }
-    
-    public static class GeneTaxon {
-        
-        private final String path;
-        private final String scientificName;
-        
-        public GeneTaxon(String path, String scientificName) {
-            this.path = path;
-            this.scientificName = scientificName;
-        }
-        
-        public String getPath() {
-            return path;
-        }
-        
-        public String getScientificName() {
-            return scientificName;
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            GeneTaxon geneTaxon = (GeneTaxon) o;
-            return Objects.equals(path, geneTaxon.path);
-        }
-        
-        @Override
-        public int hashCode() {
-            return Objects.hash(path);
-        }
-        
-        @Override
-        public String toString() {
-            return new StringJoiner(", ", GeneTaxon.class.getSimpleName() + "[", "]")
-                    .add("path='" + path + "'")
-                    .add("scientificName='" + scientificName + "'")
                     .toString();
         }
     }

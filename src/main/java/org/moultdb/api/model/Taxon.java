@@ -1,10 +1,6 @@
 package org.moultdb.api.model;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -12,9 +8,14 @@ import java.util.StringJoiner;
  */
 public class Taxon extends NamedEntity<String> {
     
+    private final Comparator<DbXref> DBXREF_COMPARATOR = Comparator.comparing(DbXref::isMain, Comparator.nullsFirst(Comparator.reverseOrder()))
+            .thenComparing(xref -> xref.getDataSource().getName(), Comparator.nullsFirst(Comparator.reverseOrder()))
+            .thenComparing(DbXref::getAccession, Comparator.nullsFirst(Comparator.naturalOrder()));
+    
     private final String commonName;
     private final Boolean extinct;
     private final Set<DbXref> dbXrefs;
+    private final DbXref mainDbXref;
     
     public Taxon(String path, String scientificName, String commonName,
                  Boolean extinct, Collection<DbXref> dbXrefs) {
@@ -22,7 +23,8 @@ public class Taxon extends NamedEntity<String> {
         this.commonName = commonName;
         this.extinct = extinct;
         this.dbXrefs =  Collections.unmodifiableSet(dbXrefs == null ?
-                new HashSet<>(): new HashSet<>(dbXrefs));;
+                new HashSet<>(): new HashSet<>(dbXrefs));
+        this.mainDbXref =  dbXrefs == null ? null : dbXrefs.stream().sorted(DBXREF_COMPARATOR).toList().get(0);
     }
     
     public String getPath() {
@@ -45,6 +47,10 @@ public class Taxon extends NamedEntity<String> {
         return dbXrefs;
     }
     
+    public DbXref getMainDbXref() {
+        return mainDbXref;
+    }
+    
     @Override
     public String toString() {
         return new StringJoiner(", ", Taxon.class.getSimpleName() + "[", "]")
@@ -53,6 +59,7 @@ public class Taxon extends NamedEntity<String> {
                 .add("commonName='" + commonName + "'")
                 .add("extinct=" + extinct)
                 .add("dbXrefs=" + dbXrefs)
+                .add("mainDbXref=" + mainDbXref)
                 .toString();
     }
 }
