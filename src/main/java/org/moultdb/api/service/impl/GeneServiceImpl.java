@@ -91,6 +91,7 @@ public class GeneServiceImpl implements GeneService {
                 geneDAO.deleteByIds(dbGeneIds);
                 logger.warn("Deleted genes: " + dbGeneIds);
             }
+            logger.info("Check gene existence...");
             
             logger.info("Load genes in db...");
             geneDAO.batchUpdate(geneTOs);

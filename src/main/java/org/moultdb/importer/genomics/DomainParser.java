@@ -135,7 +135,7 @@ public class DomainParser {
         if (proteinToDomainBean.keySet().size() != proteinToGeneTO.keySet().size()) {
             Set<String> proteinIds = new HashSet<>(proteinToDomainBean.keySet());
             proteinIds.removeAll(proteinToGeneTO.keySet());
-            logger.error("Unknown protein ID(s): " + proteinIds);
+            logger.warn("Unknown protein ID(s): " + proteinIds);
             // We continue without unknown proteins
             proteinToDomainBean.keySet().removeAll(proteinIds);
         }
