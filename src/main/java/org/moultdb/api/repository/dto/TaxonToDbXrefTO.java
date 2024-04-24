@@ -1,6 +1,7 @@
 package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
@@ -32,6 +33,21 @@ public class TaxonToDbXrefTO extends TransfertObject {
     
     public Boolean getMain() {
         return isMain;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TaxonToDbXrefTO that = (TaxonToDbXrefTO) o;
+        return Objects.equals(taxonPath, that.taxonPath)
+                && Objects.equals(dbXrefId, that.dbXrefId)
+                && Objects.equals(isMain, that.isMain);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(taxonPath, dbXrefId, isMain);
     }
     
     @Override
