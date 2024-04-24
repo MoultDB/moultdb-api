@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,6 +116,21 @@ public class GeneParser {
             return new HashSet<>();
         }
         
+        List<GeneBean> beansWithMissingId = geneBeans.stream().filter(b -> b.getGeneId() == null && b.getLocusTag() == null).toList();
+        if (!beansWithMissingId.isEmpty()) {
+            throw new IllegalArgumentException("All genes should have a gene ID and/or a locus tag: " + beansWithMissingId);
+        }
+        
+        Set<String> duplicatedGeneIds = getDuplicates(geneBeans, GeneBean::getGeneId);
+        if (!duplicatedGeneIds.isEmpty()) {
+            throw new IllegalArgumentException("A gene ID must refer to a single protein only: " + duplicatedGeneIds);
+        }
+        
+        Set<String> duplicatedLocusTags = getDuplicates(geneBeans, GeneBean::getLocusTag);
+        if (!duplicatedLocusTags.isEmpty()) {
+            throw new IllegalArgumentException("A locus tag must refer to a single protein only: " + duplicatedLocusTags);
+        }
+        
         // Generate GeneTOs
         Integer geneLastId = geneDAO.getLastId();
         Integer geneNextId = geneLastId == null ? 1 : geneLastId + 1;
@@ -127,6 +143,15 @@ public class GeneParser {
             geneNextId++;
         }
         return geneTOs;
+    }
+    
+    private static Set<String> getDuplicates(Set<GeneBean> geneBeans, Function<GeneBean, String> func) {
+        return geneBeans.stream()
+                .filter(b -> func.apply(b) != null)
+                .collect(Collectors.groupingBy(func)).entrySet().stream()
+                .filter(e -> e.getValue().size() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
     
     private Set<GeneBean> getGeneBeans(MultipartFile geneFile) {
