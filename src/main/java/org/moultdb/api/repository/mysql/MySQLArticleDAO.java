@@ -50,7 +50,7 @@ public class MySQLArticleDAO implements ArticleDAO {
     
     @Override
     public List<ArticleTO> findByIds(Set<Integer> ids) {
-        if (ids == null || ids.size() == 0 || ids.stream().anyMatch(Objects::isNull)) {
+        if (ids == null || ids.isEmpty() || ids.stream().anyMatch(Objects::isNull)) {
             throw new IllegalArgumentException("An ID can not be null");
         }
         return template.query(SELECT_STATEMENT + "WHERE id IN (:ids)",
@@ -101,7 +101,7 @@ public class MySQLArticleDAO implements ArticleDAO {
         }
     }
     
-    private static class ArticleResultSetExtractor implements ResultSetExtractor<List<ArticleTO>> {
+    protected static class ArticleResultSetExtractor implements ResultSetExtractor<List<ArticleTO>> {
         
         @Override
         public List<ArticleTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -112,11 +112,10 @@ public class MySQLArticleDAO implements ArticleDAO {
                 
                 // Build DbXrefs
                 DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow());
-                Set<DbXrefTO> dbXrefTOs = articleTO == null ? null: articleTO.getDbXrefTOs();
-                if (dbXrefTOs == null) {
-                    dbXrefTOs = new HashSet<>();
+                Set<DbXrefTO> dbXrefTOs = articleTO == null ? new HashSet<>(): articleTO.getDbXrefTOs();
+                if (dbXrefTO != null && dbXrefTO.getAccession() != null) {
+                    dbXrefTOs.add(dbXrefTO);
                 }
-                dbXrefTOs.add(dbXrefTO);
                 
                 // Build ArticleTO. Even if it already exists, we create a new one because it's an unmutable object
                 articleTO = new ArticleTO(articleId, rs.getString("a.citation"),

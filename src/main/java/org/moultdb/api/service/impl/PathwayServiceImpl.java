@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.model.Pathway;
+import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dao.GeneDAO;
 import org.moultdb.api.repository.dao.PathwayDAO;
 import org.moultdb.api.repository.dto.GeneTO;
@@ -33,6 +34,7 @@ public class PathwayServiceImpl implements PathwayService {
     
     @Autowired PathwayDAO pathwayDAO;
     @Autowired GeneDAO geneDAO;
+    @Autowired ArticleDAO articleDAO;
     
     @Override
     public List<Pathway> getAllPathways() {
@@ -57,7 +59,7 @@ public class PathwayServiceImpl implements PathwayService {
         PathwayParser parser = new PathwayParser();
         try {
             logger.info("Parse pathway file " + originalFilename + "...");
-            Set<PathwayTO> pathwayTOs = parser.getPathwayTOs(pathwayCvFile);
+            Set<PathwayTO> pathwayTOs = parser.getPathwayTOs(pathwayCvFile, articleDAO);
             
             logger.info("Load pathways in db...");
             pathwayDAO.batchUpdate(pathwayTOs);

@@ -269,6 +269,7 @@ public class ServiceUtils {
         if (pathwayTO == null) {
             return null;
         }
-        return new Pathway(pathwayTO.getId(), pathwayTO.getName());
+        return new Pathway(pathwayTO.getId(), pathwayTO.getName(), pathwayTO.getDescription(),
+                mapFromTO(pathwayTO.getArticleTO()));
     }
 }

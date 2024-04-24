@@ -2,10 +2,10 @@ package org.moultdb.importer.genomics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dao.GeneDAO;
 import org.moultdb.api.repository.dao.PathwayDAO;
-import org.moultdb.api.repository.dto.GeneTO;
-import org.moultdb.api.repository.dto.PathwayTO;
+import org.moultdb.api.repository.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseInt;
@@ -206,9 +206,9 @@ public class PathwayParser {
         return processors;
     }
     
-    public Set<PathwayTO> getPathwayTOs(MultipartFile pathwayCvFile) {
+    public Set<PathwayTO> getPathwayTOs(MultipartFile pathwayCvFile, ArticleDAO articleDAO) {
         Set<PathwayCvBean> pathwayCvBeans = getPathwayCvBeans(pathwayCvFile);
-        return getPathwayTOs(pathwayCvBeans);
+        return getPathwayTOs(pathwayCvBeans, articleDAO);
     }
     
     private Set<PathwayCvBean> getPathwayCvBeans(MultipartFile pathwayCvFile) {
@@ -222,10 +222,12 @@ public class PathwayParser {
         }
     }
     
-    private Set<PathwayTO> getPathwayTOs(Set<PathwayCvBean> pathwayCvBeans) {
+    private Set<PathwayTO> getPathwayTOs(Set<PathwayCvBean> pathwayCvBeans, ArticleDAO articleDAO) {
         Set<PathwayTO> pathwayTOs = new HashSet<>();
         for (PathwayCvBean pathwayCvBean: pathwayCvBeans) {
-            pathwayTOs.add(new PathwayTO(pathwayCvBean.getId(), pathwayCvBean.getName()));
+            ArticleTO articleTO = articleDAO.findByCitation(pathwayCvBean.getReference());
+            pathwayTOs.add(new PathwayTO(pathwayCvBean.getId(), pathwayCvBean.getName(),
+                    pathwayCvBean.getDescription(), articleTO));
         }
         return pathwayTOs;
     }
@@ -255,11 +257,11 @@ public class PathwayParser {
         if (proteinToPathwayBean.keySet().size() != proteinToGeneTO.keySet().size()) {
             Set<String> proteinIds = new HashSet<>(proteinToPathwayBean.keySet());
             proteinIds.removeAll(proteinToGeneTO.keySet());
-            logger.error("Unknown protein ID(s): " + proteinIds);
+            logger.warn("Unknown protein ID(s): " + proteinIds);
             // We continue without unknown proteins
             proteinToPathwayBean.keySet().removeAll(proteinIds);
         }
-        Set<String> pathwaysIds = pathwayBeans.stream().map(PathwayBean::getId).collect(Collectors.toSet());
+        Set<String> pathwaysIds = proteinToPathwayBean.values().stream().map(PathwayBean::getId).collect(Collectors.toSet());
         
         Map<String, PathwayTO> pathwayTOMap = pathwayDAO.findByIds(pathwaysIds).stream()
                 .collect(Collectors.toMap(PathwayTO::getId, Function.identity()));
@@ -269,7 +271,7 @@ public class PathwayParser {
         }
         
         Set<GeneTO> geneTOs = new HashSet<>();
-        for (PathwayBean pathwayBean: pathwayBeans) {
+        for (PathwayBean pathwayBean: proteinToPathwayBean.values()) {
             GeneTO geneTO = proteinToGeneTO.get(pathwayBean.getProteinId());
             PathwayTO pathwayTO = pathwayTOMap.get(pathwayBean.getId());
             assert geneTO != null && pathwayTO != null;

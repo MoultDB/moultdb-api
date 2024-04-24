@@ -8,8 +8,15 @@ import java.util.*;
  */
 public class Pathway extends NamedEntity<String> {
     
-    public Pathway(String id, String name) throws IllegalArgumentException {
-        super(id, name);
+    private final Article article;
+    
+    public Pathway(String id, String name, String description, Article article) throws IllegalArgumentException {
+        super(id, name, description);
+        this.article = article;
+    }
+    
+    public Article getArticle() {
+        return article;
     }
     
     @Override
@@ -17,6 +24,8 @@ public class Pathway extends NamedEntity<String> {
         return new StringJoiner(", ", Pathway.class.getSimpleName() + "[", "]")
                 .add("id='" + getId() + "'")
                 .add("name='" + getName() + "'")
+                .add("description='" + getDescription() + "'")
+                .add("article=" + article)
                 .toString();
     }
 }
