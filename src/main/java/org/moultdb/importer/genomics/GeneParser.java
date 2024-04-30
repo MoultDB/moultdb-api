@@ -119,15 +119,15 @@ public class GeneParser {
         }
         
         List<GeneBean> beansWithMissingData = geneBeans.stream().filter(b -> b.getGeneId() == null && b.getLocusTag() == null).toList();
-        filterErrors(geneBeans, beansWithMissingData, Function.identity(), throwException,
+        geneBeans = filterErrors(geneBeans, beansWithMissingData, Function.identity(), throwException,
                 "All genes should have a gene ID and/or a locus tag: " + beansWithMissingData);
         
         Set<String> duplicatedGeneIds = getDuplicates(geneBeans, GeneBean::getGeneId);
-        filterErrors(geneBeans, duplicatedGeneIds, GeneBean::getGeneId, throwException,
+        geneBeans = filterErrors(geneBeans, duplicatedGeneIds, GeneBean::getGeneId, throwException,
                 "A gene ID must refer to a single protein only: " + duplicatedGeneIds);
         
         Set<String> duplicatedLocusTags = getDuplicates(geneBeans, GeneBean::getLocusTag);
-        filterErrors(geneBeans, duplicatedLocusTags, GeneBean::getLocusTag, throwException,
+        geneBeans = filterErrors(geneBeans, duplicatedLocusTags, GeneBean::getLocusTag, throwException,
                 "A locus tag must refer to a single protein only: " + duplicatedLocusTags);
         
         // Generate GeneTOs
