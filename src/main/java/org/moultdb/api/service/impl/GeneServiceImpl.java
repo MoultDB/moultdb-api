@@ -59,7 +59,7 @@ public class GeneServiceImpl implements GeneService {
     }
     
     @Override
-    public void importGenes(MultipartFile geneFile) {
+    public void importGenes(MultipartFile geneFile, boolean throwException) {
         String originalGeneFilename = geneFile.getOriginalFilename();
         if (StringUtils.isBlank(originalGeneFilename)) {
             throw new IllegalArgumentException("File name cannot be blank");
@@ -70,7 +70,7 @@ public class GeneServiceImpl implements GeneService {
         GeneParser importer = new GeneParser();
         try {
             logger.info("Parse file " + originalGeneFilename + "...");
-            Set<GeneTO> geneTOs = importer.getGeneTOs(geneFile, dataSourceDAO, geneDAO, genomeDAO);
+            Set<GeneTO> geneTOs = importer.getGeneTOs(geneFile, throwException, dataSourceDAO, geneDAO, genomeDAO);
             
             // FIXME Update comparator to remove transcript and protein IDs. There should be no duplicates.
             Comparator<GeneTO> geneTOComparator =

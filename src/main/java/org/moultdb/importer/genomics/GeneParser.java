@@ -83,16 +83,18 @@ public class GeneParser {
         logger.traceExit();
     }
     
-    public Set<GeneTO> getGeneTOs(MultipartFile geneFile, DataSourceDAO dataSourceDAO, GeneDAO geneDAO, GenomeDAO genomeDAO) {
+    public Set<GeneTO> getGeneTOs(MultipartFile geneFile, boolean throwException,
+                                  DataSourceDAO dataSourceDAO, GeneDAO geneDAO, GenomeDAO genomeDAO) {
         Set<GeneBean> geneBeans = getGeneBeans(geneFile);
-        return getGeneTOs(geneBeans, dataSourceDAO, geneDAO, genomeDAO);
+        return getGeneTOs(geneBeans, throwException, dataSourceDAO, geneDAO, genomeDAO);
     }
     
     private Set<GeneTO> getGeneTOs(Set<GeneBean> geneBeans) {
-        return getGeneTOs(geneBeans, dataSourceDAO, geneDAO, genomeDAO);
+        return getGeneTOs(geneBeans, false, dataSourceDAO, geneDAO, genomeDAO);
     }
     
-    private Set<GeneTO> getGeneTOs(Set<GeneBean> geneBeans, DataSourceDAO dataSourceDAO, GeneDAO geneDAO, GenomeDAO genomeDAO) {
+    private Set<GeneTO> getGeneTOs(Set<GeneBean> geneBeans, boolean throwException,
+                                   DataSourceDAO dataSourceDAO, GeneDAO geneDAO, GenomeDAO genomeDAO) {
         
         // Sanity checks
         Set<String> origins = geneBeans.stream().map(GeneBean::getOrigin).collect(Collectors.toSet());
@@ -116,20 +118,17 @@ public class GeneParser {
             return new HashSet<>();
         }
         
-        List<GeneBean> beansWithMissingId = geneBeans.stream().filter(b -> b.getGeneId() == null && b.getLocusTag() == null).toList();
-        if (!beansWithMissingId.isEmpty()) {
-            throw new IllegalArgumentException("All genes should have a gene ID and/or a locus tag: " + beansWithMissingId);
-        }
+        List<GeneBean> beansWithMissingData = geneBeans.stream().filter(b -> b.getGeneId() == null && b.getLocusTag() == null).toList();
+        filterErrors(geneBeans, beansWithMissingData, Function.identity(), throwException,
+                "All genes should have a gene ID and/or a locus tag: " + beansWithMissingData);
         
         Set<String> duplicatedGeneIds = getDuplicates(geneBeans, GeneBean::getGeneId);
-        if (!duplicatedGeneIds.isEmpty()) {
-            throw new IllegalArgumentException("A gene ID must refer to a single protein only: " + duplicatedGeneIds);
-        }
+        filterErrors(geneBeans, duplicatedGeneIds, GeneBean::getGeneId, throwException,
+                "A gene ID must refer to a single protein only: " + duplicatedGeneIds);
         
         Set<String> duplicatedLocusTags = getDuplicates(geneBeans, GeneBean::getLocusTag);
-        if (!duplicatedLocusTags.isEmpty()) {
-            throw new IllegalArgumentException("A locus tag must refer to a single protein only: " + duplicatedLocusTags);
-        }
+        filterErrors(geneBeans, duplicatedLocusTags, GeneBean::getLocusTag, throwException,
+                "A locus tag must refer to a single protein only: " + duplicatedLocusTags);
         
         // Generate GeneTOs
         Integer geneLastId = geneDAO.getLastId();
@@ -143,6 +142,18 @@ public class GeneParser {
             geneNextId++;
         }
         return geneTOs;
+    }
+    
+    private static <T> Set<GeneBean> filterErrors(Set<GeneBean> geneBeans, Collection<T> dataToExclude,
+                                                  Function<GeneBean, T> fun, boolean throwException, String message) {
+        if (!dataToExclude.isEmpty()) {
+            if (throwException) {
+                throw new IllegalArgumentException(message);
+            } else {
+                logger.error(message);
+            }
+        }
+        return geneBeans.stream().filter(b -> !dataToExclude.contains(fun.apply(b))).collect(Collectors.toSet());
     }
     
     private static Set<String> getDuplicates(Set<GeneBean> geneBeans, Function<GeneBean, String> func) {

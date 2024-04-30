@@ -21,5 +21,5 @@ public interface GeneService {
     
     public List<Gene> getGenesByDomain(String domainId);
     
-    public void importGenes(MultipartFile geneFile);
+    public void importGenes(MultipartFile geneFile, boolean throwException);
 }
