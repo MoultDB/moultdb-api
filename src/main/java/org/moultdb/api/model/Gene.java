@@ -23,7 +23,7 @@ public class Gene {
     private final String proteinDescription;
     private final Integer proteinLength;
     private final DataSource dataSource;
-    private final Set<GeneDomain> geneDomains;
+    private final List<GeneDomain> geneDomains;
     private final Pathway pathway;
     private final String annotatedName;
     
@@ -47,8 +47,10 @@ public class Gene {
         this.proteinDescription = proteinDescription;
         this.proteinLength = proteinLength;
         this.dataSource = dataSource;
-        this.geneDomains = Collections.unmodifiableSet(geneDomains == null ?
-                new HashSet<>(): new HashSet<>(geneDomains));
+        this.geneDomains = Collections.unmodifiableList(geneDomains == null ?
+                new ArrayList<>(): geneDomains.stream()
+                .sorted(Comparator.comparing(GeneDomain::getStart).thenComparing(GeneDomain::getEnd))
+                .toList());
         this.pathway = pathway;
         this.annotatedName = annotatedName;
     }
@@ -101,7 +103,7 @@ public class Gene {
         return dataSource;
     }
     
-    public Set<GeneDomain> getGeneDomains() {
+    public List<GeneDomain> getGeneDomains() {
         return geneDomains;
     }
     
