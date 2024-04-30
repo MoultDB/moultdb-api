@@ -51,31 +51,35 @@ public class OrthogroupParser {
         
         OrthogroupParser parser = new OrthogroupParser();
         Set<OrthogroupBean> orthogroupBeans = new HashSet<>(parser.getOrthogroupBeans(args[1]));
-        parser.getGeneToOrthogroup(orthogroupBeans);
+        parser.updatedGenes(orthogroupBeans);
         
         logger.traceExit();
     }
     
-    public Map<String, Integer> getGeneToOrthogroup(Set<OrthogroupBean> orthogroupBeans) {
-        return getGeneToOrthogroup(orthogroupBeans, geneDAO);
+    public Set<GeneTO> updatedGenes(Set<OrthogroupBean> orthogroupBeans) {
+        return updatedGenes(orthogroupBeans, geneDAO);
     }
     
-    public Map<String, Integer> getGeneToOrthogroup(MultipartFile orthogroupFile, GeneDAO geneDAO) {
+    public Set<GeneTO> updatedGenes(MultipartFile orthogroupFile, GeneDAO geneDAO) {
         Set<OrthogroupBean> orthogroupBeans = getOrthogroupBeans(orthogroupFile);
-        return getGeneToOrthogroup(orthogroupBeans, geneDAO);
+        return updatedGenes(orthogroupBeans, geneDAO);
     }
     
-    private Map<String, Integer> getGeneToOrthogroup(Set<OrthogroupBean> orthogroupBeans, GeneDAO geneDAO) {
+    private Set<GeneTO> updatedGenes(Set<OrthogroupBean> orthogroupBeans, GeneDAO geneDAO) {
         Map<String, Integer> proteinIdToOrthogroup = orthogroupBeans.stream()
                 .collect(Collectors.toMap(OrthogroupBean::getProteinId, OrthogroupBean::getOrthogroupId));
         
-        List<GeneTO> geneTOs = geneDAO.findByProteinIds(proteinIdToOrthogroup.keySet());
+        List<GeneTO> dbGeneTOs = geneDAO.findByProteinIds(proteinIdToOrthogroup.keySet());
         
-        Map<String, Integer> geneToOrthogroup = new HashMap<>();
-        for (GeneTO geneTO: geneTOs) {
-            geneToOrthogroup.put(geneTO.getGeneId(), proteinIdToOrthogroup.get(geneTO.getProteinId()));
+        Set<GeneTO> geneTOs = new HashSet<>();
+        for (GeneTO geneTO: dbGeneTOs) {
+            geneTOs.add(new GeneTO(geneTO.getId(), geneTO.getGeneId(), geneTO.getGeneName(), geneTO.getLocusTag(),
+                    geneTO.getGenomeAcc(), null, proteinIdToOrthogroup.get(geneTO.getProteinId()),
+                    geneTO.getTranscriptId(), geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(),
+                    geneTO.getProteinDescription(), geneTO.getProteinLength(), geneTO.getDataSourceTO(),
+                    geneTO.getPathwayTO(), geneTO.getAnnotatedGeneName()));
         }
-        return geneToOrthogroup;
+        return geneTOs;
     }
     
     private Set<OrthogroupBean> getOrthogroupBeans(MultipartFile orthogroupFile) {

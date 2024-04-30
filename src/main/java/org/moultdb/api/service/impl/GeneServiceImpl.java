@@ -59,6 +59,11 @@ public class GeneServiceImpl implements GeneService {
     }
     
     @Override
+    public List<Gene> getGenesByOrthogroup(Integer orthogroupId) {
+        return getGenes(geneDAO.findByOrthogroupId(orthogroupId));
+    }
+    
+    @Override
     public void importGenes(MultipartFile geneFile, boolean throwException) {
         String originalGeneFilename = geneFile.getOriginalFilename();
         if (StringUtils.isBlank(originalGeneFilename)) {

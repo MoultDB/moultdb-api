@@ -21,5 +21,7 @@ public interface GeneService {
     
     public List<Gene> getGenesByDomain(String domainId);
     
+    public List<Gene> getGenesByOrthogroup(Integer orthogroupId);
+    
     public void importGenes(MultipartFile geneFile, boolean throwException);
 }

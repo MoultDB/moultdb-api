@@ -73,6 +73,13 @@ public class MySQLGeneDAO implements GeneDAO {
     }
     
     @Override
+    public List<GeneTO> findByOrthogroupId(Integer orthogroupId) {
+        return template.query(SELECT_STATEMENT +
+                        "WHERE orthogroup_id = (:orthogroupId)",
+                new MapSqlParameterSource().addValue("orthogroupId", orthogroupId), new GeneResultSetExtractor());
+    }
+    
+    @Override
     public GeneTO findByProteinId(String proteinId) {
         return TransfertObject.getOneTO(findByProteinIds(Collections.singleton(proteinId)));
     }

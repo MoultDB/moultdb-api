@@ -1,0 +1,51 @@
+package org.moultdb.api.service.impl;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.moultdb.api.exception.ImportException;
+import org.moultdb.api.repository.dao.GeneDAO;
+import org.moultdb.api.repository.dto.GeneTO;
+import org.moultdb.api.service.OrthogroupService;
+import org.moultdb.importer.genomics.OrthogroupParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Set;
+
+/**
+ * @author Valentine Rech de Laval
+ * @since 2024-04-30
+ */
+@Service
+public class OrthogroupServiceImpl implements OrthogroupService {
+    
+    private final static Logger logger = LogManager.getLogger(OrthogroupServiceImpl.class.getName());
+    
+    @Autowired GeneDAO geneDAO;
+    
+    @Override
+    public void importOrthogroups(MultipartFile orthogroupFile) {
+        String originalFilename = orthogroupFile.getOriginalFilename();
+        if (StringUtils.isBlank(originalFilename)) {
+            throw new IllegalArgumentException("File name cannot be blank");
+        }
+        
+        logger.info("Start orthogroup data import...");
+        
+        OrthogroupParser parser = new OrthogroupParser();
+        try {
+            logger.info("Parse orthogroup data file " + originalFilename + "...");
+            Set<GeneTO> geneTOs = parser.updatedGenes(orthogroupFile, geneDAO);
+            
+            logger.info("Load orthogroup data in db...");
+            geneDAO.batchUpdate(geneTOs);
+            
+        } catch (Exception e) {
+            throw new ImportException("Unable to import orthogroup data from " + originalFilename + ". " +
+                    "Error: " + e.getMessage());
+        }
+        logger.info("End orthogroup data import");
+    }
+}

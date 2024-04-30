@@ -22,15 +22,13 @@ public class Gene {
     private final String proteinId;
     private final String proteinDescription;
     private final Integer proteinLength;
-    private final DataSource dataSource;
     private final List<GeneDomain> geneDomains;
     private final Pathway pathway;
-    private final String annotatedName;
+    private final String orthogroupName;
     
     public Gene(String id, String name, String locusTag, Taxon taxon, String genomeAcc, Integer orthogroupId,
-                String transcriptId, String transcriptUrlSuffix,
-                String proteinId, String proteinDescription, Integer proteinLength,
-                DataSource dataSource, Set<GeneDomain> geneDomains, Pathway pathway, String annotatedName)
+                String transcriptId, String transcriptUrlSuffix, String proteinId, String proteinDescription,
+                Integer proteinLength, Set<GeneDomain> geneDomains, Pathway pathway, String orthogroupName)
             throws IllegalArgumentException {
         if (StringUtils.isBlank(id) && StringUtils.isBlank(locusTag)) {
             throw new IllegalArgumentException("The gene id and locus tag provided cannot be both blank");
@@ -46,13 +44,12 @@ public class Gene {
         this.proteinId = proteinId;
         this.proteinDescription = proteinDescription;
         this.proteinLength = proteinLength;
-        this.dataSource = dataSource;
         this.geneDomains = Collections.unmodifiableList(geneDomains == null ?
                 new ArrayList<>(): geneDomains.stream()
                 .sorted(Comparator.comparing(GeneDomain::getStart).thenComparing(GeneDomain::getEnd))
                 .toList());
         this.pathway = pathway;
-        this.annotatedName = annotatedName;
+        this.orthogroupName = orthogroupName;
     }
     
     public String getId() {
@@ -99,10 +96,6 @@ public class Gene {
         return proteinLength;
     }
     
-    public DataSource getDataSource() {
-        return dataSource;
-    }
-    
     public List<GeneDomain> getGeneDomains() {
         return geneDomains;
     }
@@ -111,8 +104,8 @@ public class Gene {
         return pathway;
     }
     
-    public String getAnnotatedName() {
-        return annotatedName;
+    public String getOrthogroupName() {
+        return orthogroupName;
     }
     
     @Override
@@ -142,10 +135,9 @@ public class Gene {
                 .add("proteinId='" + proteinId + "'")
                 .add("proteinDescription='" + proteinDescription + "'")
                 .add("proteinLength=" + proteinLength)
-                .add("dataSource=" + dataSource)
                 .add("geneDomains=" + geneDomains)
                 .add("pathway=" + pathway)
-                .add("annotatedName=" + annotatedName)
+                .add("orthogroupName=" + orthogroupName)
                 .toString();
     }
     

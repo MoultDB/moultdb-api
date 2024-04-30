@@ -39,6 +39,7 @@ public class GeneController {
             @RequestParam(required = false) String proteinId,
             @RequestParam(required = false) String pathwayId,
             @RequestParam(required = false) String domainId,
+            @RequestParam(required = false) Integer orthogroupId,
             @RequestParam(required = false) String taxonPath,
             @RequestParam(required = false) Boolean inAMoultingPathway
     ) {
@@ -52,6 +53,8 @@ public class GeneController {
         // Handle each case based on provided parameters
         if (proteinId != null) {
             return generateValidResponse(geneService.getGeneByProtein(proteinId));
+        } else if (orthogroupId != null) {
+            return generateValidResponse(geneService.getGenesByOrthogroup(orthogroupId));
         } else if (pathwayId != null) {
             return generateValidResponse(geneService.getGenesByPathway(pathwayId));
         } else if (domainId != null) {

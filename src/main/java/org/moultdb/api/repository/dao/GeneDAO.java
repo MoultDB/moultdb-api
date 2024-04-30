@@ -21,6 +21,8 @@ public interface GeneDAO extends DAO<GeneTO> {
     
     List<GeneTO> findByDomainId(String domainId);
     
+    List<GeneTO> findByOrthogroupId(Integer orthogroupId);
+    
     GeneTO findByProteinId(String proteinId);
     
     List<GeneTO> findByProteinIds(Set<String> proteinIds);

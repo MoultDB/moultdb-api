@@ -255,8 +255,7 @@ public class ServiceUtils {
         return new Gene(geneTO.getGeneId(), geneTO.getGeneName(), geneTO.getLocusTag(), mapFromTO(taxonTO),
                 geneTO.getGenomeAcc(), geneTO.getOrthogroupId(), geneTO.getTranscriptId(),
                 geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(),geneTO.getProteinDescription(),
-                geneTO.getProteinLength(), mapFromTO(geneTO.getDataSourceTO()), domains,
-                mapFromTO(geneTO.getPathwayTO()), geneTO.getAnnotatedGeneName());
+                geneTO.getProteinLength(), domains, mapFromTO(geneTO.getPathwayTO()), geneTO.getAnnotatedGeneName());
     }
     public static Domain mapFromTO(DomainTO domainTO) {
         if (domainTO == null) {
