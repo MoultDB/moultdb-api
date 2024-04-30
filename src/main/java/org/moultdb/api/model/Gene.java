@@ -108,6 +108,11 @@ public class Gene {
         return orthogroupName;
     }
     
+    public String getDisplayedName() {
+        return StringUtils.isNoneBlank(orthogroupName) ? orthogroupName :
+                StringUtils.isNoneBlank(name) ? name : locusTag;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
