@@ -39,8 +39,18 @@ public class GeneServiceImpl implements GeneService {
     }
     
     @Override
+    public Gene getGene(String geneId) {
+        return getGene(geneDAO.findByGeneId(geneId));
+    }
+    
+    @Override
     public Gene getGeneByProtein(String proteinId) {
         return getGene(geneDAO.findByProteinId(proteinId));
+    }
+    
+    @Override
+    public Gene getGeneByLocusTag(String locusTag) {
+        return getGene(geneDAO.findByLocusTag(locusTag));
     }
     
     @Override

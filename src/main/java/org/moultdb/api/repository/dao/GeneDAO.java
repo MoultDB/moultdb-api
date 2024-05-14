@@ -17,6 +17,10 @@ public interface GeneDAO extends DAO<GeneTO> {
     
     List<GeneTO> findByIds(Set<String> ids);
     
+    GeneTO findByGeneId(String geneId);
+    
+    GeneTO findByLocusTag(String locusTag);
+    
     List<GeneTO> findByPathwayId(String pathwayId);
     
     List<GeneTO> findByDomainId(String domainId);

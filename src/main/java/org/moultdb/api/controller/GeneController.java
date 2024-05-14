@@ -36,6 +36,8 @@ public class GeneController {
     
     @GetMapping
     public ResponseEntity<Map<String, Object>> getGenes(
+            @RequestParam(required = false) String geneId,
+            @RequestParam(required = false) String locusTag,
             @RequestParam(required = false) String proteinId,
             @RequestParam(required = false) String pathwayId,
             @RequestParam(required = false) String domainId,
@@ -44,14 +46,18 @@ public class GeneController {
             @RequestParam(required = false) Boolean inAMoultingPathway
     ) {
         // Validate combinations (can be done at controller or service level)
-        if (MoultdbController.hasMultipleParams(Arrays.asList(proteinId, pathwayId, domainId, taxonPath))) {
+        if (MoultdbController.hasMultipleParams(Arrays.asList(geneId, locusTag, proteinId, pathwayId, domainId, taxonPath))) {
             return generateErrorResponse("Invalid combination of parameters: " +
                     "a maximum of one of the following elements can be specified: " +
                     "proteinId, pathwayId, domainId or taxonPath", HttpStatus.BAD_REQUEST);
         }
 
         // Handle each case based on provided parameters
-        if (proteinId != null) {
+        if (geneId != null) {
+            return generateValidResponse(geneService.getGene(geneId));
+        } else if (locusTag != null) {
+            return generateValidResponse(geneService.getGeneByLocusTag(locusTag));
+        } else if (proteinId != null) {
             return generateValidResponse(geneService.getGeneByProtein(proteinId));
         } else if (orthogroupId != null) {
             return generateValidResponse(geneService.getGenesByOrthogroup(orthogroupId));

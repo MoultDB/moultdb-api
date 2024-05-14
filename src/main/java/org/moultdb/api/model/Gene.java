@@ -108,7 +108,7 @@ public class Gene {
         return orthogroupName;
     }
     
-    public String getDisplayedName() {
+    public String getMainName() {
         return StringUtils.isNoneBlank(orthogroupName) ? orthogroupName :
                 StringUtils.isNoneBlank(name) ? name : locusTag;
     }

@@ -1,5 +1,6 @@
 package org.moultdb.api.repository.mysql;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
@@ -46,6 +47,24 @@ public class MySQLGeneDAO implements GeneDAO {
     @Override
     public GeneTO findById(String id) {
         return TransfertObject.getOneTO(findByIds(Collections.singleton(id)));
+    }
+    
+    @Override
+    public GeneTO findByGeneId(String geneId) {
+        if (StringUtils.isBlank(geneId)) {
+            throw new IllegalArgumentException("An ID can not be null");
+        }
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE g.gene_id = :geneId",
+                new MapSqlParameterSource().addValue("geneId", geneId), new GeneResultSetExtractor()));
+    }
+    
+    @Override
+    public GeneTO findByLocusTag(String locusTag) {
+        if (StringUtils.isBlank(locusTag)) {
+            throw new IllegalArgumentException("A locus tag can not be null");
+        }
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE g.locus_tag = :locusTag",
+                new MapSqlParameterSource().addValue("locusTag", locusTag), new GeneResultSetExtractor()));
     }
     
     @Override

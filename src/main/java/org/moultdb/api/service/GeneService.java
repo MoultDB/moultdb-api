@@ -13,7 +13,11 @@ public interface GeneService {
     
     public List<Gene> getAllGenes();
     
+    public Gene getGene(String id);
+    
     public Gene getGeneByProtein(String proteinId);
+    
+    public Gene getGeneByLocusTag(String locusTag);
     
     public List<Gene> getGenesByTaxon(String taxonPath, Boolean inAMoultingPathway);
     
