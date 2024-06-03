@@ -1,5 +1,9 @@
 package org.moultdb.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.moultdb.api.exception.MoultDBException;
+import org.moultdb.api.model.Gene;
+import org.moultdb.api.model.Taxon;
 import org.moultdb.api.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.moultdb.api.controller.ResponseHandler.generateErrorResponse;
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
@@ -60,15 +64,35 @@ public class GeneController {
         } else if (proteinId != null) {
             return generateValidResponse(geneService.getGeneByProtein(proteinId));
         } else if (orthogroupId != null) {
-            return generateValidResponse(geneService.getGenesByOrthogroup(orthogroupId));
+            return generateValidResponse(getGeneData(geneService.getGenesByOrthogroup(orthogroupId)));
         } else if (pathwayId != null) {
-            return generateValidResponse(geneService.getGenesByPathway(pathwayId));
+            return generateValidResponse(getGeneData(geneService.getGenesByPathway(pathwayId)));
         } else if (domainId != null) {
-            return generateValidResponse(geneService.getGenesByDomain(domainId));
+            return generateValidResponse(getGeneData(geneService.getGenesByDomain(domainId)));
         } else if (taxonPath != null) {
-            return generateValidResponse(geneService.getGenesByTaxon(taxonPath, inAMoultingPathway));
+            return generateValidResponse(getGeneData(geneService.getGenesByTaxon(taxonPath, inAMoultingPathway)));
         } else {
             return generateValidResponse(geneService.getAllGenes());
+        }
+    }
+    
+    public Map<String, Map<String, Map<Integer, Set<Gene>>>> getGeneData(List<Gene> genes) {
+        return genes.stream().collect(Collectors.groupingBy(gene -> getFormattedKey(gene.getPathway()),
+                Collectors.groupingBy(gene -> getCleanedTaxon(gene.getTaxon()),
+                        Collectors.groupingBy(Gene::getOrthogroupId, Collectors.toSet() ))));
+    }
+    
+    private static String getCleanedTaxon(Taxon taxon) {
+        return getFormattedKey(new Taxon(taxon.getPath(), taxon.getScientificName(), taxon.getCommonName(),
+                taxon.isExtinct(), taxon.getDbXrefs().isEmpty()? taxon.getDbXrefs() : Collections.singleton(taxon.getDbXrefs().get(0))) );
+    }
+    
+    private static String getFormattedKey(Object g) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(g);
+        } catch (Exception e) {
+            throw new MoultDBException("Error when formatting the object", e);
         }
     }
 }
