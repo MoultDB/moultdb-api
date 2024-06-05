@@ -142,12 +142,23 @@ public class DomainParser {
         
         Set<GeneToDomainTO> geneToDomainTOs = new HashSet<>();
         for (Map.Entry<String, List<DomainBean>> entry : proteinToDomainBean.entrySet()) {
-            for (DomainBean domainBean : entry.getValue()) {
-                GeneTO geneTO = proteinToGeneTO.get(entry.getKey());
-                assert geneTO != null;
+            GeneTO geneTO = proteinToGeneTO.get(entry.getKey());
+            assert geneTO != null;
+            Map<String, List<DomainBean>> domainToBean = entry.getValue().stream()
+                    .collect(Collectors.groupingBy(DomainBean::getDomainId));
+            
+            for (Map.Entry<String, List<DomainBean>> cluster : domainToBean.entrySet()) {
+                Integer start = cluster.getValue().stream()
+                        .map(DomainBean::getDomainStart)
+                        .min(Integer::compareTo)
+                        .orElseThrow((() -> new IllegalStateException("Missing start for domain: " + cluster.getKey())));
+                Integer end = cluster.getValue().stream()
+                        .map(DomainBean::getDomainEnd)
+                        .max(Integer::compareTo)
+                        .orElseThrow((() -> new IllegalStateException("Missing end for domain: " + cluster.getKey())));
                 geneToDomainTOs.add(new GeneToDomainTO(geneTO.getId(),
-                        new DomainTO(domainBean.getDomainId(), domainBean.getDomainDescription()),
-                        domainBean.getDomainStart(), domainBean.getDomainEnd()));
+                        new DomainTO(cluster.getKey(), cluster.getValue().get(0).getDomainDescription()),
+                        start, end));
             }
         }
         return geneToDomainTOs;
