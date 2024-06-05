@@ -33,7 +33,8 @@ public class MySQLGeneDAO implements GeneDAO {
             "LEFT JOIN genome gm ON gm.genbank_acc = g.genome_acc " +
             "LEFT JOIN taxon t ON t.path = gm.taxon_path " +
             "LEFT JOIN data_source ds ON ds.id = g.data_source_id " +
-            "LEFT JOIN pathway p ON p.id = g.pathway_id ";
+            "LEFT JOIN pathway p ON p.id = g.pathway_id " +
+            "LEFT JOIN orthogroup og ON og.id = g.orthogroup_id ";
     
     public MySQLGeneDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -94,7 +95,7 @@ public class MySQLGeneDAO implements GeneDAO {
     @Override
     public List<GeneTO> findByOrthogroupId(Integer orthogroupId) {
         return template.query(SELECT_STATEMENT +
-                        "WHERE orthogroup_id = (:orthogroupId)",
+                        "WHERE og.id = (:orthogroupId)",
                 new MapSqlParameterSource().addValue("orthogroupId", orthogroupId), new GeneResultSetExtractor());
     }
     
@@ -147,17 +148,17 @@ public class MySQLGeneDAO implements GeneDAO {
     public void batchUpdate(Set<GeneTO> geneTOs) {
         String geneSql = "INSERT INTO gene (id, gene_id, gene_name, locus_tag, genome_acc, " +
                 "orthogroup_id, transcript_id, transcript_url_suffix, protein_id, protein_description, protein_length, " +
-                "data_source_id, pathway_id, annotated_gene_name) " +
+                "data_source_id, pathway_id) " +
                 "VALUES (:id, :gene_id, :gene_name, :locus_tag, :genome_acc, :orthogroup_id, " +
                 ":transcript_id, :transcript_url_suffix, :protein_id, :protein_description, :protein_length, " +
-                ":data_source_id, :pathway_id, :annotated_gene_name) " +
+                ":data_source_id, :pathway_id) " +
                 "AS new " +
                 "ON DUPLICATE KEY UPDATE gene_id = new.gene_id, gene_name = new.gene_name, " +
                 "locus_tag = new.locus_tag, genome_acc = new.genome_acc, orthogroup_id = new.orthogroup_id, " +
                 "transcript_id = new.transcript_id, transcript_url_suffix = new.transcript_url_suffix, " +
                 "protein_id = new.protein_id, protein_description = new.protein_description, " +
                 "protein_length = new.protein_length, data_source_id = new.data_source_id, " +
-                "pathway_id = new.pathway_id, annotated_gene_name = new.annotated_gene_name";
+                "pathway_id = new.pathway_id";
         
         List<MapSqlParameterSource> geneParams = new ArrayList<>();
         for (GeneTO geneTO : geneTOs) {
@@ -167,7 +168,7 @@ public class MySQLGeneDAO implements GeneDAO {
             source.addValue("gene_name", geneTO.getGeneName());
             source.addValue("locus_tag", geneTO.getLocusTag());
             source.addValue("genome_acc", geneTO.getGenomeAcc());
-            source.addValue("orthogroup_id", geneTO.getOrthogroupId());
+            source.addValue("orthogroup_id", geneTO.getOrthogroupTO() == null ? null : geneTO.getOrthogroupTO().getId());
             source.addValue("transcript_id", geneTO.getTranscriptId());
             source.addValue("transcript_url_suffix", geneTO.getTranscriptUrlSuffix());
             source.addValue("protein_id", geneTO.getProteinId());
@@ -175,7 +176,6 @@ public class MySQLGeneDAO implements GeneDAO {
             source.addValue("protein_length", geneTO.getProteinLength());
             source.addValue("data_source_id", geneTO.getDataSourceTO().getId());
             source.addValue("pathway_id", geneTO.getPathwayTO() == null ? null : geneTO.getPathwayTO().getId());
-            source.addValue("annotated_gene_name", geneTO.getAnnotatedGeneName());
             geneParams.add(source);
         }
         
@@ -205,15 +205,16 @@ public class MySQLGeneDAO implements GeneDAO {
                 
                 PathwayTO pathwayTO = new MySQLPathwayDAO.PathwayRowMapper().mapRow(rs, rs.getRow());
                 
+                OrthogroupTO orthogroupTO = new MySQLOrthogroupDAO.OrthogroupRowMapper().mapRow(rs, rs.getRow());
+                
                 // Build GeneTO. Even if it already exists, we create a new one because it's an unmutable object
                 genes.put(id, new GeneTO(id, rs.getString("g.gene_id"), rs.getString("g.gene_name"), rs.getString("g.locus_tag"),
-                        rs.getString("g.genome_acc"), rs.getString("t.path"), DAO.getInteger(rs, "g.orthogroup_id"),
-                        rs.getString("g.transcript_id"), rs.getString("g.transcript_url_suffix"), rs.getString("g.protein_id"),
-                        rs.getString("g.protein_description"), DAO.getInteger(rs, "g.protein_length"), dataSourceTO,
-                        pathwayTO,  rs.getString("g.annotated_gene_name")));
+                        rs.getString("g.genome_acc"), rs.getString("t.path"),
+                        rs.getString("g.transcript_id"), rs.getString("g.transcript_url_suffix"),
+                        rs.getString("g.protein_id"), rs.getString("g.protein_description"),
+                        DAO.getInteger(rs, "g.protein_length"), dataSourceTO, pathwayTO, orthogroupTO));
             }
             return new ArrayList<>(genes.values());
         }
     }
-    
 }

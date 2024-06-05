@@ -76,10 +76,11 @@ public class GeneController {
         }
     }
     
-    public Map<String, Map<String, Map<Integer, Set<Gene>>>> getGeneData(List<Gene> genes) {
+    // TODO group by ID (and not by formatted object) and send also in the answer corresponding objects
+    public Map<String, Map<String, Map<String, Set<Gene>>>> getGeneData(List<Gene> genes) {
         return genes.stream().collect(Collectors.groupingBy(gene -> getFormattedKey(gene.getPathway()),
                 Collectors.groupingBy(gene -> getCleanedTaxon(gene.getTaxon()),
-                        Collectors.groupingBy(Gene::getOrthogroupId, Collectors.toSet() ))));
+                        Collectors.groupingBy(gene -> getFormattedKey(gene.getOrthogroup()), Collectors.toSet()))));
     }
     
     private static String getCleanedTaxon(Taxon taxon) {

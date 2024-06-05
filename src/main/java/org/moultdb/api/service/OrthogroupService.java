@@ -8,5 +8,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface OrthogroupService {
     
-    void importOrthogroups(MultipartFile orthogroupFile);
+    void importOrthogroups(MultipartFile orthogroupFile, MultipartFile pathwayFile);
 }

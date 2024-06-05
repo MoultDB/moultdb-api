@@ -136,9 +136,9 @@ public class GeneParser {
         Set<GeneTO> geneTOs = new HashSet<>();
         for (GeneBean geneBean: geneBeans) {
             geneTOs.add(new GeneTO(geneNextId, geneBean.getGeneId(), geneBean.getGeneName(), geneBean.getLocusTag(),
-                    genomeTO.getGeneBankAcc(), null, null, 
-                    geneBean.getTranscriptId(), geneBean.getTranscriptUrlSuffix(), geneBean.getProteinId(),
-                    geneBean.getProteinDescription(), geneBean.getProteinLength(), dataSourceTO, null, null));
+                    genomeTO.getGeneBankAcc(), null, geneBean.getTranscriptId(), geneBean.getTranscriptUrlSuffix(),
+                    geneBean.getProteinId(), geneBean.getProteinDescription(), geneBean.getProteinLength(),
+                    dataSourceTO, null, null));
             geneNextId++;
         }
         return geneTOs;

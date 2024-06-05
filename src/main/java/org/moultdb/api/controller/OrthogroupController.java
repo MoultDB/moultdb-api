@@ -23,9 +23,10 @@ public class OrthogroupController {
     @Autowired OrthogroupService orthogroupService;
     
     @PostMapping
-    public ResponseEntity <Map<String, Object>> insertOrthogroups(@RequestParam MultipartFile file) {
+    public ResponseEntity <Map<String, Object>> insertOrthogroups(@RequestParam MultipartFile file,
+                                                                  @RequestParam MultipartFile pathwayFile) {
         try {
-            orthogroupService.importOrthogroups(file);
+            orthogroupService.importOrthogroups(file, pathwayFile);
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

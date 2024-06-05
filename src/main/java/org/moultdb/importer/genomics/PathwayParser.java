@@ -237,7 +237,7 @@ public class PathwayParser {
         return getGeneTOs(pathwayBeans, geneDAO, pathwayDAO);
     }
     
-    private Set<PathwayBean> getPathwayBeans(MultipartFile geneToPathwayFile) {
+    protected Set<PathwayBean> getPathwayBeans(MultipartFile geneToPathwayFile) {
         try (ICsvBeanReader geneToPathwayReader = new CsvBeanReader(new InputStreamReader(geneToPathwayFile.getInputStream()), TSV_COMMENTED)) {
             return logger.traceExit(getPathwayBeans(geneToPathwayReader));
         } catch (SuperCsvException e) {
@@ -276,9 +276,9 @@ public class PathwayParser {
             PathwayTO pathwayTO = pathwayTOMap.get(pathwayBean.getId());
             assert geneTO != null && pathwayTO != null;
             geneTOs.add(new GeneTO(geneTO.getId(), geneTO.getGeneId(), geneTO.getGeneName(), geneTO.getLocusTag(),
-                    geneTO.getGenomeAcc(), null, geneTO.getOrthogroupId(), geneTO.getTranscriptId(),
+                    geneTO.getGenomeAcc(), null, geneTO.getTranscriptId(),
                     geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(), geneTO.getProteinDescription(),
-                    geneTO.getProteinLength(), geneTO.getDataSourceTO(), pathwayTO, pathwayBean.getGeneName()));
+                    geneTO.getProteinLength(), geneTO.getDataSourceTO(), pathwayTO, geneTO.getOrthogroupTO()));
         }
         logger.debug("Number of genes to be updated: " + geneTOs.size());
         return geneTOs;

@@ -1,9 +1,13 @@
 package org.moultdb.importer.genomics;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.GeneDAO;
+import org.moultdb.api.repository.dao.OrthogroupDAO;
 import org.moultdb.api.repository.dto.GeneTO;
+import org.moultdb.api.repository.dto.OrthogroupTO;
+import org.moultdb.api.repository.dto.TaxonTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.ParseDate;
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +36,8 @@ public class OrthogroupParser {
     
     
     @Autowired GeneDAO geneDAO;
+    
+    @Autowired OrthogroupDAO orthogroupDAO;
     
     private final static Logger logger = LogManager.getLogger(OrthogroupParser.class.getName());
     
@@ -57,27 +64,35 @@ public class OrthogroupParser {
     }
     
     public Set<GeneTO> updatedGenes(Set<OrthogroupBean> orthogroupBeans) {
-        return updatedGenes(orthogroupBeans, geneDAO);
+        return updatedGenes(orthogroupBeans, geneDAO, orthogroupDAO);
     }
     
-    public Set<GeneTO> updatedGenes(MultipartFile orthogroupFile, GeneDAO geneDAO) {
+    public Set<GeneTO> updatedGenes(MultipartFile orthogroupFile, GeneDAO geneDAO, OrthogroupDAO orthogroupDAO) {
         Set<OrthogroupBean> orthogroupBeans = getOrthogroupBeans(orthogroupFile);
-        return updatedGenes(orthogroupBeans, geneDAO);
+        return updatedGenes(orthogroupBeans, geneDAO, orthogroupDAO);
     }
     
-    private Set<GeneTO> updatedGenes(Set<OrthogroupBean> orthogroupBeans, GeneDAO geneDAO) {
-        Map<String, Integer> proteinIdToOrthogroup = orthogroupBeans.stream()
-                .collect(Collectors.toMap(OrthogroupBean::getProteinId, OrthogroupBean::getOrthogroupId));
+    private Set<GeneTO> updatedGenes(Set<OrthogroupBean> orthogroupBeans, GeneDAO geneDAO, OrthogroupDAO orthogroupDAO) {
         
-        List<GeneTO> dbGeneTOs = geneDAO.findByProteinIds(proteinIdToOrthogroup.keySet());
+        Set<Integer> orthogroupIds = orthogroupBeans.stream()
+                .map(OrthogroupBean::getOrthogroupId)
+                .collect(Collectors.toSet());
+        
+        Map<Integer, OrthogroupTO> dbOrthogroupTOs = orthogroupDAO.findByIds(orthogroupIds).stream()
+                .collect(Collectors.toMap(OrthogroupTO::getId, Function.identity()));
+        
+        Map<String, OrthogroupTO> proteinIdToOrthogroupId = orthogroupBeans.stream()
+                .collect(Collectors.toMap(OrthogroupBean::getProteinId, o -> dbOrthogroupTOs.get(o.getOrthogroupId())));
+        
+        List<GeneTO> dbGeneTOs = geneDAO.findByProteinIds(proteinIdToOrthogroupId.keySet());
         
         Set<GeneTO> geneTOs = new HashSet<>();
         for (GeneTO geneTO: dbGeneTOs) {
             geneTOs.add(new GeneTO(geneTO.getId(), geneTO.getGeneId(), geneTO.getGeneName(), geneTO.getLocusTag(),
-                    geneTO.getGenomeAcc(), null, proteinIdToOrthogroup.get(geneTO.getProteinId()),
+                    geneTO.getGenomeAcc(), null,
                     geneTO.getTranscriptId(), geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(),
                     geneTO.getProteinDescription(), geneTO.getProteinLength(), geneTO.getDataSourceTO(),
-                    geneTO.getPathwayTO(), geneTO.getAnnotatedGeneName()));
+                    geneTO.getPathwayTO(), proteinIdToOrthogroupId.get(geneTO.getProteinId())));
         }
         return geneTOs;
     }
@@ -156,5 +171,14 @@ public class OrthogroupParser {
             };
         }
         return processors;
+    }
+    
+    public Set<OrthogroupTO> getOrthogroups(MultipartFile orthogroupFile, MultipartFile pathwayFile) {
+        Set<PathwayBean> pathwayBeans = new PathwayParser().getPathwayBeans(pathwayFile);
+        Map<Integer, String> moultingOrthogroups = pathwayBeans.stream()
+                .collect(Collectors.toMap(PathwayBean::getOrthogroupId, PathwayBean::getGeneName, (v1, v2) -> v1));
+        return (getOrthogroupBeans(orthogroupFile).stream()
+                .map(b -> new OrthogroupTO(b.getOrthogroupId(), moultingOrthogroups.get(b.getOrthogroupId())))
+                .collect(Collectors.toSet()));
     }
 }

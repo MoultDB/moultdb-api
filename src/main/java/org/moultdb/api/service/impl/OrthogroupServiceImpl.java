@@ -5,7 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.repository.dao.GeneDAO;
+import org.moultdb.api.repository.dao.OrthogroupDAO;
 import org.moultdb.api.repository.dto.GeneTO;
+import org.moultdb.api.repository.dto.OrthogroupTO;
 import org.moultdb.api.service.OrthogroupService;
 import org.moultdb.importer.genomics.OrthogroupParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,10 @@ public class OrthogroupServiceImpl implements OrthogroupService {
     private final static Logger logger = LogManager.getLogger(OrthogroupServiceImpl.class.getName());
     
     @Autowired GeneDAO geneDAO;
+    @Autowired OrthogroupDAO orthogroupDAO;
     
     @Override
-    public void importOrthogroups(MultipartFile orthogroupFile) {
+    public void importOrthogroups(MultipartFile orthogroupFile, MultipartFile pathwayFile) {
         String originalFilename = orthogroupFile.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
             throw new IllegalArgumentException("File name cannot be blank");
@@ -36,10 +39,12 @@ public class OrthogroupServiceImpl implements OrthogroupService {
         
         OrthogroupParser parser = new OrthogroupParser();
         try {
-            logger.info("Parse orthogroup data file " + originalFilename + "...");
-            Set<GeneTO> geneTOs = parser.updatedGenes(orthogroupFile, geneDAO);
+            logger.info("Parse orthogroup data file " + originalFilename + " with " + pathwayFile.getOriginalFilename() + "...");
+            Set<OrthogroupTO> orthogroupTOs = parser.getOrthogroups(orthogroupFile, pathwayFile);
+            Set<GeneTO> geneTOs = parser.updatedGenes(orthogroupFile, geneDAO, orthogroupDAO);
             
             logger.info("Load orthogroup data in db...");
+            orthogroupDAO.batchUpdate(orthogroupTOs);
             geneDAO.batchUpdate(geneTOs);
             
         } catch (Exception e) {

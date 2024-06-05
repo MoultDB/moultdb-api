@@ -16,7 +16,6 @@ public class Gene {
     private final String locusTag;
     private final String genomeAcc;
     private final Taxon taxon;
-    private final Integer orthogroupId;
     private final String transcriptId;
     private final String transcriptUrlSuffix;
     private final String proteinId;
@@ -24,11 +23,11 @@ public class Gene {
     private final Integer proteinLength;
     private final List<GeneDomain> geneDomains;
     private final Pathway pathway;
-    private final String orthogroupName;
+    private final Orthogroup orthogroup;
     
-    public Gene(String id, String name, String locusTag, Taxon taxon, String genomeAcc, Integer orthogroupId,
+    public Gene(String id, String name, String locusTag, Taxon taxon, String genomeAcc, 
                 String transcriptId, String transcriptUrlSuffix, String proteinId, String proteinDescription,
-                Integer proteinLength, Set<GeneDomain> geneDomains, Pathway pathway, String orthogroupName)
+                Integer proteinLength, Set<GeneDomain> geneDomains, Pathway pathway, Orthogroup orthogroup)
             throws IllegalArgumentException {
         if (StringUtils.isBlank(id) && StringUtils.isBlank(locusTag)) {
             throw new IllegalArgumentException("The gene id and locus tag provided cannot be both blank");
@@ -38,7 +37,6 @@ public class Gene {
         this.locusTag = locusTag;
         this.genomeAcc = genomeAcc;
         this.taxon = taxon;
-        this.orthogroupId = orthogroupId;
         this.transcriptId = transcriptId;
         this.transcriptUrlSuffix = transcriptUrlSuffix;
         this.proteinId = proteinId;
@@ -49,7 +47,7 @@ public class Gene {
                 .sorted(Comparator.comparing(GeneDomain::getStart).thenComparing(GeneDomain::getEnd))
                 .toList());
         this.pathway = pathway;
-        this.orthogroupName = orthogroupName;
+        this.orthogroup = orthogroup;
     }
     
     public String getId() {
@@ -70,10 +68,6 @@ public class Gene {
     
     public Taxon getTaxon() {
         return taxon;
-    }
-    
-    public Integer getOrthogroupId() {
-        return orthogroupId;
     }
     
     public String getTranscriptId() {
@@ -104,12 +98,12 @@ public class Gene {
         return pathway;
     }
     
-    public String getOrthogroupName() {
-        return orthogroupName;
+    public Orthogroup getOrthogroup() {
+        return orthogroup;
     }
     
     public String getMainName() {
-        return StringUtils.isNoneBlank(orthogroupName) ? orthogroupName :
+        return orthogroup != null && StringUtils.isNoneBlank(orthogroup.getName()) ? orthogroup.getName() :
                 StringUtils.isNoneBlank(name) ? name : locusTag;
     }
     
@@ -134,7 +128,6 @@ public class Gene {
                 .add("locusTag='" + locusTag + "'")
                 .add("genomeAcc=" + genomeAcc)
                 .add("taxon=" + taxon)
-                .add("orthogroupId=" + orthogroupId)
                 .add("transcriptId='" + transcriptId + "'")
                 .add("transcriptUrlSuffix='" + transcriptUrlSuffix + "'")
                 .add("proteinId='" + proteinId + "'")
@@ -142,7 +135,7 @@ public class Gene {
                 .add("proteinLength=" + proteinLength)
                 .add("geneDomains=" + geneDomains)
                 .add("pathway=" + pathway)
-                .add("orthogroupName=" + orthogroupName)
+                .add("orthogroup=" + orthogroup)
                 .toString();
     }
     

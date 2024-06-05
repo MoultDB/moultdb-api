@@ -253,10 +253,18 @@ public class ServiceUtils {
                     .collect(Collectors.toSet());
         }
         return new Gene(geneTO.getGeneId(), geneTO.getGeneName(), geneTO.getLocusTag(), mapFromTO(taxonTO),
-                geneTO.getGenomeAcc(), geneTO.getOrthogroupId(), geneTO.getTranscriptId(),
+                geneTO.getGenomeAcc(), geneTO.getTranscriptId(),
                 geneTO.getTranscriptUrlSuffix(), geneTO.getProteinId(),geneTO.getProteinDescription(),
-                geneTO.getProteinLength(), domains, mapFromTO(geneTO.getPathwayTO()), geneTO.getAnnotatedGeneName());
+                geneTO.getProteinLength(), domains, mapFromTO(geneTO.getPathwayTO()), mapFromTO(geneTO.getOrthogroupTO()));
     }
+    
+    private static Orthogroup mapFromTO(OrthogroupTO orthogroupTO) {
+        if (orthogroupTO == null) {
+            return null;
+        }
+        return new Orthogroup(orthogroupTO.getId(), orthogroupTO.getName());
+    }
+    
     public static Domain mapFromTO(DomainTO domainTO) {
         if (domainTO == null) {
             return null;
