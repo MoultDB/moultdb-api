@@ -23,6 +23,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  */
 @RestController
 @RequestMapping(path="/genes")
+@CrossOrigin(origins = "http://localhost:3000")
 public class GeneController {
     
     @Autowired GeneService geneService;
@@ -56,24 +57,26 @@ public class GeneController {
                     "proteinId, pathwayId, domainId or taxonPath", HttpStatus.BAD_REQUEST);
         }
 
-        // Handle each case based on provided parameters
+        Gene gene = null;
         if (geneId != null) {
-            return generateValidResponse(geneService.getGene(geneId));
+            gene = geneService.getGene(geneId);
         } else if (locusTag != null) {
-            return generateValidResponse(geneService.getGeneByLocusTag(locusTag));
+            gene = geneService.getGeneByLocusTag(locusTag);
         } else if (proteinId != null) {
-            return generateValidResponse(geneService.getGeneByProtein(proteinId));
-        } else if (orthogroupId != null) {
-            return generateValidResponse(getGeneData(geneService.getGenesByOrthogroup(orthogroupId)));
+            gene = geneService.getGeneByProtein(proteinId);
+        } 
+        if (orthogroupId != null) {
+            return generateValidResponse(getGeneData(geneService.getGenesByOrthogroup(orthogroupId, gene)));
         } else if (pathwayId != null) {
             return generateValidResponse(getGeneData(geneService.getGenesByPathway(pathwayId)));
         } else if (domainId != null) {
             return generateValidResponse(getGeneData(geneService.getGenesByDomain(domainId)));
         } else if (taxonPath != null) {
             return generateValidResponse(getGeneData(geneService.getGenesByTaxon(taxonPath, inAMoultingPathway)));
-        } else {
+        } else if (gene == null) {
             return generateValidResponse(geneService.getAllGenes());
         }
+        return generateValidResponse(gene);
     }
     
     // TODO group by ID (and not by formatted object) and send also in the answer corresponding objects

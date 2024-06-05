@@ -69,8 +69,12 @@ public class GeneServiceImpl implements GeneService {
     }
     
     @Override
-    public List<Gene> getGenesByOrthogroup(Integer orthogroupId) {
-        return getGenes(geneDAO.findByOrthogroupId(orthogroupId));
+    public List<Gene> getGenesByOrthogroup(Integer orthogroupId, Gene geneToExclude) {
+        List<Gene> genes = getGenes(geneDAO.findByOrthogroupId(orthogroupId));
+        if (geneToExclude != null) {
+            genes.remove(geneToExclude);
+        }
+        return genes;
     }
     
     @Override
