@@ -22,7 +22,7 @@ public class OrthogroupController {
     
     @Autowired OrthogroupService orthogroupService;
     
-    @PostMapping
+    @PostMapping("/import-file")
     public ResponseEntity <Map<String, Object>> insertOrthogroups(@RequestParam MultipartFile file,
                                                                   @RequestParam MultipartFile pathwayFile) {
         try {

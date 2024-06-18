@@ -28,7 +28,7 @@ public class GeneController {
     
     @Autowired GeneService geneService;
     
-    @PostMapping
+    @PostMapping("/import-file")
     public ResponseEntity <Map<String, Object>> insertGenes(@RequestParam MultipartFile file,
                                                             @RequestParam boolean throwException) {
         try {
