@@ -47,17 +47,23 @@ public class DomainServiceImpl implements DomainService {
     }
     
     @Override
-    public void updateDomains(MultipartFile file) {
+    public void updateDomains(MultipartFile[] files) {
+        logger.info("Start domains import...");
+        for (MultipartFile file : files) {
+            updateDomains(file);
+        }
+        logger.info("End domains import");
+    }
+    
+    private void updateDomains(MultipartFile file) {
         String originalGeneFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalGeneFilename)) {
             throw new IllegalArgumentException("File name cannot be blank");
         }
         
-        logger.info("Start domains import...");
-        
-        DomainParser importer = new DomainParser();
         try {
             logger.info("Parse file " + originalGeneFilename + "...");
+            DomainParser importer = new DomainParser();
             Set<DomainTO> domainTOs = importer.getDomainTOs(file);
             Set<GeneToDomainTO> geneToDomainTOs = importer.getGeneToDomainTOs(file, geneDAO);
             
@@ -66,11 +72,11 @@ public class DomainServiceImpl implements DomainService {
             geneToDomainDAO.batchUpdate(geneToDomainTOs);
             
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ImportException("Unable to import domains from " + originalGeneFilename + ". " +
                     "Error: " + e.getMessage());
+        } finally {
+            logger.info("End for file " + originalGeneFilename + ".");
         }
-        logger.info("End domains import");
     }
     
     private List<Domain> getDomains(List<DomainTO> domainTOs) {

@@ -25,10 +25,10 @@ public class DomainController {
     @Autowired
     DomainService domainService;
     
-    @PostMapping("/import-file")
-    public ResponseEntity <Map<String, Object>> insertDomains(@RequestParam MultipartFile file) {
+    @PostMapping("/import-files")
+    public ResponseEntity <Map<String, Object>> insertDomains(@RequestParam MultipartFile[] files) {
         try {
-            domainService.updateDomains(file);
+            domainService.updateDomains(files);
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

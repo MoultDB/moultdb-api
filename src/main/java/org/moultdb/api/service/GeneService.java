@@ -27,5 +27,5 @@ public interface GeneService {
     
     public List<Gene> getGenesByOrthogroup(Integer orthogroupId, Gene geneToExclude);
     
-    public void importGenes(MultipartFile geneFile, boolean throwException);
+    public void importGenes(MultipartFile[] geneFiles, boolean throwException);
 }

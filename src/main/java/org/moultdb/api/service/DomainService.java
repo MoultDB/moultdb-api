@@ -15,6 +15,5 @@ public interface DomainService {
     
     public Domain getDomainById(String domainId);
     
-    public void updateDomains(MultipartFile file);
-    
+    public void updateDomains(MultipartFile[] files);
 }

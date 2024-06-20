@@ -28,11 +28,11 @@ public class GeneController {
     
     @Autowired GeneService geneService;
     
-    @PostMapping("/import-file")
-    public ResponseEntity <Map<String, Object>> insertGenes(@RequestParam MultipartFile file,
+    @PostMapping("/import-files")
+    public ResponseEntity <Map<String, Object>> insertGenes(@RequestParam MultipartFile[] files,
                                                             @RequestParam boolean throwException) {
         try {
-            geneService.importGenes(file, throwException);
+            geneService.importGenes(files, throwException);
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

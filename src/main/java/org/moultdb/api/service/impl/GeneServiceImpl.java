@@ -78,17 +78,23 @@ public class GeneServiceImpl implements GeneService {
     }
     
     @Override
-    public void importGenes(MultipartFile geneFile, boolean throwException) {
+    public void importGenes(MultipartFile[] geneFiles, boolean throwException) {
+        logger.info("Start genes import...");
+        for (MultipartFile geneFile : geneFiles) {
+            importGenes(geneFile, throwException);
+        }
+        logger.info("End genes import");
+    }
+    
+    private void importGenes(MultipartFile geneFile, boolean throwException) {
         String originalGeneFilename = geneFile.getOriginalFilename();
         if (StringUtils.isBlank(originalGeneFilename)) {
             throw new IllegalArgumentException("File name cannot be blank");
         }
         
-        logger.info("Start genes import...");
-        
-        GeneParser importer = new GeneParser();
         try {
             logger.info("Parse file " + originalGeneFilename + "...");
+            GeneParser importer = new GeneParser();
             Set<GeneTO> geneTOs = importer.getGeneTOs(geneFile, throwException, dataSourceDAO, geneDAO, genomeDAO);
             
             // FIXME Update comparator to remove transcript and protein IDs. There should be no duplicates.
@@ -118,8 +124,9 @@ public class GeneServiceImpl implements GeneService {
         } catch (Exception e) {
             throw new ImportException("Unable to import genes from " + originalGeneFilename + ". " +
                     "Error: " + e.getMessage());
+        } finally {
+            logger.info("End for file " + originalGeneFilename + ".");
         }
-        logger.info("End genes import");
     }
     
     private Gene getGene(GeneTO geneTO) {
