@@ -39,12 +39,17 @@ public class OrthogroupServiceImpl implements OrthogroupService {
         
         OrthogroupParser parser = new OrthogroupParser();
         try {
-            logger.info("Parse orthogroup data file " + originalFilename + " with " + pathwayFile.getOriginalFilename() + "...");
+            logger.info("Parse orthogroup data file " + originalFilename + " to create orthogroups with " + pathwayFile.getOriginalFilename() + "...");
+
             Set<OrthogroupTO> orthogroupTOs = parser.getOrthogroups(orthogroupFile, pathwayFile);
-            Set<GeneTO> geneTOs = parser.updatedGenes(orthogroupFile, geneDAO, orthogroupDAO);
-            
+
             logger.info("Load orthogroup data in db...");
             orthogroupDAO.batchUpdate(orthogroupTOs);
+            
+            logger.info("Parse orthogroup data file " + originalFilename + " to update genes...");
+            Set<GeneTO> geneTOs = parser.updatedGenes(orthogroupFile, geneDAO, orthogroupDAO);
+            
+            logger.info("Update genes in db...");
             geneDAO.batchUpdate(geneTOs);
             
         } catch (Exception e) {

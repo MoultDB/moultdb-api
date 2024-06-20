@@ -69,6 +69,7 @@ public class OrthogroupParser {
     
     public Set<GeneTO> updatedGenes(MultipartFile orthogroupFile, GeneDAO geneDAO, OrthogroupDAO orthogroupDAO) {
         Set<OrthogroupBean> orthogroupBeans = getOrthogroupBeans(orthogroupFile);
+        logger.debug("orthogroup bean count: " + orthogroupBeans.size());
         return updatedGenes(orthogroupBeans, geneDAO, orthogroupDAO);
     }
     
@@ -77,14 +78,18 @@ public class OrthogroupParser {
         Set<Integer> orthogroupIds = orthogroupBeans.stream()
                 .map(OrthogroupBean::getOrthogroupId)
                 .collect(Collectors.toSet());
+        logger.debug("orthogroup count: " + orthogroupIds.size());
         
         Map<Integer, OrthogroupTO> dbOrthogroupTOs = orthogroupDAO.findByIds(orthogroupIds).stream()
                 .collect(Collectors.toMap(OrthogroupTO::getId, Function.identity()));
+        logger.debug("db orthogroup count: " + dbOrthogroupTOs.keySet().size());
         
         Map<String, OrthogroupTO> proteinIdToOrthogroupId = orthogroupBeans.stream()
                 .collect(Collectors.toMap(OrthogroupBean::getProteinId, o -> dbOrthogroupTOs.get(o.getOrthogroupId())));
+        logger.debug("protein count: " + proteinIdToOrthogroupId.keySet().size());
         
         List<GeneTO> dbGeneTOs = geneDAO.findByProteinIds(proteinIdToOrthogroupId.keySet());
+        logger.debug("gene count: " + dbGeneTOs.size());
         
         Set<GeneTO> geneTOs = new HashSet<>();
         for (GeneTO geneTO: dbGeneTOs) {
