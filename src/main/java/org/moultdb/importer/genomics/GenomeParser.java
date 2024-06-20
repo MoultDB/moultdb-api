@@ -140,8 +140,7 @@ public class GenomeParser {
         logger.trace("Found " + subspecies.size() + " subspecies: " + String.join(" ; ", subspecies));
         
         if (!notFoundTaxa.isEmpty()) {
-            throw new IllegalArgumentException(notFoundTaxa.size() + " taxon IDs  not found in database: " +
-                    String.join(" ; ", notFoundTaxa));
+            logger.warn(notFoundTaxa.size() + " taxon IDs not found in database: " + String.join(" ; ", notFoundTaxa));
         }
         return genomeTOs;
     }
