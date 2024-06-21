@@ -52,7 +52,9 @@ public class MySQLTaxonDAO implements TaxonDAO {
         if (StringUtils.isBlank(searchedText)) {
             throw new UnsupportedOperationException("Empty searched text not supported");
         }
-        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) like :searched_text",
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT +
+                        "WHERE lower(scientific_name) like :searched_text " +
+                        "ORDER BY scientific_name",
                 new MapSqlParameterSource().addValue("searched_text", "%" + searchedText.trim().toLowerCase() + "%"),
                 new TaxonResultSetExtractor());
         // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
