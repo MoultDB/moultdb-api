@@ -76,7 +76,7 @@ public class ImageServiceImpl implements ImageService {
                           String email) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         if (file.getSize() > FILE_MAX_SIZE) {
             throw new MaxUploadSizeExceededException(FILE_MAX_SIZE);
@@ -95,7 +95,7 @@ public class ImageServiceImpl implements ImageService {
             Files.copy(file.getInputStream(), getPath().resolve(fileName));
             
         } catch (FileAlreadyExistsException e) {
-            throw new MoultDBException("A file of that name already exists.");
+            throw new MoultDBException("A file of that name already exists");
         } catch (Exception e) {
             throw new MoultDBException(e.getMessage());
         }
@@ -171,7 +171,7 @@ public class ImageServiceImpl implements ImageService {
         if (dotIndex > 0 && dotIndex < filename.length() - 1) {
             extension = filename.substring(dotIndex).toLowerCase();
         } else {
-            throw new ImageUploadException("Filename should have an extension.");
+            throw new ImageUploadException("Filename should have an extension");
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmssSS");
         String timestamp = sdf.format(new Date());
@@ -188,7 +188,7 @@ public class ImageServiceImpl implements ImageService {
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
-                throw new ImageUploadException("Could not read the file.");
+                throw new ImageUploadException("Could not read the file");
             }
         } catch (MalformedURLException e) {
             throw new ImageUploadException("Error: " + e.getMessage());
@@ -229,7 +229,7 @@ public class ImageServiceImpl implements ImageService {
     public List<ImageInfo> getImageInfosByTaxon(String taxonName) {
         TaxonTO taxonTO = taxonDAO.findByScientificName(taxonName);
         if (taxonTO == null) {
-            throw new MoultDBException("Taxon [" + taxonName + "] not found.");
+            throw new MoultDBException("Taxon [" + taxonName + "] not found");
         }
         return getImageInfos(taxonAnnotationDAO.findByTaxonPath(taxonTO.getPath()));
     }

@@ -50,7 +50,7 @@ public class MySQLImageDAO implements ImageDAO {
         params.add(source);
         
         int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'image' table.");
+        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'image' table");
         
         return ints[0];
     }

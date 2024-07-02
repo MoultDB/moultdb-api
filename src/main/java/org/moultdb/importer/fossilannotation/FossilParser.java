@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author Valentine Rech de Laval
  * @since 2021-12-13
  */
-public class FossilImporter {
+public class FossilParser {
     
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
@@ -50,7 +50,7 @@ public class FossilImporter {
     @Autowired UserDAO userDAO;
     @Autowired VersionDAO versionDAO;
     
-    private final static Logger logger = LogManager.getLogger(FossilImporter.class.getName());
+    private final static Logger logger = LogManager.getLogger(FossilParser.class.getName());
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
@@ -110,7 +110,7 @@ public class FossilImporter {
     private final static String CONFIDENCE_COL_NAME = "Confidence";
     private final static String GENERAL_COMMENTS_COL_NAME = "General Comments";
     
-    public FossilImporter() {
+    public FossilParser() {
     }
     
     public static void main(String[] args) {
@@ -118,10 +118,10 @@ public class FossilImporter {
         
         if (args.length != 1) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
     
-        FossilImporter parser = new FossilImporter();
+        FossilParser parser = new FossilParser();
         List<FossilAnnotationBean> fossilAnnotationBeans = parser.parseFossilAnnotation(args[0]);
     
         parser.insertFossilAnnotation(fossilAnnotationBeans);
@@ -187,7 +187,7 @@ public class FossilImporter {
                 // Try to find genus taxon
                 String genus = bean.getTaxon().split(" ")[0];
                 logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
-                        "Search for genus '" + genus + "'.");
+                        "Search for genus '" + genus + "'...");
                 taxonTO = taxonDAO.findByScientificName(genus);
             }
             if (taxonTO == null) {

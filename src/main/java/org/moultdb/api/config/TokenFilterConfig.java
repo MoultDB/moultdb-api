@@ -18,10 +18,21 @@ public class TokenFilterConfig {
     private String secret;
     
     protected final static String[] SECURED_ADMIN_URL = {
-            "/geological-age/create",
-            "/taxon-annotation/import-file",
-            "/taxon/import-file",
-            "/genome/import-file"
+            "/domains/import-file",
+            "/genes/import-file",
+            "/genomes/import-file",
+            "/geological-ages/create",
+            "/image/import",
+            "/orthogroups/import-file",
+            "/pathways/import-cv-file",
+            "/pathways/import-data-file",
+            "/taxon-annotations/import-file",
+            "/taxon-annotations/delete",
+            "/taxa/import-file",
+            "/users/forgot-password",
+            "/users/reset-password",
+            "/users/email-validation",
+            "/users/check-token"
     };
     
     protected final static String[] SECURED_USER_URL = {

@@ -1,6 +1,5 @@
 package org.moultdb.api.controller;
 
-import org.moultdb.api.model.ImageInfo;
 import org.moultdb.api.service.ImageService;
 import org.moultdb.api.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.moultdb.api.controller.ResponseHandler.generateErrorResponse;
@@ -22,7 +21,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  * @since 2023-05-31
  */
 @RestController
-@RequestMapping(path="/image")
+@RequestMapping(path="/images")
 public class ImageController {
     
     @Autowired
@@ -54,27 +53,26 @@ public class ImageController {
         return generateValidResponse("Uploaded the image successfully: " + file.getOriginalFilename());
     }
     
-    @GetMapping("/all")
-    public ResponseEntity<Map<String, Object>> getUserImages() {
-        List<ImageInfo> imageInfos = imageService.getAllImageInfos();
-        return generateValidResponse("List of all images", imageInfos);
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getImages(@RequestParam(required = false) String email,
+                                                         @RequestParam(required = false) String taxonName) {
+        if (MoultdbController.hasMultipleParams(Arrays.asList(email, taxonName))) {
+            return generateErrorResponse("Invalid combination of parameters: " +
+                            "one parameter and one only must be specified between email or taxonName",
+                    HttpStatus.BAD_REQUEST);
+        }
+        if (email != null) {
+            return generateValidResponse("List of images loaded by " + email, imageService.getImageInfosByUser(email));
+        } else if (taxonName != null) {
+            return generateValidResponse("List of images of " + taxonName + " taxon and it's children",
+                    imageService.getImageInfosByTaxon(taxonName));
+        }
+        return generateValidResponse("List of all images", imageService.getAllImageInfos());
     }
     
     @GetMapping("/last")
     public ResponseEntity<Map<String, Object>> getLastImages() {
         return generateValidResponse(imageService.getNewestImageInfos(10));
-    }
-    
-    @GetMapping("/user-specific")
-    public ResponseEntity<Map<String, Object>> getUserImages(@RequestParam String email) {
-        List<ImageInfo> imageInfos = imageService.getImageInfosByUser(email);
-        return generateValidResponse("List of images loaded by " + email, imageInfos);
-    }
-
-    @GetMapping("/taxon-specific")
-    public ResponseEntity<Map<String, Object>> getTaxonImages(@RequestParam String taxonName) {
-        List<ImageInfo> imageInfos = imageService.getImageInfosByTaxon(taxonName);
-        return generateValidResponse("List of images of " + taxonName + " taxon and it's children", imageInfos);
     }
     
     @GetMapping("/{filename:.+}")

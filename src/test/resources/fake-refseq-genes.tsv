@@ -1,0 +1,10 @@
+protein_id	prot_len	transcript_id	transcript_url_suffix	gene_id	gene_name	locus_tag	protein_description	origin	genome_id
+XP_015428387.1	918	XM_015572901.1	XM_015572901.1?report=gbwithparts	107185255	LOC107185255	NA	zinc finger protein ush	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428388.1	632	XM_015572902.1	XM_015572902.1?report=gbwithparts	107185256	LOC107185256	NA	inositol-trisphosphate 3-kinase B	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428389.1	1526	XM_015572903.1	XM_015572903.1?report=gbwithparts	107185257	LOC107185257	NA	nuclear factor related to kappa-B-binding protein	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428390.1	652	XM_015572904.1	XM_015572904.1?report=gbwithparts	107185254	LOC107185254	NA	translation factor Guf1, mitochondrial	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428391.1	564	XM_015572905.1	XM_015572905.1?report=gbwithparts	107185258	LOC107185258	NA	RNA pseudouridylate synthase domain-containing protein 2-like isoform X1	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428394.1	543	XM_015572908.1	XM_015572908.1?report=gbwithparts	107185259	LOC107185259	NA	SHC SH2 domain-binding protein 1	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428396.1	681	XM_015572910.1	XM_015572910.1?report=gbwithparts	107185260	LOC107185260	NA	nuclear factor 1 X-type isoform X1	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428403.1	1076	XM_015572917.1	XM_015572917.1?report=gbwithparts	107185262	LOC107185262	NA	MAGUK p55 subfamily member 5-A	NCBI RefSeq assembly	GCF_001272555.1
+XP_015428404.1	605	XM_015572918.1	XM_015572918.1?report=gbwithparts	107185261	LOC107185261	NA	electron transfer flavoprotein-ubiquinone oxidoreductase, mitochondrial	NCBI RefSeq assembly	GCF_001272555.1

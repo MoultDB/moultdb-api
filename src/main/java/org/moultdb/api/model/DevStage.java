@@ -17,10 +17,10 @@ public class DevStage extends NamedEntity<String> {
             throws IllegalArgumentException {
         super(accession, name, description);
         if (leftBound < 1) {
-            throw new IllegalArgumentException("the provided left bound cannot be less than 1.");
+            throw new IllegalArgumentException("The provided left bound cannot be less than 1");
         }
         if (rightBound <= leftBound) {
-            throw new IllegalArgumentException("the provided right bound cannot be less than or equal to the provided left bound.");
+            throw new IllegalArgumentException("The provided right bound cannot be less than or equal to the provided left bound");
         }
         this.leftBound = leftBound;
         this.rightBound = rightBound;

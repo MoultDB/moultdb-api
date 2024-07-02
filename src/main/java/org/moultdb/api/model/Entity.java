@@ -14,7 +14,7 @@ public abstract class Entity<T extends Comparable<T>> {
     
     public Entity(T id) throws IllegalArgumentException {
         if (id == null) {
-            throw new IllegalArgumentException("the ID provided cannot be blank.");
+            throw new IllegalArgumentException("The ID provided cannot be blank");
         }
         this.id = id;
     }

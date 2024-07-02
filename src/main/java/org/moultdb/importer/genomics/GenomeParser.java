@@ -1,4 +1,4 @@
-package org.moultdb.importer.genome;
+package org.moultdb.importer.genomics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +41,7 @@ public class GenomeParser {
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
-    private final static String GENBANK_ACC_COL_NAME = "Genbank Accession";
+    private final static String GENBANK_ACC_COL_NAME = "RefSeq/GenBank Accession";
     private final static String SUBMISSION_DATE_COL_NAME = "Submission Date";
     private final static String TAXID_COL_NAME = "TaxId";
     private final static String SUBPHYLUM_COL_NAME = "SubPhylum";
@@ -65,7 +65,7 @@ public class GenomeParser {
         
         if (args.length != 1) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
         
         GenomeParser parser = new GenomeParser();
@@ -96,7 +96,7 @@ public class GenomeParser {
         return getGenomeTOs(genomeBeans, taxonDAO);
     }
     
-    public Set<GenomeTO> getGenomeTOs(Set<GenomeBean> genomeBeans) {
+    private Set<GenomeTO> getGenomeTOs(Set<GenomeBean> genomeBeans) {
         return getGenomeTOs(genomeBeans, taxonDAO);
     }
     
@@ -118,16 +118,15 @@ public class GenomeParser {
         for (GenomeBean bean: genomeBeans) {
             TaxonTO taxonTO = taxonDAO.findByAccession(bean.getTaxonId(), DatasourceEnum.NCBI.getStringRepresentation());
             if (taxonTO == null) {
-                notFoundTaxa.add(bean.getTaxonId() + " - " + bean.getSpecies());
+                notFoundTaxa.add(bean.getSpecies() + " (" + bean.getTaxonId() + ")");
                 continue;
-            } else {
-                if (!taxonTO.getScientificName().equals(bean.getSpecies())) {
-                    if (!bean.getSpecies().startsWith(taxonTO.getScientificName())) {
-                        subspecies.add(bean.getSpecies() + " - " +taxonTO.getScientificName());
-                    } else {
-                        throw new IllegalArgumentException("Provided species name [" + bean.getSpecies()
-                                + "] is different from the taxon in the database: " + taxonTO);
-                    }
+            }
+            if (!taxonTO.getScientificName().equals(bean.getSpecies())) {
+                if (!bean.getSpecies().startsWith(taxonTO.getScientificName())) {
+                    subspecies.add(bean.getSpecies() + " - " +taxonTO.getScientificName());
+                } else {
+                    throw new IllegalArgumentException("Provided species name [" + bean.getSpecies()
+                            + "] is different from the taxon in the database: " + taxonTO);
                 }
             }
             
@@ -141,8 +140,7 @@ public class GenomeParser {
         logger.trace("Found " + subspecies.size() + " subspecies: " + String.join(" ; ", subspecies));
         
         if (!notFoundTaxa.isEmpty()) {
-            throw new IllegalArgumentException(notFoundTaxa.size() + " taxon IDs  not found in database: " +
-                    String.join(" ; ", notFoundTaxa));
+            logger.warn(notFoundTaxa.size() + " taxon IDs not found in database: " + String.join(" ; ", notFoundTaxa));
         }
         return genomeTOs;
     }
@@ -158,7 +156,7 @@ public class GenomeParser {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
     
-    public Set<GenomeBean> getGenomeBeans(MultipartFile uploadedFile) {
+    private Set<GenomeBean> getGenomeBeans(MultipartFile uploadedFile) {
         try (ICsvBeanReader genomeReader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), TSV_COMMENTED)) {
             return logger.traceExit(getGenomeBeans(genomeReader));
         } catch (SuperCsvException e) {
@@ -207,14 +205,13 @@ public class GenomeParser {
                 case SCAFFOLD_L50_COL_NAME -> new StrReplace(",", "", new ParseInt());
                 case SCAFFOLD_N50_COL_NAME -> new StrReplace(",", "", new ParseInt());
                 case ANNOTATION_DATE_COL_NAME -> new ParseCustomOptional(new ParseDate(dateFormat));
-                case TOTAL_GENES_COL_NAME -> new ParseCustomOptional(
-                        new StrReplace(".0", "", new StrReplace(",", "", new ParseInt())));
+                case TOTAL_GENES_COL_NAME -> new ParseCustomOptionalInt(new ParseInt());
                 case ARTHROPODA_COMPLETE_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_SINGLE_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_DUPLICATED_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_FRAGMENTED_COL_NAME -> new ParseCustomOptional(new ParseDouble());
                 case ARTHROPODA_MISSING_COL_NAME -> new ParseCustomOptional(new ParseDouble());
-                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for GenomeBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GenomeBean");
             };
         }
         return processors;
@@ -242,7 +239,7 @@ public class GenomeParser {
                 case ARTHROPODA_DUPLICATED_COL_NAME -> "duplicatedBusco";
                 case ARTHROPODA_FRAGMENTED_COL_NAME -> "fragmentedBusco";
                 case ARTHROPODA_MISSING_COL_NAME -> "missingBusco";
-                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for GenomeBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for GenomeBean");
             };
         }
         return mapping;
@@ -265,6 +262,26 @@ public class GenomeParser {
                 return null;
             }
             return next.execute(value, context);
+        }
+    }
+    
+    public static class ParseCustomOptionalInt extends CellProcessorAdaptor {
+        
+        public ParseCustomOptionalInt() {
+            super();
+        }
+        
+        public ParseCustomOptionalInt(CellProcessor next) {
+            // this constructor allows other processors to be chained after this processor
+            super(next);
+        }
+        
+        public Object execute(Object value, CsvContext context) {
+            String stringValue = String.valueOf(value);
+            if (value == null || stringValue.equals("NA")) {
+                return null;
+            }
+            return next.execute(stringValue.replace(".0", "").replace(",", ""), context);
         }
     }
 }

@@ -1,10 +1,8 @@
 package org.moultdb.api.model;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
+
+import static org.moultdb.api.model.DbXref.DBXREF_COMPARATOR;
 
 /**
  * @author Valentine Rech de Laval
@@ -14,15 +12,15 @@ public class Taxon extends NamedEntity<String> {
     
     private final String commonName;
     private final Boolean extinct;
-    private final Set<DbXref> dbXrefs;
+    private final List<DbXref> dbXrefs;
     
     public Taxon(String path, String scientificName, String commonName,
                  Boolean extinct, Collection<DbXref> dbXrefs) {
         super(path, scientificName);
         this.commonName = commonName;
         this.extinct = extinct;
-        this.dbXrefs =  Collections.unmodifiableSet(dbXrefs == null ?
-                new HashSet<>(): new HashSet<>(dbXrefs));;
+        this.dbXrefs = Collections.unmodifiableList(dbXrefs == null ?
+                new ArrayList<>(): dbXrefs.stream().sorted(DBXREF_COMPARATOR).toList());
     }
     
     public String getPath() {
@@ -41,7 +39,7 @@ public class Taxon extends NamedEntity<String> {
         return extinct;
     }
     
-    public Set<DbXref> getDbXrefs() {
+    public List<DbXref> getDbXrefs() {
         return dbXrefs;
     }
     

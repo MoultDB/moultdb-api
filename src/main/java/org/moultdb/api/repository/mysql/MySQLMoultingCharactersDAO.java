@@ -163,7 +163,7 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
             params.add(mcSource);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'moulting_characters' table updated.");
+        logger.info("'moulting_characters' table updated");
     }
     
     private static class GeneralMoultingCharactersRowMapper implements RowMapper<MoultingCharactersTO> {

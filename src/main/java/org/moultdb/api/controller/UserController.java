@@ -20,7 +20,8 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  * @since 2023-04-11
  */
 @RestController
-@RequestMapping("user")
+@RequestMapping("users")
+// FIXME improve service names to match conventions (ex: remove verbs)
 public class UserController {
     
     private final UserService userService;

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,20 +17,27 @@ import static org.moultdb.api.controller.ResponseHandler.generateErrorResponse;
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
 
 @RestController
-@RequestMapping(path="/taxon")
+@RequestMapping(path="/taxa")
 public class TaxonController {
     
     @Autowired
     TaxonService taxonService;
 
-    @GetMapping("/all")
-    public ResponseEntity<Map<String, List<Taxon>>> getAllTaxa() {
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getTaxon(@RequestParam(required = false) String scientificName,
+                                                        @RequestParam(required = false) String datasource,
+                                                        @RequestParam(required = false) String accession) {
+        if (MoultdbController.hasMultipleParams(Arrays.asList(scientificName, datasource))) {
+            return generateErrorResponse("Invalid combination of parameters: " +
+                            "one parameter and one only must be specified between scientificName, taxonPath, or accession",
+                    HttpStatus.BAD_REQUEST);
+        }
+        if (scientificName != null) {
+            return generateValidResponse(taxonService.getTaxonByScientificName(scientificName));
+        } else if (datasource != null) {
+            return generateValidResponse(taxonService.getTaxonByDbXref(datasource, accession));
+        }
         return generateValidResponse(taxonService.getAllTaxa());
-    }
-    
-    @GetMapping("/scientific-name")
-    public ResponseEntity<Map<String, Taxon>> getByScientificName(@RequestParam String name) {
-        return generateValidResponse(taxonService.getTaxonByScientificName(name));
     }
     
     @GetMapping("/search")
@@ -37,19 +45,13 @@ public class TaxonController {
         return generateValidResponse(taxonService.getTaxonByText(text));
     }
     
-    @GetMapping("/lineage")
-    public ResponseEntity<Map<String, List<Taxon>>> getTaxonLineage(@RequestParam("path") String path) {
-        return generateValidResponse(taxonService.getTaxonLineage(path));
-    }
-    
-    @GetMapping("/dbxref")
-    public ResponseEntity<Map<String, Taxon>> getTaxonByDbXref(
-            @RequestParam("datasource") String datasource, @RequestParam("accession") String accession) {
-        return generateValidResponse(taxonService.getTaxonByDbXref(datasource, accession));
+    @GetMapping("/{taxonPath}/lineage")
+    public ResponseEntity<Map<String, List<Taxon>>> getTaxonLineage(@PathVariable String taxonPath) {
+        return generateValidResponse(taxonService.getTaxonLineage(taxonPath));
     }
     
     @PostMapping(value = "/import-file")
-    public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam MultipartFile file) {
         Integer integer;
         try {
             integer = taxonService.insertTaxa(file);

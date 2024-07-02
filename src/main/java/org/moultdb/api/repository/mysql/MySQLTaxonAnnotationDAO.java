@@ -115,7 +115,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         params.add(source);
     
         int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table");
     
         return ints[0];
     }
@@ -144,7 +144,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         }
         
         int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.debug(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table.");
+        logger.debug(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table");
         
         return ints;
     }
@@ -214,21 +214,15 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                     if (taxonAnnotationTO != null) {
                         articleTO = taxonAnnotationTO.getArticleTO();
                     }
-                    
                     // Build DbXrefs
                     DbXrefTO articleDbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx2", "ds2");
-                    Set<DbXrefTO> articleDbXrefTOs = null;
-                    if (articleDbXrefTO.getAccession() != null) {
-                        articleDbXrefTOs = articleTO == null? null : new HashSet<>(articleTO.getDbXrefTOs());
-                        if (articleDbXrefTOs == null) {
-                            articleDbXrefTOs = new HashSet<>();
-                        }
+                    Set<DbXrefTO> articleDbXrefTOs = articleTO == null? new HashSet<>() : new HashSet<>(articleTO.getDbXrefTOs());
+                    if (articleDbXrefTO != null && articleDbXrefTO.getAccession() != null) {
                         articleDbXrefTOs.add(articleDbXrefTO);
                     }
                     articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),
                             rs.getString("a.title"), rs.getString("a.authors"), articleDbXrefTOs);
                 }
-                
                 
                 ImageTO imageTO = null;
                 if (DAO.getInteger(rs, "ta.image_id") != null) {
