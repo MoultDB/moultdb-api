@@ -115,7 +115,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'sample_set' table updated.");
+        logger.info("'sample_set' table updated");
     
         insertInOtherTable(sampleSetTOs, SampleSetTO::getStorageLocationNames,
                 "storage_location", "sample_set_storage_location", "storage_location_id",
@@ -166,7 +166,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         }
         
         template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'" + otherTableName + "'  table updated.");
+        logger.info("'" + otherTableName + "'  table updated");
     
         insertInAssociationTable(sampleSetTOs, func, otherTableName, associationTableName,
                 associationFieldName, mapper);
@@ -215,7 +215,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             }
         }
         template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'" + associationTableName + "' table updated.");
+        logger.info("'" + associationTableName + "' table updated");
     }
     
     @Override

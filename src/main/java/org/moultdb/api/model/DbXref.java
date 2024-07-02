@@ -2,6 +2,7 @@ package org.moultdb.api.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -12,6 +13,10 @@ import static org.moultdb.api.model.DataSource.X_REF_TAG;
  * @since 2021-11-01
  */
 public class DbXref {
+    
+    protected static final Comparator<DbXref> DBXREF_COMPARATOR = Comparator.comparing(DbXref::isMain, Comparator.nullsFirst(Comparator.reverseOrder()))
+            .thenComparing(xref -> xref.getDataSource().getName(), Comparator.nullsFirst(Comparator.reverseOrder()))
+            .thenComparing(DbXref::getAccession, Comparator.nullsFirst(Comparator.naturalOrder()));
     
     private final String accession;
     
@@ -67,13 +72,12 @@ public class DbXref {
         DbXref dbXref = (DbXref) o;
         return Objects.equals(accession, dbXref.accession)
                 && Objects.equals(name, dbXref.name)
-                && Objects.equals(dataSource, dbXref.dataSource)
-                && Objects.equals(main, dbXref.main);
+                && Objects.equals(dataSource, dbXref.dataSource);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(accession, name, dataSource, main);
+        return Objects.hash(accession, name, dataSource);
     }
     
     @Override

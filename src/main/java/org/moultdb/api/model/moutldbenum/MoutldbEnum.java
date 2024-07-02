@@ -50,7 +50,7 @@ public interface MoutldbEnum {
                 return element;
             }
         }
-        throw new IllegalArgumentException("'" + representation + "' is unknown for " + enumClass.getName() + ".");
+        throw new IllegalArgumentException("'" + representation + "' is unknown for " + enumClass.getName());
     }
     
 }

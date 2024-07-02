@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.service.ServiceUtils.mapFromTO;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2023-11-21
@@ -41,6 +43,16 @@ public class GenomeServiceImpl implements GenomeService {
         return getGenomes(genomeDAO.findByTaxonPath(taxonPath, withSubspeciesGenomes));
     }
     
+    @Override
+    public Genome getGenomesByAcc(String genomeAcc) {
+        return mapFromTO(genomeDAO.findByGenbankAcc(genomeAcc));
+    }
+    
+    @Override
+    public List<Genome> getGenomesByAcc(Set<String> genomeAccs) {
+        return getGenomes(genomeDAO.findByGenbankAccs(genomeAccs));
+    }
+    
     private List<Genome> getGenomes(List<GenomeTO> genomeTOs) {
         return genomeTOs.stream()
                 .map(ServiceUtils::mapFromTO)
@@ -51,7 +63,7 @@ public class GenomeServiceImpl implements GenomeService {
     public void updateGenomes(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
-            throw new IllegalArgumentException("File name cannot be blank.");
+            throw new IllegalArgumentException("File name cannot be blank");
         }
         
         logger.info("Start genomes import...");
@@ -59,16 +71,27 @@ public class GenomeServiceImpl implements GenomeService {
         int count;
         GenomeParser importer = new GenomeParser();
         try {
-            logger.info("Parse genome file " + file.getOriginalFilename() + "...");
+            logger.info("Parse genome file " + originalFilename + "...");
             Set<GenomeTO> genomeTOs = importer.getGenomeTOs(file, taxonDAO);
             
+            Set<String> dbGenomeIds = genomeDAO.findAll().stream()
+                    .map(GenomeTO::getId).collect(Collectors.toSet());
+            Set<String> newGenomeIds = genomeTOs.stream()
+                    .map(GenomeTO::getId).collect(Collectors.toSet());
+            dbGenomeIds.removeAll(newGenomeIds);
+            if (!dbGenomeIds.isEmpty()) {
+                logger.info("Delete genomes that are no longer in the input file...");
+                genomeDAO.deleteByIds(dbGenomeIds);
+                logger.warn("Deleted genomes: " + String.join(", ", dbGenomeIds));
+            }
+
             logger.info("Load genomes in db...");
             genomeDAO.batchUpdate(genomeTOs);
             
         } catch (Exception e) {
-            throw new ImportException("Unable to import genomes from " + file.getOriginalFilename() + ". " +
+            throw new ImportException("Unable to import genomes from " + originalFilename + ". " +
                     "Error: " + e.getMessage());
         }
-        logger.info("End genomes import.");
+        logger.info("End genomes import");
     }
 }

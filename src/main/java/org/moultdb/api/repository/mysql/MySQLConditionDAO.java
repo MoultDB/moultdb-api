@@ -83,7 +83,7 @@ public class MySQLConditionDAO implements ConditionDAO {
         }
 
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'cond' table updated.");
+        logger.info("'cond' table updated");
     }
     
     @Override

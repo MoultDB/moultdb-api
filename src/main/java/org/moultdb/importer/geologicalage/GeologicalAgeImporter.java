@@ -43,7 +43,7 @@ public class GeologicalAgeImporter {
         
         if (args.length != 0){
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 0 arguments, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
         
         GeologicalAgeImporter parser = new GeologicalAgeImporter();

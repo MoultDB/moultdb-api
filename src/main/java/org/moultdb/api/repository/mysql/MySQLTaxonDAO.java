@@ -52,7 +52,9 @@ public class MySQLTaxonDAO implements TaxonDAO {
         if (StringUtils.isBlank(searchedText)) {
             throw new UnsupportedOperationException("Empty searched text not supported");
         }
-        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE lower(scientific_name) like :searched_text",
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT +
+                        "WHERE lower(scientific_name) like :searched_text " +
+                        "ORDER BY scientific_name",
                 new MapSqlParameterSource().addValue("searched_text", "%" + searchedText.trim().toLowerCase() + "%"),
                 new TaxonResultSetExtractor());
         // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
@@ -163,13 +165,13 @@ public class MySQLTaxonDAO implements TaxonDAO {
         }
         try {
             template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'taxon' table updated.");
+            logger.debug("'taxon' table updated");
 
             template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'db_xref' table updated.");
+            logger.debug("'db_xref' table updated");
             
             template.batchUpdate(taxonToDbXrefSql, taxonToDbXrefParams.toArray(MapSqlParameterSource[]::new));
-            logger.debug("'taxon_db_xref' table updated.");
+            logger.debug("'taxon_db_xref' table updated");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of taxa failed: " + e.getMessage());
         }

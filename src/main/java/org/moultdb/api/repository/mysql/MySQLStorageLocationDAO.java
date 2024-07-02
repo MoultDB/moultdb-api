@@ -52,7 +52,7 @@ public class MySQLStorageLocationDAO implements StorageLocationDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'storage_location' table updated.");
+        logger.info("'storage_location' table updated");
     }
     
     @Override

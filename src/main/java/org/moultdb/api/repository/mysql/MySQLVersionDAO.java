@@ -93,7 +93,7 @@ public class MySQLVersionDAO implements VersionDAO {
             params.add(source);
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'version' table updated.");
+        logger.info("'version' table updated");
     }
     
     private static class VersionRowMapper implements RowMapper<VersionTO> {

@@ -109,7 +109,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
         
         int[] ints = template.batchUpdate(userSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table");
         return ints;
     
     }
@@ -127,7 +127,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
     
         int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table");
         return ints;
     }
     
@@ -143,7 +143,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
     
         int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table.");
+        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table");
         return ints;
     }
     

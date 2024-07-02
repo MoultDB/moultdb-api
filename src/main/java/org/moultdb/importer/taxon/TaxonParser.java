@@ -61,7 +61,7 @@ public class TaxonParser {
         
         if (args.length != 1) {
             throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
-                    args.length + " provided.");
+                    args.length + " provided");
         }
     
         TaxonParser parser = new TaxonParser();
@@ -100,7 +100,7 @@ public class TaxonParser {
         DataSourceTO ncbiTO = dataSourceDAO.findByName(DatasourceEnum.NCBI.getStringRepresentation());
         DataSourceTO gbifTO = dataSourceDAO.findByName(DatasourceEnum.GBIF.getStringRepresentation());
         if (ncbiTO == null || gbifTO == null) {
-            throw new IllegalArgumentException("Unknown data source(s).");
+            throw new IllegalArgumentException("Unknown data source(s)");
         }
         
         Set<TaxonTO> taxonTOs = new HashSet<>();

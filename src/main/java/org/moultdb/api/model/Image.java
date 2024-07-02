@@ -20,7 +20,7 @@ public class Image {
     
     public Image(String fileName, String filePath, String description)  {
         if (StringUtils.isBlank(fileName) || StringUtils.isBlank(filePath)) {
-            throw new IllegalArgumentException("The file name or the file path cannot be blank.");
+            throw new IllegalArgumentException("The file name or the file path cannot be blank");
         }
         this.fileName = fileName;
         this.filePath = filePath;

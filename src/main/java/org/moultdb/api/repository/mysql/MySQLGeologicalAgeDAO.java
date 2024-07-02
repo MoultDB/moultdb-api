@@ -89,7 +89,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
             params.add(source);
         }
         template.batchUpdate(geoAgeSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'geological_age' table updated.");
+        logger.info("'geological_age' table updated");
     
         String synonymSql = "INSERT INTO geological_age_synonym (geological_age_notation, synonym) " +
                 "VALUES (:geological_age_notation, :synonym) " +
@@ -105,7 +105,7 @@ public class MySQLGeologicalAgeDAO implements GeologicalAgeDAO {
             }
         }
         template.batchUpdate(synonymSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info("'geological_age_synonym' table updated.");
+        logger.info("'geological_age_synonym' table updated");
     }
     
     private static class GeologicalAgeResultSetExtractor implements ResultSetExtractor<List<GeologicalAgeTO>> {
