@@ -1,4 +1,4 @@
-package org.moultdb.importer.fossilannotation;
+package org.moultdb.importer.taxonannotation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +23,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
  * @author Valentine Rech de Laval
  * @since 2021-12-13
  */
-public class FossilParser {
+public class TaxonAnnotationParser {
     
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
@@ -50,7 +49,7 @@ public class FossilParser {
     @Autowired UserDAO userDAO;
     @Autowired VersionDAO versionDAO;
     
-    private final static Logger logger = LogManager.getLogger(FossilParser.class.getName());
+    private final static Logger logger = LogManager.getLogger(TaxonAnnotationParser.class.getName());
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
@@ -115,7 +114,7 @@ public class FossilParser {
     private final static String CONFIDENCE_COL_NAME = "Confidence";
     private final static String GENERAL_COMMENTS_COL_NAME = "General Comments";
     
-    public FossilParser() {
+    public TaxonAnnotationParser() {
     }
     
     public static void main(String[] args) {
@@ -126,26 +125,26 @@ public class FossilParser {
                     args.length + " provided");
         }
     
-        FossilParser parser = new FossilParser();
-        List<FossilAnnotationBean> fossilAnnotationBeans = parser.parseFossilAnnotation(args[0]);
+        TaxonAnnotationParser parser = new TaxonAnnotationParser();
+        List<TaxonAnnotationBean> taxonAnnotationBeans = parser.parseAnnotations(args[0]);
     
-        parser.insertFossilAnnotation(fossilAnnotationBeans);
+        parser.insertTaxonAnnotations(taxonAnnotationBeans);
     
         logger.traceExit();
     }
     
-    public void insertFossilAnnotation(List<FossilAnnotationBean> fossilAnnotationBeans) {
-        insertFossilAnnotation(fossilAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO, dataSourceDAO,
+    public void insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans) {
+        insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO, dataSourceDAO,
                 dbXrefDAO, devStageDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO, taxonDAO, taxonAnnotationDAO,
                 versionDAO, userDAO);
     }
     
-    public int insertFossilAnnotation(List<FossilAnnotationBean> fossilAnnotationBeans, ArticleDAO articleDAO,
-                                       ArticleToDbXrefDAO articleToDbXrefDAO, ConditionDAO conditionDAO,
-                                       DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO, DevStageDAO devStageDAO,
-                                       GeologicalAgeDAO geologicalAgeDAO, MoultingCharactersDAO moultingCharactersDAO,
-                                       SampleSetDAO sampleSetDAO, TaxonDAO taxonDAO, TaxonAnnotationDAO taxonAnnotationDAO,
-                                       VersionDAO versionDAO, UserDAO userDAO) {
+    public int insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans, ArticleDAO articleDAO,
+                                      ArticleToDbXrefDAO articleToDbXrefDAO, ConditionDAO conditionDAO,
+                                      DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO, DevStageDAO devStageDAO,
+                                      GeologicalAgeDAO geologicalAgeDAO, MoultingCharactersDAO moultingCharactersDAO,
+                                      SampleSetDAO sampleSetDAO, TaxonDAO taxonDAO, TaxonAnnotationDAO taxonAnnotationDAO,
+                                      VersionDAO versionDAO, UserDAO userDAO) {
         
         Integer mcNextId = getNextId(moultingCharactersDAO.getLastId());
         Integer ssNextId = getNextId(sampleSetDAO.getLastId());
@@ -164,8 +163,8 @@ public class FossilParser {
         Set<TaxonAnnotationTO> taxonAnnotationTOs = new HashSet<>();
         Set<VersionTO> versionTOs = new HashSet<>();
         Map<String, ArticleTO> viewedArticleCitations = new HashMap<>();
-        for (int beanCount = 0; beanCount < fossilAnnotationBeans.size(); beanCount++) {
-            FossilAnnotationBean bean = fossilAnnotationBeans.get(beanCount);
+        for (int beanCount = 0; beanCount < taxonAnnotationBeans.size(); beanCount++) {
+            TaxonAnnotationBean bean = taxonAnnotationBeans.get(beanCount);
             if (beanCount % 5 == 0) {
                 logger.debug(beanCount + " annotations converted");
             }
@@ -351,12 +350,12 @@ public class FossilParser {
         return geoAgeTO;
     }
     
-    public List<FossilAnnotationBean> parseFossilAnnotation(MultipartFile uploadedFile) {
-        logger.info("Start parsing of fossil annotation file ...");
+    public List<TaxonAnnotationBean> parseAnnotations(MultipartFile uploadedFile) {
+        logger.info("Start parsing of taxon annotation file ...");
         
-        try (ICsvBeanReader fossilReader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), TSV_COMMENTED)) {
-            List<FossilAnnotationBean> fossilAnnotationBeans = getFossilAnnotationBeans(fossilReader);
-            return logger.traceExit(fossilAnnotationBeans);
+        try (ICsvBeanReader reader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), TSV_COMMENTED)) {
+            List<TaxonAnnotationBean> taxonAnnotationBeans = getTaxonAnnotationBeans(reader);
+            return logger.traceExit(taxonAnnotationBeans);
         
         } catch (SuperCsvException e) {
             throw new IllegalArgumentException("The provided file " + uploadedFile.getOriginalFilename()
@@ -366,14 +365,14 @@ public class FossilParser {
         }
     }
     
-    public List<FossilAnnotationBean> parseFossilAnnotation(String fileName) {
-        logger.info("Start parsing of fossil annotation file " + fileName + "...");
+    public List<TaxonAnnotationBean> parseAnnotations(String fileName) {
+        logger.info("Start parsing of taxon annotation file " + fileName + "...");
         
-        try (ICsvBeanReader fossilReader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
+        try (ICsvBeanReader reader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
     
-            logger.info("End parsing of fossil annotation file");
+            logger.info("End parsing of taxon annotation file");
     
-            return logger.traceExit(getFossilAnnotationBeans(fossilReader));
+            return logger.traceExit(getTaxonAnnotationBeans(reader));
             
         } catch (SuperCsvException e) {
             //hide implementation details
@@ -384,28 +383,28 @@ public class FossilParser {
         }
     }
     
-    private List<FossilAnnotationBean> getFossilAnnotationBeans(ICsvBeanReader fossilReader) throws IOException {
-        List<FossilAnnotationBean> annots = new ArrayList<>();
+    private List<TaxonAnnotationBean> getTaxonAnnotationBeans(ICsvBeanReader annotReader) throws IOException {
+        List<TaxonAnnotationBean> annots = new ArrayList<>();
         
-        final String[] header = fossilReader.getHeader(true);
+        final String[] header = annotReader.getHeader(true);
         
-        String[] attributeMapping = mapFossilAnnotationHeaderToAttributes(header);
-        CellProcessor[] cellProcessorMapping = mapFossilAnnotationHeaderToCellProcessors(header);
-        FossilAnnotationBean fossil;
+        String[] attributeMapping = mapHeaderToAttributes(header);
+        CellProcessor[] cellProcessorMapping = mapHeaderToCellProcessors(header);
+        TaxonAnnotationBean beans;
         
-        while((fossil = fossilReader.read(FossilAnnotationBean.class, attributeMapping, cellProcessorMapping)) != null) {
-            logger.trace(fossil);
-            annots.add(fossil);
+        while((beans = annotReader.read(TaxonAnnotationBean.class, attributeMapping, cellProcessorMapping)) != null) {
+            logger.trace(beans);
+            annots.add(beans);
         }
         if (annots.isEmpty()) {
-            throw new IllegalArgumentException("The provided file did not allow to retrieve any fossil");
+            throw new IllegalArgumentException("The provided file did not allow to retrieve any annotation");
         }
         
         return annots;
     }
     
     
-    private CellProcessor[] mapFossilAnnotationHeaderToCellProcessors(String[] header) {
+    private CellProcessor[] mapHeaderToCellProcessors(String[] header) {
         CellProcessor[] processors = new CellProcessor[header.length];
         for (int i = 0; i < header.length; i++) {
             if (header[i] == null) {
@@ -538,7 +537,7 @@ public class FossilParser {
                         -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case GENERAL_COMMENTS_COL_NAME
                         -> new ParseCustomOptional(new Trim());
-                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for FossilAnnotationBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonAnnotationBean");
             };
         }
         logger.trace("processors: " + Arrays.stream(processors).toList());
@@ -549,7 +548,7 @@ public class FossilParser {
         return new ArrayList<>(MoutldbEnum.getAllStringRepresentations(enumClass));
     }
     
-    private String[] mapFossilAnnotationHeaderToAttributes(String[] header) {
+    private String[] mapHeaderToAttributes(String[] header) {
         
         String[] mapping = new String[header.length];
         for (int i = 0; i < header.length; i++) {
@@ -614,7 +613,7 @@ public class FossilParser {
                 case EVIDENCE_CODE_COL_NAME -> "evidenceCode";
                 case CONFIDENCE_COL_NAME -> "confidence";
                 case GENERAL_COMMENTS_COL_NAME -> "generalComments";
-                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for FossilAnnotationBean");
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for TaxonAnnotationBean");
             };
         }
         logger.trace("mapping: " + Arrays.stream(mapping).toList());

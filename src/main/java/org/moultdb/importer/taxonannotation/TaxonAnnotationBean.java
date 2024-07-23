@@ -1,4 +1,4 @@
-package org.moultdb.importer.fossilannotation;
+package org.moultdb.importer.taxonannotation;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,7 +10,7 @@ import java.util.StringJoiner;
  * @author Valentine Rech de Laval
  * @since 2021-12-13
  */
-public class FossilAnnotationBean {
+public class TaxonAnnotationBean {
     
     private String order;
     private String taxon;
@@ -70,7 +70,7 @@ public class FossilAnnotationBean {
     private String confidence;
     private String generalComments;
     
-    public FossilAnnotationBean() {
+    public TaxonAnnotationBean() {
     }
     
     public String getOrder() {
@@ -538,7 +538,7 @@ public class FossilAnnotationBean {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FossilAnnotationBean that = (FossilAnnotationBean) o;
+        TaxonAnnotationBean that = (TaxonAnnotationBean) o;
         return Objects.equals(order, that.order)
                 && Objects.equals(taxon, that.taxon)
                 && Objects.equals(determinedBy, that.determinedBy)
@@ -617,7 +617,7 @@ public class FossilAnnotationBean {
     
     @Override
     public String toString() {
-        return new StringJoiner(", ", FossilAnnotationBean.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", TaxonAnnotationBean.class.getSimpleName() + "[", "]")
                 .add("order='" + order + "'")
                 .add("taxon='" + taxon + "'")
                 .add("determinedBy='" + determinedBy + "'")

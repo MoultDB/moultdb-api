@@ -9,8 +9,8 @@ import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TaxonAnnotationService;
-import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
-import org.moultdb.importer.fossilannotation.FossilParser;
+import org.moultdb.importer.taxonannotation.TaxonAnnotationBean;
+import org.moultdb.importer.taxonannotation.TaxonAnnotationParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -135,14 +135,14 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
         logger.info("Start taxon annotations import...");
         
-        FossilParser importer = new FossilParser();
+        TaxonAnnotationParser importer = new TaxonAnnotationParser();
         int count;
         try {
             logger.info("Parse annotation file " + file.getOriginalFilename() + "...");
-            List<FossilAnnotationBean> fossilAnnotationBeans = importer.parseFossilAnnotation(file);
+            List<TaxonAnnotationBean> taxonAnnotationBeans = importer.parseAnnotations(file);
             
             logger.info("Load annotations in db...");
-            count = importer.insertFossilAnnotation(fossilAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO,
+            count = importer.insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO,
                     dataSourceDAO, dbXrefDAO, devStageDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO,
                     taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
         
