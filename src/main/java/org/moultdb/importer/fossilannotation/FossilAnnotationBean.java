@@ -28,6 +28,11 @@ public class FossilAnnotationBean {
     private String environment;
     private String biozone;
     private Integer specimenCount;
+    private String sex;
+    private String previousReproductiveState;
+    private String previousObservedMoultStage;
+    private String reproductiveState;
+    private String observedMoultStage;
     private String specimenType;
     private String lifeHistoryStyle;
     private String lifeMode;
@@ -35,14 +40,14 @@ public class FossilAnnotationBean {
     private Integer majorMorphologicalTransitionCount;
     private Boolean adultStageMoulting;
     private Integer observedMoultStagesCount;
-    private String observedMoultStage;
     private Integer estimatedMoultStagesCount;
     private String segmentAdditionMode;
     private String bodySegmentCount;
     private String bodySegmentCountInAdults;
     private BigDecimal bodyLengthAverage;
-    private String bodyLengthIncreaseAverage;
+    private BigDecimal bodyLengthIncreaseAverage;
     private BigDecimal bodyMassIncreaseAverage;
+    private String stagePeriod;
     private String intermoultPeriod;
     private String premoultPeriod;
     private String postmoultPeriod;
@@ -196,6 +201,46 @@ public class FossilAnnotationBean {
         this.specimenCount = specimenCount;
     }
     
+    public String getSex() {
+        return sex;
+    }
+    
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+    
+    public String getPreviousReproductiveState() {
+        return previousReproductiveState;
+    }
+    
+    public void setPreviousReproductiveState(String previousReproductiveState) {
+        this.previousReproductiveState = previousReproductiveState;
+    }
+    
+    public String getPreviousObservedMoultStage() {
+        return previousObservedMoultStage;
+    }
+    
+    public void setPreviousObservedMoultStage(String previousObservedMoultStage) {
+        this.previousObservedMoultStage = previousObservedMoultStage;
+    }
+    
+    public String getReproductiveState() {
+        return reproductiveState;
+    }
+    
+    public void setReproductiveState(String reproductiveState) {
+        this.reproductiveState = reproductiveState;
+    }
+    
+    public String getObservedMoultStage() {
+        return observedMoultStage;
+    }
+    
+    public void setObservedMoultStage(String observedMoultStage) {
+        this.observedMoultStage = observedMoultStage;
+    }
+    
     public String getSpecimenType() {
         return specimenType;
     }
@@ -253,14 +298,6 @@ public class FossilAnnotationBean {
         this.observedMoultStagesCount = observedMoultStagesCount;
     }
     
-    public String getObservedMoultStage() {
-        return observedMoultStage;
-    }
-    
-    public void setObservedMoultStage(String observedMoultStage) {
-        this.observedMoultStage = observedMoultStage;
-    }
-    
     public Integer getEstimatedMoultStagesCount() {
         return estimatedMoultStagesCount;
     }
@@ -301,11 +338,11 @@ public class FossilAnnotationBean {
         this.bodyLengthAverage = bodyLengthAverage;
     }
     
-    public String getBodyLengthIncreaseAverage() {
+    public BigDecimal getBodyLengthIncreaseAverage() {
         return bodyLengthIncreaseAverage;
     }
     
-    public void setBodyLengthIncreaseAverage(String bodyLengthIncreaseAverage) {
+    public void setBodyLengthIncreaseAverage(BigDecimal bodyLengthIncreaseAverage) {
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
     }
     
@@ -315,6 +352,14 @@ public class FossilAnnotationBean {
     
     public void setBodyMassIncreaseAverage(BigDecimal bodyMassIncreaseAverage) {
         this.bodyMassIncreaseAverage = bodyMassIncreaseAverage;
+    }
+    
+    public String getStagePeriod() {
+        return stagePeriod;
+    }
+    
+    public void setStagePeriod(String stagePeriod) {
+        this.stagePeriod = stagePeriod;
     }
     
     public String getIntermoultPeriod() {
@@ -510,6 +555,11 @@ public class FossilAnnotationBean {
                 && Objects.equals(environment, that.environment)
                 && Objects.equals(biozone, that.biozone)
                 && Objects.equals(specimenCount, that.specimenCount)
+                && Objects.equals(sex, that.sex)
+                && Objects.equals(previousReproductiveState, that.previousReproductiveState)
+                && Objects.equals(previousObservedMoultStage, that.previousObservedMoultStage)
+                && Objects.equals(reproductiveState, that.reproductiveState)
+                && Objects.equals(observedMoultStage, that.observedMoultStage)
                 && Objects.equals(specimenType, that.specimenType)
                 && Objects.equals(lifeHistoryStyle, that.lifeHistoryStyle)
                 && Objects.equals(lifeMode, that.lifeMode)
@@ -517,7 +567,6 @@ public class FossilAnnotationBean {
                 && Objects.equals(majorMorphologicalTransitionCount, that.majorMorphologicalTransitionCount)
                 && Objects.equals(adultStageMoulting, that.adultStageMoulting)
                 && Objects.equals(observedMoultStagesCount, that.observedMoultStagesCount)
-                && Objects.equals(observedMoultStage, that.observedMoultStage)
                 && Objects.equals(estimatedMoultStagesCount, that.estimatedMoultStagesCount)
                 && Objects.equals(segmentAdditionMode, that.segmentAdditionMode)
                 && Objects.equals(bodySegmentCount, that.bodySegmentCount)
@@ -525,6 +574,7 @@ public class FossilAnnotationBean {
                 && Objects.equals(bodyLengthAverage, that.bodyLengthAverage)
                 && Objects.equals(bodyLengthIncreaseAverage, that.bodyLengthIncreaseAverage)
                 && Objects.equals(bodyMassIncreaseAverage, that.bodyMassIncreaseAverage)
+                && Objects.equals(stagePeriod, that.stagePeriod)
                 && Objects.equals(intermoultPeriod, that.intermoultPeriod)
                 && Objects.equals(premoultPeriod, that.premoultPeriod)
                 && Objects.equals(postmoultPeriod, that.postmoultPeriod)
@@ -551,12 +601,14 @@ public class FossilAnnotationBean {
     @Override
     public int hashCode() {
         return Objects.hash(order, taxon, determinedBy, publishedReferenceText, publishedReferenceAcc, contributor,
-                museumCollection, museumAccession, locationName, locationGps, geologicalFormation, geologicalAge, fossilPreservationType,
-                environment, biozone, specimenCount, specimenType, lifeHistoryStyle, lifeMode, juvenileMoultCount,
-                majorMorphologicalTransitionCount, adultStageMoulting, observedMoultStagesCount, observedMoultStage,
+                museumCollection, museumAccession, locationName, locationGps, geologicalFormation, geologicalAge,
+                fossilPreservationType, environment, biozone, specimenCount, sex,
+                previousReproductiveState, previousObservedMoultStage, reproductiveState, observedMoultStage,
+                specimenType, lifeHistoryStyle, lifeMode, juvenileMoultCount,
+                majorMorphologicalTransitionCount, adultStageMoulting, observedMoultStagesCount, 
                 estimatedMoultStagesCount, segmentAdditionMode, bodySegmentCount, bodySegmentCountInAdults,
-                bodyLengthAverage, bodyLengthIncreaseAverage, bodyMassIncreaseAverage, intermoultPeriod, premoultPeriod,
-                postmoultPeriod, variationWithinCohorts, moultingSutureLocation, cephalicSutureLocation,
+                bodyLengthAverage, bodyLengthIncreaseAverage, bodyMassIncreaseAverage, stagePeriod, intermoultPeriod,
+                premoultPeriod, postmoultPeriod, variationWithinCohorts, moultingSutureLocation, cephalicSutureLocation,
                 postCephalicSutureLocation, resultingNamedMoultingConfigurations, egressDirectionDuringMoulting,
                 positionExuviaeFoundIn, moultingPhase, moultingVariability, calcificationEvent, heavyMetalReinforcement,
                 otherBehavioursAssociatedWithMoulting, exuviaeConsumption, reabsorption, fossilExuviaeQuality,
@@ -582,6 +634,11 @@ public class FossilAnnotationBean {
                 .add("environment='" + environment + "'")
                 .add("biozone='" + biozone + "'")
                 .add("specimenCount=" + specimenCount)
+                .add("sex=" + sex)
+                .add("previousReproductiveState=" + previousReproductiveState)
+                .add("previousObservedMoultStage='" + previousObservedMoultStage + "'")
+                .add("reproductiveState=" + reproductiveState)
+                .add("observedMoultStage='" + observedMoultStage + "'")
                 .add("specimenType='" + specimenType + "'")
                 .add("lifeHistoryStyle='" + lifeHistoryStyle + "'")
                 .add("lifeMode='" + lifeMode + "'")
@@ -589,7 +646,6 @@ public class FossilAnnotationBean {
                 .add("majorMorphologicalTransitionCount='" + majorMorphologicalTransitionCount + "'")
                 .add("adultStageMoulting=" + adultStageMoulting)
                 .add("observedMoultStagesCount=" + observedMoultStagesCount)
-                .add("observedMoultStage='" + observedMoultStage + "'")
                 .add("estimatedMoultStagesCount=" + estimatedMoultStagesCount)
                 .add("segmentAdditionMode='" + segmentAdditionMode + "'")
                 .add("bodySegmentCount='" + bodySegmentCount + "'")
@@ -597,6 +653,7 @@ public class FossilAnnotationBean {
                 .add("bodyLengthAverage=" + bodyLengthAverage)
                 .add("bodyLengthIncreaseAverage='" + bodyLengthIncreaseAverage + "'")
                 .add("bodyMassAverage=" + bodyMassIncreaseAverage)
+                .add("stagePeriod='" + stagePeriod + "'")
                 .add("intermoultPeriod='" + intermoultPeriod + "'")
                 .add("premoultPeriod='" + premoultPeriod + "'")
                 .add("postmoultPeriod='" + postmoultPeriod + "'")

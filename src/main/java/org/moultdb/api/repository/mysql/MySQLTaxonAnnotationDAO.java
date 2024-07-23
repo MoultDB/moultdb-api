@@ -196,7 +196,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 DevStageTO devStageTO = null;
                 if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
                     devStageTO = new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
-                            rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound"));
+                            rs.getString("ds.taxon_path"), rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound"));
                 }
                 AnatEntityTO anatEntityTO = null;
                 if (StringUtils.isNotBlank(rs.getString("c.anatomical_entity_id"))) {
@@ -206,7 +206,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 ConditionTO conditionTO = null;
                 if (DAO.getInteger(rs, "ta.condition_id") != null) {
                     conditionTO = new ConditionTO(rs.getInt("c.id"), devStageTO, anatEntityTO,
-                            rs.getString("c.sex"), rs.getString("c.moulting_step"));
+                            rs.getString("c.sex"), rs.getString("c.reproductive_state"), rs.getString("c.moulting_step"));
                 }
                 
                 ArticleTO articleTO = null;

@@ -16,25 +16,30 @@ public class ConditionTO extends EntityTO<Integer> {
     private final Integer ageInDays;
     private final AnatEntityTO anatEntityTO;
     private final String sex;
+    private final String reproductiveState;
     private final String moultingStep;
     
-    public ConditionTO(Integer id, Integer ageInDays, AnatEntityTO anatEntityTO, String sex, String moultingStep)
+    public ConditionTO(Integer id, Integer ageInDays, AnatEntityTO anatEntityTO,
+                       String sex, String reproductiveState, String moultingStep)
             throws IllegalArgumentException {
-        this(id, null, ageInDays, anatEntityTO, sex, moultingStep);
+        this(id, null, ageInDays, anatEntityTO, sex, reproductiveState, moultingStep);
     }
     
-    public ConditionTO(Integer id, DevStageTO devStageTO, AnatEntityTO anatEntityTO, String sex, String moultingStep)
+    public ConditionTO(Integer id, DevStageTO devStageTO, AnatEntityTO anatEntityTO,
+                       String sex, String reproductiveState, String moultingStep)
             throws IllegalArgumentException {
-        this(id, devStageTO, null, anatEntityTO, sex, moultingStep);
+        this(id, devStageTO, null, anatEntityTO, sex, reproductiveState, moultingStep);
     }
 
-    private ConditionTO(Integer id, DevStageTO devStageTO, Integer ageInDays, AnatEntityTO anatEntityTO, String sex, String moultingStep)
+    private ConditionTO(Integer id, DevStageTO devStageTO, Integer ageInDays, AnatEntityTO anatEntityTO,
+                        String sex, String reproductiveState, String moultingStep)
             throws IllegalArgumentException {
         super(id);
         this.devStageTO = devStageTO;
         this.ageInDays = ageInDays;
         this.anatEntityTO = anatEntityTO;
         this.sex = sex;
+        this.reproductiveState = reproductiveState;
         this.moultingStep = moultingStep;
     }
     
@@ -46,12 +51,16 @@ public class ConditionTO extends EntityTO<Integer> {
         return ageInDays;
     }
     
-    public AnatEntityTO getAnatomicalEntityTO() {
+    public AnatEntityTO getAnatEntityTO() {
         return anatEntityTO;
     }
     
     public String getSex() {
         return sex;
+    }
+    
+    public String getReproductiveState() {
+        return reproductiveState;
     }
     
     public String getMoultingStep() {
@@ -64,6 +73,7 @@ public class ConditionTO extends EntityTO<Integer> {
                 .add("devStageTO=" + devStageTO)
                 .add("anatEntityTO=" + anatEntityTO)
                 .add("sex=" + sex)
+                .add("reproductiveState=" + reproductiveState)
                 .add("moultingStep=" + moultingStep)
                 .toString();
     }

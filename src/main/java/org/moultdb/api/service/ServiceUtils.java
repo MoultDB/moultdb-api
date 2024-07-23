@@ -109,13 +109,14 @@ public class ServiceUtils {
         if (conditionTO.getDevStageTO() != null) {
             devStage = new DevStage(conditionTO.getDevStageTO().getId(),
                     conditionTO.getDevStageTO().getName(), conditionTO.getDevStageTO().getDescription(),
+                    conditionTO.getDevStageTO().getTaxonPath(),
                     conditionTO.getDevStageTO().getLeftBound(), conditionTO.getDevStageTO().getRightBound());
         }
         
         AnatEntity anatEntity = null;
-        if (conditionTO.getAnatomicalEntityTO() != null) {
-            anatEntity = new AnatEntity(conditionTO.getAnatomicalEntityTO().getId(),
-                    conditionTO.getAnatomicalEntityTO().getName(), conditionTO.getAnatomicalEntityTO().getDescription());
+        if (conditionTO.getAnatEntityTO() != null) {
+            anatEntity = new AnatEntity(conditionTO.getAnatEntityTO().getId(),
+                    conditionTO.getAnatEntityTO().getName(), conditionTO.getAnatEntityTO().getDescription());
         }
         
         MoultingStep moultingStep = null;
@@ -123,7 +124,8 @@ public class ServiceUtils {
             moultingStep = MoultingStep.valueOfByStringRepresentation(conditionTO.getMoultingStep());
         }
         
-        return new Condition(devStage, anatEntity, conditionTO.getSex(),moultingStep);
+        return new Condition(devStage, anatEntity, conditionTO.getSex(), conditionTO.getReproductiveState(),
+                moultingStep);
     }
     
     private static DbXref mapFromTO(DbXrefTO dbXrefTO, Map<Integer, TaxonToDbXrefTO> dbXrefIdToTaxonToDbXrefTO) {

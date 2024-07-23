@@ -133,7 +133,7 @@ public class ImageServiceImpl implements ImageService {
 
         Integer conditionLastId = conditionDAO.getLastId();
         Integer conditionNextId = conditionLastId == null ? 1 : conditionLastId + 1;
-        ConditionTO conditionTO = new ConditionTO(conditionNextId, ageInDays, anatEntityTO, sex, moultingStep);
+        ConditionTO conditionTO = new ConditionTO(conditionNextId, ageInDays, anatEntityTO, sex, null, moultingStep);
         conditionDAO.insert(conditionTO);
         
         Integer imageLastId = imageDAO.getLastId();

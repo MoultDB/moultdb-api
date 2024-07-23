@@ -22,7 +22,7 @@ public interface MoutldbEnum {
      * @return                  The {@code boolean} defining whether {@code representation} is a
      *                          representation of an element of the {@code enumClass}.
      */
-    static <T extends Enum<T> & MoutldbEnum> boolean isInEnum(Class<T> enumClass, String representation) {
+    public static <T extends Enum<T> & MoutldbEnum> boolean isInEnum(Class<T> enumClass, String representation) {
         String lowCaseRepresentation = representation.toLowerCase(Locale.ENGLISH);
         for (T moultdbEnum: EnumSet.allOf(enumClass)) {
             if (moultdbEnum.getStringRepresentation().toLowerCase(Locale.ENGLISH).equals(lowCaseRepresentation) ||
@@ -33,7 +33,7 @@ public interface MoutldbEnum {
         return false;
     }
     
-    static <T extends Enum<T> & MoutldbEnum> List<String> getAllStringRepresentations(Class<T> enumClass) {
+    public static <T extends Enum<T> & MoutldbEnum> List<String> getAllStringRepresentations(Class<T> enumClass) {
         return EnumSet.allOf(enumClass)
                       .stream()
                       .map(MoutldbEnum::getStringRepresentation)

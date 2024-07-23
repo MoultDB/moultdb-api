@@ -193,8 +193,9 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         List<T> namedEntityTOs = template.query(sql, mapper);
   
         if (namedEntityTOs.size() != names.size()) {
-            throw new IllegalStateException("Not all names were found with query: SELECT * FROM " + otherTableName +
-                    " WHERE name IN (" + names.stream().collect(Collectors.joining("', '", "'", "'")) + ")");
+            throw new IllegalStateException("Not all names " + names.stream().collect(Collectors.joining(", ", "[", "]"))
+                    + " were found in db " + namedEntityTOs.stream().map(NamedEntityTO::getName).collect(Collectors.joining(", ", "[", "]")) +
+                    ": " + sql);
         }
         Map<String, NamedEntityTO> namedEntityTOsByName =
                 namedEntityTOs.stream()
@@ -207,11 +208,14 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (SampleSetTO sampleSetTO : sampleSetTOs) {
-            for (String name: func.apply(sampleSetTO)) {
-                MapSqlParameterSource source = new MapSqlParameterSource();
-                source.addValue("sample_set_id", sampleSetTO.getId());
-                source.addValue("association_id", namedEntityTOsByName.get(name).getId());
-                params.add(source);
+            Set<String> apply = func.apply(sampleSetTO);
+            if (apply != null) {
+                for (String name: apply) {
+                    MapSqlParameterSource source = new MapSqlParameterSource();
+                    source.addValue("sample_set_id", sampleSetTO.getId());
+                    source.addValue("association_id", namedEntityTOsByName.get(name).getId());
+                    params.add(source);
+                }
             }
         }
         template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));

@@ -59,10 +59,10 @@ public class FossilParser {
     
     private final static String ORDER_COL_NAME = "Order";
     private final static String TAXON_COL_NAME = "Taxon";
-    private final static String DETERMINED_BY_COL_NAME = "Determined by"; //DOI or PMID or ORCID ID
+    private final static String DETERMINED_BY_COL_NAME = "Determined by";
     private final static String PUBLISHED_REFERENCE_TEXT_COL_NAME = "Published reference: citation (APA style)";
     private final static String PUBLISHED_REFERENCE_ACC_COL_NAME = "Published reference: accession";
-    private final static String CONTRIBUTOR_COL_NAME = "Contributor"; // ORCID ID
+    private final static String CONTRIBUTOR_COL_NAME = "Contributor";
     private final static String MUSEUM_COLLECTION_COL_NAME = "Museum collection";
     private final static String MUSEUM_ACCESSION_COL_NAME = "Museum accession";
     private final static String LOCATION_NAME_COL_NAME = "Location: name";
@@ -71,16 +71,20 @@ public class FossilParser {
     private final static String GEOLOGICAL_AGE_COL_NAME = "Geological age";
     private final static String FOSSIL_PRESERVATION_TYPE_COL_NAME = "Fossil preservation type";
     private final static String ENVIRONMENT_COL_NAME = "Environment";
-    private final static String BIOZONE_COL_NAME = "Biozone"; // {free text field}
+    private final static String BIOZONE_COL_NAME = "Biozone";
     private final static String SPECIMEN_COUNT_COL_NAME = "Number of specimens";
+    private final static String SEX_COL_NAME = "Sex";
+    private final static String PREVIOUS_REPRODUCTIVE_STATE_COL_NAME = "Previous reproductive state";
+    private final static String PREVIOUS_DEV_STAGE_COL_NAME = "Previous ontogenetic stage";
+    private final static String REPRODUCTIVE_STATE_COL_NAME = "Reproductive state";
+    private final static String OBSERVED_DEV_STAGE_COL_NAME = "Observed ontogenetic stage";
     private final static String SPECIMEN_TYPE_COL_NAME = "Type of specimens of interest";
     private final static String LIFE_HISTORY_STYLE_COL_NAME = "Life history style";
-    private final static String LIFE_MODE_COL_NAME = "Life mode"; // pelagic; sessile; epifaunal; infaunal;
-    private final static String JUVENILE_MOULT_COUNT_COL_NAME = "Number of juvenile moults"; //(free number field)
-    private final static String MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME = "Number of major morphological transitions"; // (free number field)
+    private final static String LIFE_MODE_COL_NAME = "Life mode";
+    private final static String JUVENILE_MOULT_COUNT_COL_NAME = "Number of juvenile moults";
+    private final static String MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME = "Number of major morphological transitions";
     private final static String ADULT_STAGE_MOULTING_COL_NAME = "Adult stage moulting";
     private final static String OBSERVED_MOULT_STAGES_COUNT_COL_NAME = "Observed # total moult stages";
-    private final static String OBSERVED_MOULT_STAGE_COL_NAME = "Observed moult stage";
     private final static String ESTIMATED_MOULT_STAGES_COUNT_COL_NAME = "Estimated # moult stages";
     private final static String SEGMENT_ADDITION_MODE_COL_NAME = "Segment addition mode";
     private final static String BODY_SEGMENT_COUNT_COL_NAME = "# body segments per moult stage";
@@ -88,6 +92,7 @@ public class FossilParser {
     private final static String BODY_LENGTH_AVERAGE_COL_NAME = "Average body length (in mm)";
     private final static String BODY_LENGTH_INCREASE_AVERAGE_COL_NAME = "Average body length increase from previous moult (in mm)";
     private final static String BODY_MASS_INCREASE_AVERAGE_COL_NAME = "Average body mass increase from previous moult (in g)";
+    private final static String ONTOGENETIC_STAGE_PERIOD_COL_NAME = "Ontogenetic stage period (in days)";
     private final static String INTERMOULT_PERIOD_COL_NAME = "Intermoult period (in days)";
     private final static String PREMOULT_PERIOD_COL_NAME = "Pre-moult period (in days)";
     private final static String POSTMOULT_PERIOD_COL_NAME = "Post-moult period (in days)";
@@ -99,7 +104,7 @@ public class FossilParser {
     private final static String EGRESS_DIRECTION_DURING_MOULTING_COL_NAME = "Direction of egress during moulting";
     private final static String POSITION_EXUVIAE_FOUND_IN_COL_NAME = "Position exuviae found in";
     private final static String MOULTING_PHASE_COL_NAME = "Moulting phase";
-    private final static String MOULTING_VARIABILITY_COL_NAME = "Level of intraspecific variability in moulting mode";
+    private final static String MOULTING_VARIABILITY_COL_NAME = "Intraspecific variability in moulting mode";
     private final static String CALCIFICATION_EVENT_COL_NAME = "Post-moult cuticle calcification event";
     private final static String HEAVY_METAL_REINFORCEMENT_COL_NAME = "Post-moult heavy metal reinforcement of the cuticle";
     private final static String OTHER_BEHAVIOURS_ASSOCIATED_WITH_MOULTING_COL_NAME = "Other behaviours associated with moulting";
@@ -159,45 +164,63 @@ public class FossilParser {
         Set<TaxonAnnotationTO> taxonAnnotationTOs = new HashSet<>();
         Set<VersionTO> versionTOs = new HashSet<>();
         Map<String, ArticleTO> viewedArticleCitations = new HashMap<>();
-        for (FossilAnnotationBean bean: fossilAnnotationBeans) {
-            BigDecimal bodyLengthIncreaseAverage = null;
-            if (bean.getBodyLengthIncreaseAverage() != null) {
-                Matcher m1 = Pattern.compile("^(.+)( \\(.*\\))*$").matcher(bean.getBodyLengthIncreaseAverage());
-                if (m1.find()) {
-                    bodyLengthIncreaseAverage = new BigDecimal(m1.group(1));
-                }
+        for (int beanCount = 0; beanCount < fossilAnnotationBeans.size(); beanCount++) {
+            FossilAnnotationBean bean = fossilAnnotationBeans.get(beanCount);
+            if (beanCount % 5 == 0) {
+                logger.debug(beanCount + " annotations converted");
             }
             MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(mcNextId, bean.getLifeHistoryStyle(),
                     bean.getLifeMode(), bean.getJuvenileMoultCount(), bean.getMajorMorphologicalTransitionCount(),
                     bean.getAdultStageMoulting(), bean.getObservedMoultStagesCount(), bean.getEstimatedMoultStagesCount(),
                     bean.getSegmentAdditionMode(), bean.getBodySegmentCount(), bean.getBodySegmentCountInAdults(),
-                    bean.getBodyLengthAverage(), bodyLengthIncreaseAverage, bean.getBodyMassIncreaseAverage(),
+                    bean.getBodyLengthAverage(), bean.getBodyLengthIncreaseAverage(), bean.getBodyMassIncreaseAverage(),
                     bean.getIntermoultPeriod(), bean.getPremoultPeriod(), bean.getPostmoultPeriod(),
                     bean.getVariationWithinCohorts(), bean.getMoultingSutureLocation(), bean.getCephalicSutureLocation(),
                     bean.getPostCephalicSutureLocation(), bean.getResultingNamedMoultingConfigurations(),
                     bean.getEgressDirectionDuringMoulting(), bean.getPositionExuviaeFoundIn(), bean.getMoultingPhase(),
-                    bean.getMoultingVariability(),bean.getCalcificationEvent(),bean.getHeavyMetalReinforcement(),
+                    bean.getMoultingVariability(), bean.getCalcificationEvent(), bean.getHeavyMetalReinforcement(),
                     bean.getOtherBehavioursAssociatedWithMoulting(), bean.getExuviaeConsumption(),
                     bean.getReabsorption(), bean.getFossilExuviaeQuality(), bean.getGeneralComments());
             mcTOs.add(moultingCharactersTO);
-            mcNextId ++;
+            mcNextId++;
             
             TaxonTO taxonTO = taxonDAO.findByScientificName(bean.getTaxon());
+            String taxonType = null;
+            if (taxonTO == null) {
+                // Try to find synonym taxon
+                taxonTO = taxonDAO.findBySynonym(bean.getTaxon());
+                taxonType = (taxonTO == null ? null : "synonym");
+            }
             if (taxonTO == null) {
                 // Try to find genus taxon
                 String genus = bean.getTaxon().split(" ")[0];
-                logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
-                        "Search for genus '" + genus + "'...");
                 taxonTO = taxonDAO.findByScientificName(genus);
+                taxonType = (taxonTO == null ? null : "genus");
             }
             if (taxonTO == null) {
-                throw new IllegalArgumentException("Unknown taxon scientific name or genus: " + bean.getTaxon());
+                // Try to find order taxon
+                taxonTO = taxonDAO.findByScientificName(bean.getOrder());
+                taxonType = (taxonTO == null ? null : "order");
             }
     
+            if (taxonTO == null) {
+                throw new IllegalArgumentException("Unknown taxon scientific name or genus '" + bean.getTaxon() +
+                        "' or order '" + bean.getOrder() + "'");
+            }
+            
+            if (StringUtils.isNotBlank(taxonType)) {
+                logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
+                        "Found " + taxonType + " '" + taxonTO.getScientificName() + "'.");
+            }
+            
             // Ex: 'Stage 3' or 'Sandbian to Katian'
             String fromGeoAgeName = bean.getGeologicalAge();
+            if (StringUtils.isBlank(fromGeoAgeName) && bean.getSpecimenType().contains("observations of living individual(s)")) {
+                logger.debug("Geological age is empty and specimen type contains 'observations of living individual(s)' so, we use 'Meghalayan'");
+                fromGeoAgeName = "Meghalayan";
+            }
             GeologicalAgeTO toGeologicalAgeTO = null;
-            int i = bean.getGeologicalAge().indexOf(" to ");
+            int i = StringUtils.isNotBlank(bean.getGeologicalAge()) ? bean.getGeologicalAge().indexOf(" to ") : -1;
             if (i != -1) {
                 fromGeoAgeName = bean.getGeologicalAge().substring(0, i);
                 String toGeoAgeName = bean.getGeologicalAge().substring(i + 4);
@@ -216,15 +239,15 @@ public class FossilParser {
             Set<DbXrefTO> articleDbXrefTOs = new HashSet<>();
             if (bean.getPublishedReferenceAcc() != null) {
                 for (String acc : bean.getPublishedReferenceAcc().split(";")) {
-                    Matcher m = Pattern.compile("^([A-Z]+): (\\S+)$").matcher(String.valueOf(acc));
+                    Matcher m = Pattern.compile("^([A-Z]+):(\\S+)$").matcher(String.valueOf(acc));
                     if (m.find()) {
                         DataSourceTO dataSourceTO = dataSourceDAO.findByName(m.group(1));
                         if (dataSourceTO == null) {
                             throw new IllegalArgumentException("Unknown data source: " + m.group(1));
                         }
-                        DbXrefTO dbXrefTO = dbXrefDAO.findByAccessionAndDatasource(m.group(2), dataSourceTO.getId());
+                        DbXrefTO dbXrefTO = dbXrefDAO.findByAccessionAndDatasource(m.group(2).trim(), dataSourceTO.getId());
                         if (dbXrefTO == null) {
-                            dbXrefTO = new DbXrefTO(dbXrefNextId, m.group(2), null, dataSourceTO);
+                            dbXrefTO = new DbXrefTO(dbXrefNextId, m.group(2).trim(), null, dataSourceTO);
                             dbXrefTOs.add(dbXrefTO);
                             dbXrefNextId++;
                         }
@@ -239,7 +262,7 @@ public class FossilParser {
                 if (articleTO == null) {
                     articleTO = new ArticleTO(articleNextId, bean.getPublishedReferenceText(), null, null, dbXrefTOs);
                     articleTOs.add(articleTO);
-                    articleNextId ++;
+                    articleNextId++;
                 }
                 for (DbXrefTO dbXrefTO : articleDbXrefTOs) {
                     articleToDbXrefTOs.add(new ArticleToDbXrefTO(articleTO.getId(), dbXrefTO.getId()));
@@ -250,42 +273,48 @@ public class FossilParser {
             // We don't check whether a sample set is already present/seen because we need to have one sample set per
             // annotation taxon. Indeed, the user might want to modify a sample set with no impact on the other annotations.
             // FIXME add isCaptive?
-            Set<String> specimenTypes = extractValues(bean.getSpecimenType());
+            Set<String> specimenTypes = extractValues(bean.getSpecimenType(), true);
             boolean isFossil = specimenTypes != null && specimenTypes.contains("fossil(s)");
             SampleSetTO sampleSetTO = new SampleSetTO(ssNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
-                    bean.getSpecimenCount(), isFossil, null, extractValues(bean.getMuseumAccession()),
-                    extractValues(bean.getMuseumCollection()), extractValues(bean.getLocationName()),
-                    extractValues(bean.getFossilPreservationType()), extractValues(bean.getEnvironment()),
-                    extractValues(bean.getGeologicalFormation()), specimenTypes, bean.getBiozone());
+                    bean.getSpecimenCount(), isFossil, null, extractValues(bean.getMuseumAccession(), false),
+                    extractValues(bean.getMuseumCollection(), false), extractValues(bean.getLocationName(), false),
+                    extractValues(bean.getFossilPreservationType(), true), extractValues(bean.getEnvironment(), true),
+                    extractValues(bean.getGeologicalFormation(), false), specimenTypes, bean.getBiozone());
             sampleSetTOs.add(sampleSetTO);
-            ssNextId ++;
+            ssNextId++;
             
-            String devStageId = taxonTO.getScientificName().replaceAll(" ", ".") + "." + bean.getObservedMoultStage();
-            ConditionTO conditionTO = conditionDAO.find(devStageId, ANAT_ENTITY_TO.getId());
+            ConditionTO conditionTO = conditionDAO.find(bean.getObservedMoultStage(), ANAT_ENTITY_TO.getId(),
+                    bean.getSex(), bean.getReproductiveState());
             if (conditionTO == null) {
-                DevStageTO devStageTO = devStageDAO.findById(devStageId);
+                DevStageTO devStageTO = devStageDAO.findById(bean.getObservedMoultStage());
                 if (devStageTO == null) {
-                    throw new IllegalArgumentException("Unknown developmental stage: " + devStageId);
+                    devStageTO = devStageDAO.findByName(bean.getObservedMoultStage(), taxonTO.getPath());
                 }
-                conditionTO = new ConditionTO(conditionNextId, devStageTO, ANAT_ENTITY_TO, null, null);
+                if (devStageTO == null) {
+//                    throw new IllegalArgumentException("Unknown developmental stage: " + bean.getObservedMoultStage());
+                    logger.error("Unknown developmental stage '" + bean.getObservedMoultStage() + "' in taxon '" + taxonTO.getScientificName() +
+                            "'. Set null.");
+                }
+                conditionTO = new ConditionTO(conditionNextId, devStageTO, ANAT_ENTITY_TO,
+                        bean.getSex(), bean.getReproductiveState(), null);
                 conditionTOs.add(conditionTO);
-                conditionNextId ++;
+                conditionNextId++;
             }
             
             UserTO userTO = userDAO.findByOrcidId(bean.getContributor());
             if (userTO == null) {
-                throw new IllegalArgumentException("User not found");
+                throw new IllegalArgumentException("User not found: " + bean.getContributor());
             }
             Timestamp current = new Timestamp(new Date().getTime());
             VersionTO versionTO = new VersionTO(versionNextId, userTO, current, userTO, current, 1);
             versionTOs.add(versionTO);
-            versionNextId ++;
+            versionNextId++;
             
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(taxonAnnotNextId, taxonTO, bean.getTaxon(),
                     bean.getDeterminedBy(), sampleSetTO.getId(), conditionTO, articleTO, null,
                     moultingCharactersTO.getId(), null, null, versionTO.getId());
             taxonAnnotationTOs.add(taxonAnnotationTO);
-            taxonAnnotNextId ++;
+            taxonAnnotNextId++;
         }
         moultingCharactersDAO.batchUpdate(mcTOs);
         dbXrefDAO.batchUpdate(dbXrefTOs);
@@ -302,9 +331,12 @@ public class FossilParser {
         return lastId == null ? 1 : lastId + 1;
     }
     
-    private Set<String> extractValues(String s) {
+    private Set<String> extractValues(String s, boolean toLowerCase) {
         if (StringUtils.isBlank(s)) {
             return null;
+        }
+        if (toLowerCase) {
+            s = s.toLowerCase();
         }
         return Arrays.stream(s.split(";"))
                      .map(String::trim)
@@ -320,14 +352,15 @@ public class FossilParser {
     }
     
     public List<FossilAnnotationBean> parseFossilAnnotation(MultipartFile uploadedFile) {
-    
+        logger.info("Start parsing of fossil annotation file ...");
+        
         try (ICsvBeanReader fossilReader = new CsvBeanReader(new InputStreamReader(uploadedFile.getInputStream()), TSV_COMMENTED)) {
             List<FossilAnnotationBean> fossilAnnotationBeans = getFossilAnnotationBeans(fossilReader);
             return logger.traceExit(fossilAnnotationBeans);
         
         } catch (SuperCsvException e) {
             throw new IllegalArgumentException("The provided file " + uploadedFile.getOriginalFilename()
-                    + " could not be properly parsed", e);
+                    + " could not be properly parsed. Error: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new UncheckedIOException("Can not read file " + uploadedFile.getOriginalFilename(), e);
         }
@@ -344,7 +377,8 @@ public class FossilParser {
             
         } catch (SuperCsvException e) {
             //hide implementation details
-            throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed", e);
+            throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed. " +
+                    "Error: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new UncheckedIOException("Can not read file " + fileName, e);
         }
@@ -360,6 +394,7 @@ public class FossilParser {
         FossilAnnotationBean fossil;
         
         while((fossil = fossilReader.read(FossilAnnotationBean.class, attributeMapping, cellProcessorMapping)) != null) {
+            logger.trace(fossil);
             annots.add(fossil);
         }
         if (annots.isEmpty()) {
@@ -373,15 +408,15 @@ public class FossilParser {
     private CellProcessor[] mapFossilAnnotationHeaderToCellProcessors(String[] header) {
         CellProcessor[] processors = new CellProcessor[header.length];
         for (int i = 0; i < header.length; i++) {
-            if (header[i] == null || header[i].equals(GENERAL_COMMENTS_COL_NAME)) {
+            if (header[i] == null) {
                 continue;
             }
             // For the moment, we're keeping the switch not refactored to simplify the update
             processors[i] = switch (header[i]) {
                 case ORDER_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case TAXON_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case DETERMINED_BY_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case PUBLISHED_REFERENCE_TEXT_COL_NAME
@@ -389,19 +424,19 @@ public class FossilParser {
                 case PUBLISHED_REFERENCE_ACC_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case CONTRIBUTOR_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case MUSEUM_COLLECTION_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case MUSEUM_ACCESSION_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case LOCATION_NAME_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case LOCATION_GPS_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case GEOLOGICAL_FORMATION_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case GEOLOGICAL_AGE_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case FOSSIL_PRESERVATION_TYPE_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case ENVIRONMENT_COL_NAME
@@ -410,14 +445,25 @@ public class FossilParser {
                         -> new ParseCustomOptional(new Trim());
                 case SPECIMEN_COUNT_COL_NAME
                         -> new ParseCustomOptional(new ParseInt());
+                case SEX_COL_NAME
+                        -> new ParseCustomOptional(new ParseStrIgnoringCase(
+                        new IsElementOf(getObjects(Sex.class))));
+                case PREVIOUS_REPRODUCTIVE_STATE_COL_NAME
+                        -> new ParseCustomOptional(new ParseStrIgnoringCase(new Trim()));
+                case PREVIOUS_DEV_STAGE_COL_NAME
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
+                case REPRODUCTIVE_STATE_COL_NAME
+                        -> new ParseCustomOptional(new ParseStrIgnoringCase(new Trim()));
+                case OBSERVED_DEV_STAGE_COL_NAME
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case SPECIMEN_TYPE_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case LIFE_HISTORY_STYLE_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(LifeHistoryStyle.values()))));
+                        new IsElementOf(getObjects(LifeHistoryStyle.class))));
                 case LIFE_MODE_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(LifeMode.values()))));
+                        new IsElementOf(getObjects(LifeMode.class))));
                 case JUVENILE_MOULT_COUNT_COL_NAME
                         -> new ParseCustomOptional(new ParseInt());
                 case MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME
@@ -426,8 +472,6 @@ public class FossilParser {
                         -> new ParseCustomOptional(new ParseBool("yes", "no"));
                 case OBSERVED_MOULT_STAGES_COUNT_COL_NAME
                         -> new ParseCustomOptional(new ParseInt());
-                case OBSERVED_MOULT_STAGE_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
                 case ESTIMATED_MOULT_STAGES_COUNT_COL_NAME
                         -> new ParseCustomOptional(new ParseInt());
                 case SEGMENT_ADDITION_MODE_COL_NAME
@@ -439,9 +483,11 @@ public class FossilParser {
                 case BODY_LENGTH_AVERAGE_COL_NAME
                         -> new ParseCustomOptional(new ParseBigDecimal());
                 case BODY_LENGTH_INCREASE_AVERAGE_COL_NAME
-                        -> new ParseCustomOptional(new Trim());
+                        -> new ParseCustomOptional(new ParseBigDecimal());
                 case BODY_MASS_INCREASE_AVERAGE_COL_NAME
                         -> new ParseCustomOptional(new ParseBigDecimal());
+                case ONTOGENETIC_STAGE_PERIOD_COL_NAME
+                        -> new ParseCustomOptional(new ParseTwoInt());
                 case INTERMOULT_PERIOD_COL_NAME
                         -> new ParseCustomOptional(new ParseTwoInt());
                 case PREMOULT_PERIOD_COL_NAME
@@ -460,49 +506,54 @@ public class FossilParser {
                         -> new ParseCustomOptional(new Trim());
                 case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(EgressDirection.values()))));
+                        new IsElementOf(getObjects(EgressDirection.class))));
                 case POSITION_EXUVIAE_FOUND_IN_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(ExuviaePosition.values()))));
+                        new IsElementOf(getObjects(ExuviaePosition.class))));
                 case MOULTING_PHASE_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(MoultingPhase.values()))));
+                        new IsElementOf(getObjects(MoultingPhase.class))));
                 case MOULTING_VARIABILITY_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(MoultingVariability.values()))));
+                        new IsElementOf(getObjects(MoultingVariability.class))));
                 case CALCIFICATION_EVENT_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(Calcification.values()))));
+                        new IsElementOf(getObjects(Calcification.class))));
                 case HEAVY_METAL_REINFORCEMENT_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(HeavyMetalReinforcement.values()))));
+                        new IsElementOf(getObjects(HeavyMetalReinforcement.class))));
                 case OTHER_BEHAVIOURS_ASSOCIATED_WITH_MOULTING_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case EXUVIAE_CONSUMPTION_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(ExuviaeConsumption.values()))));
+                        new IsElementOf(getObjects(ExuviaeConsumption.class))));
                 case REABSORPTION_COL_NAME
                         -> new ParseCustomOptional(new ParseStrIgnoringCase(
-                        new IsElementOf(Arrays.asList(Reabsorption.values()))));
-                    case FOSSIL_EXUVIAE_QUALITY_COL_NAME
+                        new IsElementOf(getObjects(Reabsorption.class))));
+                case FOSSIL_EXUVIAE_QUALITY_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 case EVIDENCE_CODE_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case CONFIDENCE_COL_NAME
-                        -> new StrNotNullOrEmpty(new Trim());
+                        -> new ParseCustomOptional(new StrNotNullOrEmpty(new Trim()));
                 case GENERAL_COMMENTS_COL_NAME
                         -> new ParseCustomOptional(new Trim());
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for FossilAnnotationBean");
             };
         }
+        logger.trace("processors: " + Arrays.stream(processors).toList());
         return processors;
+    }
+    
+    private static <T extends Enum<T> & MoutldbEnum> List<Object> getObjects(Class<T> enumClass) {
+        return new ArrayList<>(MoutldbEnum.getAllStringRepresentations(enumClass));
     }
     
     private String[] mapFossilAnnotationHeaderToAttributes(String[] header) {
         
         String[] mapping = new String[header.length];
         for (int i = 0; i < header.length; i++) {
-            if (header[i] == null || header[i].equals(GENERAL_COMMENTS_COL_NAME)) {
+            if (header[i] == null) {
                 continue;
             }
             mapping[i] = switch (header[i]) {
@@ -522,6 +573,11 @@ public class FossilParser {
                 case ENVIRONMENT_COL_NAME -> "environment";
                 case BIOZONE_COL_NAME -> "biozone";
                 case SPECIMEN_COUNT_COL_NAME -> "specimenCount";
+                case SEX_COL_NAME -> "sex";
+                case PREVIOUS_REPRODUCTIVE_STATE_COL_NAME -> "previousReproductiveState";
+                case PREVIOUS_DEV_STAGE_COL_NAME -> "previousDevStage";
+                case REPRODUCTIVE_STATE_COL_NAME -> "reproductiveState";
+                case OBSERVED_DEV_STAGE_COL_NAME -> "observedMoultStage";
                 case SPECIMEN_TYPE_COL_NAME -> "specimenType";
                 case LIFE_HISTORY_STYLE_COL_NAME -> "lifeHistoryStyle";
                 case LIFE_MODE_COL_NAME -> "lifeMode";
@@ -529,14 +585,14 @@ public class FossilParser {
                 case MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME -> "majorMorphologicalTransitionCount";
                 case ADULT_STAGE_MOULTING_COL_NAME -> "adultStageMoulting";
                 case OBSERVED_MOULT_STAGES_COUNT_COL_NAME -> "observedMoultStagesCount";
-                case OBSERVED_MOULT_STAGE_COL_NAME -> "observedMoultStage";
                 case ESTIMATED_MOULT_STAGES_COUNT_COL_NAME -> "estimatedMoultStagesCount";
                 case SEGMENT_ADDITION_MODE_COL_NAME -> "segmentAdditionMode";
                 case BODY_SEGMENT_COUNT_COL_NAME -> "bodySegmentCount";
                 case BODY_SEGMENT_COUNT_IN_ADULTS_COL_NAME -> "bodySegmentCountInAdults";
                 case BODY_LENGTH_AVERAGE_COL_NAME -> "bodyLengthAverage";
                 case BODY_LENGTH_INCREASE_AVERAGE_COL_NAME -> "bodyLengthIncreaseAverage";
-                case BODY_MASS_INCREASE_AVERAGE_COL_NAME -> "bodyMassAverage";
+                case BODY_MASS_INCREASE_AVERAGE_COL_NAME -> "bodyMassIncreaseAverage";
+                case ONTOGENETIC_STAGE_PERIOD_COL_NAME -> "stagePeriod";
                 case INTERMOULT_PERIOD_COL_NAME -> "intermoultPeriod";
                 case PREMOULT_PERIOD_COL_NAME -> "premoultPeriod";
                 case POSTMOULT_PERIOD_COL_NAME -> "postmoultPeriod";
@@ -561,6 +617,7 @@ public class FossilParser {
                 default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for FossilAnnotationBean");
             };
         }
+        logger.trace("mapping: " + Arrays.stream(mapping).toList());
         return mapping;
     }
     
@@ -610,33 +667,6 @@ public class FossilParser {
             
             throw new SuperCsvCellProcessorException(
                     String.format("Could not parse '%s' as a TwoInt", value), context, this);
-        }
-    }
-    
-    public static class ParseBigDecimalRange extends CellProcessorAdaptor {
-        
-        public ParseBigDecimalRange() {
-            super();
-        }
-        
-        public ParseBigDecimalRange(CellProcessor next) {
-            // this constructor allows other processors to be chained after this processor
-            super(next);
-        }
-        
-        public Object execute(Object value, CsvContext context) {
-            
-            // Throws an Exception if the input is null
-            validateInputNotNull(value, context);
-            
-            // Try to match free number field, but might need the ability to put a range, such as '13.276-14.654'
-            Matcher m = Pattern.compile("^[0-9\\.]+([-][0-9\\.]+)*$").matcher(String.valueOf(value));
-            if (m.matches()) {
-                return next.execute(value, context);
-            }
-            
-            throw new SuperCsvCellProcessorException(
-                    String.format("Could not parse '%s' as a BigDecimal range", value), context, this);
         }
     }
     

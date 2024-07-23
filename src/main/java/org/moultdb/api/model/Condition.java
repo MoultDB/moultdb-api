@@ -13,12 +13,15 @@ public class Condition {
     private final DevStage devStage;
     private final AnatEntity anatomicalEntity;
     private final String sex;
+    private final String reproductiveState;
     private final MoultingStep moultingStep;
     
-    public Condition(DevStage devStage, AnatEntity anatomicalEntity, String sex, MoultingStep moultingStep) {
+    public Condition(DevStage devStage, AnatEntity anatomicalEntity, String sex, String reproductiveState,
+                     MoultingStep moultingStep) {
         this.devStage = devStage;
         this.anatomicalEntity = anatomicalEntity;
         this.sex = sex;
+        this.reproductiveState = reproductiveState;
         this.moultingStep = moultingStep;
     }
     
@@ -34,6 +37,10 @@ public class Condition {
         return sex;
     }
     
+    public String getReproductiveState() {
+        return reproductiveState;
+    }
+    
     public MoultingStep getMoultingStep() {
         return moultingStep;
     }
@@ -44,6 +51,7 @@ public class Condition {
                 .add("devStage=" + devStage)
                 .add("anatomicalEntity=" + anatomicalEntity)
                 .add("sex=" + sex)
+                .add("reproductiveState=" + reproductiveState)
                 .add("moultingStep=" + moultingStep)
                 .toString();
     }

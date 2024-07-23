@@ -71,6 +71,12 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public TaxonTO findBySynonym(String taxonName) {
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE lower(x.name) = lower(:taxon_name)",
+                new MapSqlParameterSource().addValue("taxon_name", taxonName), new TaxonResultSetExtractor()));
+    }
+    
+    @Override
     public TaxonTO findByAccession(String accession, String datasourceName) {
         if (StringUtils.isBlank(accession) || StringUtils.isBlank(datasourceName)) {
             throw new UnsupportedOperationException("Empty parameters not supported: accession [" + accession + 

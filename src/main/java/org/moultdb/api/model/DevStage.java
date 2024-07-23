@@ -9,13 +9,16 @@ import java.util.StringJoiner;
  */
 public class DevStage extends NamedEntity<String> {
     
+    private final String taxon;
+    
     private final int leftBound;
     
     private final int rightBound;
     
-    public DevStage(String accession, String name, String description, int leftBound, int rightBound)
+    public DevStage(String accession, String name, String description, String taxon, int leftBound, int rightBound)
             throws IllegalArgumentException {
         super(accession, name, description);
+        this.taxon = taxon;
         if (leftBound < 1) {
             throw new IllegalArgumentException("The provided left bound cannot be less than 1");
         }
@@ -24,6 +27,10 @@ public class DevStage extends NamedEntity<String> {
         }
         this.leftBound = leftBound;
         this.rightBound = rightBound;
+    }
+    
+    public String getTaxon() {
+        return taxon;
     }
     
     public int getLeftBound() {
@@ -43,12 +50,12 @@ public class DevStage extends NamedEntity<String> {
         if (!super.equals(o))
             return false;
         DevStage that = (DevStage) o;
-        return leftBound == that.leftBound && rightBound == that.rightBound;
+        return leftBound == that.leftBound && rightBound == that.rightBound && Objects.equals(taxon, that.taxon);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), leftBound, rightBound);
+        return Objects.hash(super.hashCode(), taxon, leftBound, rightBound);
     }
     
     @Override
@@ -57,6 +64,7 @@ public class DevStage extends NamedEntity<String> {
                 .add("id=" + getId())
                 .add("name=" + getName())
                 .add("description=" + getDescription())
+                .add("taxon=" + taxon)
                 .add("leftBound=" + leftBound)
                 .add("rightBound=" + rightBound)
                 .toString();
