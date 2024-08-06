@@ -3,6 +3,7 @@ package org.moultdb.importer.taxonannotation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -27,16 +28,17 @@ public class TaxonAnnotationBean {
     private String fossilPreservationType;
     private String environment;
     private String biozone;
-    private Integer specimenCount;
+    private Integer sampleSpecimenCount;
+    private Integer annotSpecimenCount;
     private String sex;
     private String previousReproductiveState;
-    private String previousObservedMoultStage;
+    private String previousDevStage;
     private String reproductiveState;
-    private String observedMoultStage;
+    private String devStage;
     private String specimenType;
     private String lifeHistoryStyle;
     private String lifeMode;
-    private Integer juvenileMoultCount;
+    private String juvenileMoultCount;
     private Integer majorMorphologicalTransitionCount;
     private Boolean adultStageMoulting;
     private Integer observedMoultStagesCount;
@@ -45,7 +47,9 @@ public class TaxonAnnotationBean {
     private String bodySegmentCount;
     private String bodySegmentCountInAdults;
     private BigDecimal bodyLengthAverage;
+    private BigDecimal bodyWidthAverage;
     private BigDecimal bodyLengthIncreaseAverage;
+    private BigDecimal bodyWidthIncreaseAverage;
     private BigDecimal bodyMassIncreaseAverage;
     private String stagePeriod;
     private String intermoultPeriod;
@@ -193,12 +197,20 @@ public class TaxonAnnotationBean {
         this.biozone = biozone;
     }
     
-    public Integer getSpecimenCount() {
-        return specimenCount;
+    public Integer getSampleSpecimenCount() {
+        return sampleSpecimenCount;
     }
     
-    public void setSpecimenCount(Integer specimenCount) {
-        this.specimenCount = specimenCount;
+    public void setSampleSpecimenCount(Integer sampleSpecimenCount) {
+        this.sampleSpecimenCount = sampleSpecimenCount;
+    }
+    
+    public Integer getAnnotSpecimenCount() {
+        return annotSpecimenCount;
+    }
+    
+    public void setAnnotSpecimenCount(Integer annotSpecimenCount) {
+        this.annotSpecimenCount = annotSpecimenCount;
     }
     
     public String getSex() {
@@ -217,12 +229,12 @@ public class TaxonAnnotationBean {
         this.previousReproductiveState = previousReproductiveState;
     }
     
-    public String getPreviousObservedMoultStage() {
-        return previousObservedMoultStage;
+    public String getPreviousDevStage() {
+        return previousDevStage;
     }
     
-    public void setPreviousObservedMoultStage(String previousObservedMoultStage) {
-        this.previousObservedMoultStage = previousObservedMoultStage;
+    public void setPreviousDevStage(String previousDevStage) {
+        this.previousDevStage = previousDevStage;
     }
     
     public String getReproductiveState() {
@@ -233,12 +245,12 @@ public class TaxonAnnotationBean {
         this.reproductiveState = reproductiveState;
     }
     
-    public String getObservedMoultStage() {
-        return observedMoultStage;
+    public String getDevStage() {
+        return devStage;
     }
     
-    public void setObservedMoultStage(String observedMoultStage) {
-        this.observedMoultStage = observedMoultStage;
+    public void setDevStage(String devStage) {
+        this.devStage = devStage;
     }
     
     public String getSpecimenType() {
@@ -266,11 +278,11 @@ public class TaxonAnnotationBean {
         this.lifeMode = convertToLowerCase(lifeMode);
     }
     
-    public Integer getJuvenileMoultCount() {
+    public String getJuvenileMoultCount() {
         return juvenileMoultCount;
     }
     
-    public void setJuvenileMoultCount(Integer juvenileMoultCount) {
+    public void setJuvenileMoultCount(String juvenileMoultCount) {
         this.juvenileMoultCount = juvenileMoultCount;
     }
     
@@ -338,12 +350,28 @@ public class TaxonAnnotationBean {
         this.bodyLengthAverage = bodyLengthAverage;
     }
     
+    public BigDecimal getBodyWidthAverage() {
+        return bodyWidthAverage;
+    }
+    
+    public void setBodyWidthAverage(BigDecimal bodyWidthAverage) {
+        this.bodyWidthAverage = bodyWidthAverage;
+    }
+    
     public BigDecimal getBodyLengthIncreaseAverage() {
         return bodyLengthIncreaseAverage;
     }
     
     public void setBodyLengthIncreaseAverage(BigDecimal bodyLengthIncreaseAverage) {
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
+    }
+    
+    public BigDecimal getBodyWidthIncreaseAverage() {
+        return bodyWidthIncreaseAverage;
+    }
+    
+    public void setBodyWidthIncreaseAverage(BigDecimal bodyWidthIncreaseAverage) {
+        this.bodyWidthIncreaseAverage = bodyWidthIncreaseAverage;
     }
     
     public BigDecimal getBodyMassIncreaseAverage() {
@@ -554,12 +582,13 @@ public class TaxonAnnotationBean {
                 && Objects.equals(fossilPreservationType, that.fossilPreservationType)
                 && Objects.equals(environment, that.environment)
                 && Objects.equals(biozone, that.biozone)
-                && Objects.equals(specimenCount, that.specimenCount)
+                && Objects.equals(sampleSpecimenCount, that.sampleSpecimenCount)
+                && Objects.equals(annotSpecimenCount, that.annotSpecimenCount)
                 && Objects.equals(sex, that.sex)
                 && Objects.equals(previousReproductiveState, that.previousReproductiveState)
-                && Objects.equals(previousObservedMoultStage, that.previousObservedMoultStage)
+                && Objects.equals(previousDevStage, that.previousDevStage)
                 && Objects.equals(reproductiveState, that.reproductiveState)
-                && Objects.equals(observedMoultStage, that.observedMoultStage)
+                && Objects.equals(devStage, that.devStage)
                 && Objects.equals(specimenType, that.specimenType)
                 && Objects.equals(lifeHistoryStyle, that.lifeHistoryStyle)
                 && Objects.equals(lifeMode, that.lifeMode)
@@ -572,7 +601,9 @@ public class TaxonAnnotationBean {
                 && Objects.equals(bodySegmentCount, that.bodySegmentCount)
                 && Objects.equals(bodySegmentCountInAdults, that.bodySegmentCountInAdults)
                 && Objects.equals(bodyLengthAverage, that.bodyLengthAverage)
+                && Objects.equals(bodyWidthAverage, that.bodyWidthAverage)
                 && Objects.equals(bodyLengthIncreaseAverage, that.bodyLengthIncreaseAverage)
+                && Objects.equals(bodyWidthIncreaseAverage, that.bodyWidthIncreaseAverage)
                 && Objects.equals(bodyMassIncreaseAverage, that.bodyMassIncreaseAverage)
                 && Objects.equals(stagePeriod, that.stagePeriod)
                 && Objects.equals(intermoultPeriod, that.intermoultPeriod)
@@ -602,13 +633,14 @@ public class TaxonAnnotationBean {
     public int hashCode() {
         return Objects.hash(order, taxon, determinedBy, publishedReferenceText, publishedReferenceAcc, contributor,
                 museumCollection, museumAccession, locationName, locationGps, geologicalFormation, geologicalAge,
-                fossilPreservationType, environment, biozone, specimenCount, sex,
-                previousReproductiveState, previousObservedMoultStage, reproductiveState, observedMoultStage,
+                fossilPreservationType, environment, biozone, sampleSpecimenCount, annotSpecimenCount, sex,
+                previousReproductiveState, previousDevStage, reproductiveState, devStage,
                 specimenType, lifeHistoryStyle, lifeMode, juvenileMoultCount,
                 majorMorphologicalTransitionCount, adultStageMoulting, observedMoultStagesCount, 
                 estimatedMoultStagesCount, segmentAdditionMode, bodySegmentCount, bodySegmentCountInAdults,
-                bodyLengthAverage, bodyLengthIncreaseAverage, bodyMassIncreaseAverage, stagePeriod, intermoultPeriod,
-                premoultPeriod, postmoultPeriod, variationWithinCohorts, moultingSutureLocation, cephalicSutureLocation,
+                bodyLengthAverage, bodyWidthAverage, bodyLengthIncreaseAverage, bodyWidthIncreaseAverage,
+                bodyMassIncreaseAverage, stagePeriod, intermoultPeriod, premoultPeriod, postmoultPeriod,
+                variationWithinCohorts, moultingSutureLocation, cephalicSutureLocation,
                 postCephalicSutureLocation, resultingNamedMoultingConfigurations, egressDirectionDuringMoulting,
                 positionExuviaeFoundIn, moultingPhase, moultingVariability, calcificationEvent, heavyMetalReinforcement,
                 otherBehavioursAssociatedWithMoulting, exuviaeConsumption, reabsorption, fossilExuviaeQuality,
@@ -633,12 +665,13 @@ public class TaxonAnnotationBean {
                 .add("fossilPreservationType='" + fossilPreservationType + "'")
                 .add("environment='" + environment + "'")
                 .add("biozone='" + biozone + "'")
-                .add("specimenCount=" + specimenCount)
+                .add("sampleSpecimenCount=" + sampleSpecimenCount)
+                .add("annotSpecimenCount=" + annotSpecimenCount)
                 .add("sex=" + sex)
                 .add("previousReproductiveState=" + previousReproductiveState)
-                .add("previousObservedMoultStage='" + previousObservedMoultStage + "'")
+                .add("previousDevStage='" + previousDevStage + "'")
                 .add("reproductiveState=" + reproductiveState)
-                .add("observedMoultStage='" + observedMoultStage + "'")
+                .add("devStage='" + devStage + "'")
                 .add("specimenType='" + specimenType + "'")
                 .add("lifeHistoryStyle='" + lifeHistoryStyle + "'")
                 .add("lifeMode='" + lifeMode + "'")
@@ -651,7 +684,9 @@ public class TaxonAnnotationBean {
                 .add("bodySegmentCount='" + bodySegmentCount + "'")
                 .add("bodySegmentCountInAdults='" + bodySegmentCountInAdults + "'")
                 .add("bodyLengthAverage=" + bodyLengthAverage)
+                .add("bodyWidthAverage=" + bodyWidthAverage)
                 .add("bodyLengthIncreaseAverage='" + bodyLengthIncreaseAverage + "'")
+                .add("bodyWidthIncreaseAverage='" + bodyWidthIncreaseAverage + "'")
                 .add("bodyMassAverage=" + bodyMassIncreaseAverage)
                 .add("stagePeriod='" + stagePeriod + "'")
                 .add("intermoultPeriod='" + intermoultPeriod + "'")
