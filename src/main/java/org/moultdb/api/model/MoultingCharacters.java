@@ -20,7 +20,7 @@ public class MoultingCharacters {
     
     private final LifeMode lifeMode;
     
-    private final Integer juvenileMoultCount;
+    private final String juvenileMoultCount;
     
     private final Integer majorMorphologicalTransitionCount;
     
@@ -142,7 +142,7 @@ public class MoultingCharacters {
     
     private final String generalComments;
     
-    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, LifeMode lifeMode, Integer juvenileMoultCount,
+    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, LifeMode lifeMode, String juvenileMoultCount,
                               Integer majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
                               Integer observedMoultCount, Integer estimatedMoultCount, String segmentAdditionMode,
                               String bodySegmentCount, String bodySegmentCountInAdults, BigDecimal bodyLengthAverage,
@@ -197,7 +197,7 @@ public class MoultingCharacters {
         return lifeMode;
     }
     
-    public Integer getJuvenileMoultCount() {
+    public String getJuvenileMoultCount() {
         return juvenileMoultCount;
     }
     

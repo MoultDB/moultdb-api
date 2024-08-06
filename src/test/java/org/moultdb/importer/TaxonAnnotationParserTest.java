@@ -11,7 +11,7 @@ import java.util.List;
 class TaxonAnnotationParserTest {
     
     private final static Logger logger = LogManager.getLogger(TaxonAnnotationParserTest.class.getName());
-    private static final String FOSSIL_ANNOTATIONS_TSV = "/fake-fossil-annotations5.tsv";
+    private static final String FOSSIL_ANNOTATIONS_TSV = "/fake-taxon-annotations.tsv";
     
     @Test
     public void test() {

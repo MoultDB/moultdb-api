@@ -2,6 +2,7 @@ package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.StringJoiner;
 
 /**
@@ -15,7 +16,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     
     private final String lifeHistoryStyle;
     private final String lifeMode;
-    private final Integer juvenileMoultCount;
+    private final String juvenileMoultCount;
     private final Integer majorMorphologicalTransitionCount;
     private final Boolean hasTerminalAdultStage;
     private final Integer observedMoultStageCount;
@@ -46,7 +47,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private final String fossilExuviaeQuality;
     private final String generalComments;
     
-    public MoultingCharactersTO(Integer id, String lifeHistoryStyle, String lifeMode, Integer juvenileMoultCount,
+    public MoultingCharactersTO(Integer id, String lifeHistoryStyle, String lifeMode, String juvenileMoultCount,
                                 Integer majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
                                 Integer observedMoultStageCount, Integer estimatedMoultStageCount,
                                 String segmentAdditionMode, String bodySegmentCount,
@@ -103,7 +104,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return lifeMode;
     }
     
-    public Integer getJuvenileMoultCount() {
+    public String getJuvenileMoultCount() {
         return juvenileMoultCount;
     }
     
