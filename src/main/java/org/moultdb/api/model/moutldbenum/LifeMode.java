@@ -17,7 +17,9 @@ public enum LifeMode implements MoutldbEnum {
     SEMI_INFAUNAL("semi-infaunal"),
     SHALLOW_INFAUNAL("shallow infaunal"),
     DEEP_INFAUNAL("deep infaunal"),
-    MESOPELAGIC("mesopelagic");
+    MESOPELAGIC("mesopelagic"),
+    PARASITIC("parasitic"),
+    SWIMMING("swimming");
     
     private final String stringRepresentation;
     
