@@ -106,8 +106,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             MapSqlParameterSource source = new MapSqlParameterSource();
             source.addValue("id", sampleSetTO.getId());
             source.addValue("museum_accessions", storageAccessions);
-            source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO().getNotation());
-            source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO().getNotation());
+            source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO() == null? null : sampleSetTO.getFromGeologicalAgeTO().getNotation());
+            source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO() == null? null : sampleSetTO.getToGeologicalAgeTO().getNotation());
             source.addValue("specimen_count", sampleSetTO.getSpecimenCount());
             source.addValue("is_fossil", sampleSetTO.isFossil());
             source.addValue("is_captive", sampleSetTO.isCaptive());
@@ -257,7 +257,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 
                 // Build SampleSetTO. Even if it already exists, we create a new one because it's an unmutable object
                 sampleSetTO = new SampleSetTO(sampleSetId, DAO.mapToGeologicalAgeTO(rs, "gaf"),
-                        DAO.mapToGeologicalAgeTO(rs, "gat"), DAO.getInteger(rs, "s.specimen_count"),
+                        DAO.mapToGeologicalAgeTO(rs, "gat"), rs.getString("s.specimen_count"),
                         DAO.getBoolean(rs, "s.is_fossil"), DAO.getBoolean(rs, "s.is_captive"),
                         museumAccessions, slNames, clNames, fptNames, eNames, gfNames, stNames, rs.getString("s.biozone"));
                 sampleSets.put(sampleSetId, sampleSetTO);

@@ -26,7 +26,7 @@ public class SampleSetTO extends EntityTO<Integer> {
      * Youngest bound of the geological age range
      */
     private final GeologicalAgeTO toGeologicalAgeTO;
-    private final Integer specimenCount;
+    private final String specimenCount;
     private final Boolean isFossil;
     private final Boolean isCaptive;
     private final Set<String> storageAccessions;
@@ -39,7 +39,7 @@ public class SampleSetTO extends EntityTO<Integer> {
     private final String biozone;
     
     public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
-                       Integer specimenCount, Boolean isFossil, Boolean isCaptive, String collectionLocationName) {
+                       String specimenCount, Boolean isFossil, Boolean isCaptive, String collectionLocationName) {
         this(id, fromGeologicalAgeTO, toGeologicalAgeTO, specimenCount, isFossil, isCaptive, null, null,
                 Collections.unmodifiableSet(StringUtils.isBlank(collectionLocationName) ?
                         new HashSet<>() :
@@ -48,7 +48,7 @@ public class SampleSetTO extends EntityTO<Integer> {
     }
     
     public SampleSetTO(Integer id, GeologicalAgeTO fromGeologicalAgeTO, GeologicalAgeTO toGeologicalAgeTO,
-                       Integer specimenCount, Boolean isFossil, Boolean isCaptive, Set<String> storageAccessions,
+                       String specimenCount, Boolean isFossil, Boolean isCaptive, Set<String> storageAccessions,
                        Set<String> storageLocationNames, Set<String> collectionLocationNames,
                        Set<String> fossilPreservationTypes, Set<String> environments, Set<String> geologicalFormations,
                        Set<String> specimenTypes, String biozone)
@@ -77,7 +77,7 @@ public class SampleSetTO extends EntityTO<Integer> {
         return toGeologicalAgeTO;
     }
     
-    public Integer getSpecimenCount() {
+    public String getSpecimenCount() {
         return specimenCount;
     }
     

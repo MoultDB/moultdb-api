@@ -170,17 +170,17 @@ public class ServiceUtils {
                 mcTO.getBodySegmentCount(), mcTO.getBodySegmentCountInAdults(), mcTO.getBodyLengthAverage(),
                 mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyMassIncreaseAverage(), mcTO.getIntermoultPeriod(),
                 mcTO.getPremoultPeriod(), mcTO.getPostmoultPeriod(), mcTO.getVariationWithinCohorts(),
-                mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
-                mcTO.getResultingNamedMoultingConfiguration(),
-                EgressDirection.valueOfByStringRepresentation(mcTO.getEgressDirection()),
-                ExuviaePosition.valueOfByStringRepresentation(mcTO.getPositionExuviaeFoundIn()),
+                mcTO.getSutureLocations(), mcTO.getCephalicSutureLocations(), mcTO.getPostCephalicSutureLocations(),
+                mcTO.getResultingNamedMoultingConfigurations(),
+                MoutldbEnum.valueOfByStringRepresentation(EgressDirection.class, mcTO.getEgressDirections()),
+                MoutldbEnum.valueOfByStringRepresentation(ExuviaePosition.class, mcTO.getPositionsExuviaeFoundIn()),
                 MoultingPhase.valueOfByStringRepresentation(mcTO.getMoultingPhase()),
                 MoultingVariability.valueOfByStringRepresentation(mcTO.getMoultingVariability()),
                 Calcification.valueOfByStringRepresentation(mcTO.getCalcificationEvent()),
-                HeavyMetalReinforcement.valueOfByStringRepresentation(mcTO.getHeavyMetalReinforcement()),
-                mcTO.getOtherBehaviour(), ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
+                MoutldbEnum.valueOfByStringRepresentation(HeavyMetalReinforcement.class, mcTO.getHeavyMetalReinforcements()),
+                mcTO.getOtherBehaviours(), ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
                 Reabsorption.valueOfByStringRepresentation(mcTO.getExoskeletalMaterialReabsorption()),
-                mcTO.getFossilExuviaeQuality(), mcTO.getGeneralComments());
+                mcTO.getFossilExuviaeQualities(), mcTO.getGeneralComments());
     }
     
     public static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {

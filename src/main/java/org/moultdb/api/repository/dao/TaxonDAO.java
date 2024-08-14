@@ -29,5 +29,5 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     
     void insert(TaxonTO taxon);
     
-    void batchUpdate(Set<TaxonTO> taxonTOs);
+    int batchUpdate(Set<TaxonTO> taxonTOs);
 }

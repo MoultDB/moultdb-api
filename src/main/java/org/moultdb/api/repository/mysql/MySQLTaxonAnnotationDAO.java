@@ -240,8 +240,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 }
                 
                 taxonAnnotationTOs.put(id, new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
-                        rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), conditionTO, articleTO,
-                        imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"), ecoTO, cioTO, rs.getInt("ta.version_id")));
+                        rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), rs.getString("ta.specimen_count"),
+                        conditionTO, articleTO, imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"),
+                        ecoTO, cioTO, rs.getInt("ta.version_id")));
             }
             return new ArrayList<>(taxonAnnotationTOs.values());
         }

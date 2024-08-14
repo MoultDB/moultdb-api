@@ -185,39 +185,42 @@ public class TaxonAnnotationParser {
             if (beanCount % 5 == 0) {
                 logger.debug(beanCount + " annotations converted");
             }
-            // FIXME Update MoultingCharactersTO to use correct types
             MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(
                     mcNextId,
                     bean.getLifeHistoryStyle(),
                     bean.getLifeModes(),
                     bean.getJuvenileMoultCount(),
-                    bean.getMajorMorphologicalTransitionCount() == null? null : Integer.valueOf(bean.getMajorMorphologicalTransitionCount()),
-                    bean.getAdultStageMoulting(), bean.getObservedMoultStagesCount(),
-                    bean.getEstimatedMoultStagesCount() == null? null : Integer.valueOf(bean.getEstimatedMoultStagesCount()),
+                    bean.getMajorMorphologicalTransitionCount(),
+                    bean.getAdultStageMoulting(),
+                    bean.getObservedMoultStagesCount(),
+                    bean.getEstimatedMoultStagesCount(),
                     bean.getSegmentAdditionMode(),
                     bean.getBodySegmentCount(),
                     bean.getBodySegmentCountInAdults(),
                     bean.getBodyLengthAverage(),
+                    bean.getBodyWidthAverage(),
                     bean.getBodyLengthIncreaseAverage(),
+                    bean.getBodyWidthIncreaseAverage(),
                     bean.getBodyMassIncreaseAverage(),
+                    bean.getStagePeriod(),
                     bean.getIntermoultPeriod(),
                     bean.getPremoultPeriod(),
                     bean.getPostmoultPeriod(),
                     bean.getVariationWithinCohorts(),
-                    bean.getMoultingSutureLocation()== null? null : bean.getMoultingSutureLocation().iterator().next(),
-                    bean.getCephalicSutureLocation()== null? null : bean.getCephalicSutureLocation().iterator().next(),
-                    bean.getPostCephalicSutureLocation()== null? null : bean.getPostCephalicSutureLocation().iterator().next(),
-                    bean.getResultingNamedMoultingConfigurations()== null? null : bean.getResultingNamedMoultingConfigurations().iterator().next(),
-                    bean.getEgressDirectionDuringMoulting()== null? null : bean.getEgressDirectionDuringMoulting().iterator().next(),
-                    bean.getPositionExuviaeFoundIn()== null? null : bean.getPositionExuviaeFoundIn().iterator().next(),
+                    bean.getSutureLocations(),
+                    bean.getCephalicSutureLocations(),
+                    bean.getPostCephalicSutureLocations(),
+                    bean.getResultingNamedMoultingConfigurations(),
+                    bean.getEgressDirectionsDuringMoulting(),
+                    bean.getPositionsExuviaeFoundIn(),
                     bean.getMoultingPhase(),
                     bean.getMoultingVariability(),
                     bean.getCalcificationEvent(),
-                    bean.getHeavyMetalReinforcement()== null? null : bean.getHeavyMetalReinforcement().iterator().next(),
-                    bean.getOtherBehavioursAssociatedWithMoulting()== null? null : bean.getOtherBehavioursAssociatedWithMoulting().iterator().next(),
+                    bean.getHeavyMetalReinforcements(),
+                    bean.getOtherBehaviours(),
                     bean.getExuviaeConsumption(),
                     bean.getReabsorption(),
-                    bean.getFossilExuviaeQuality()== null? null : bean.getFossilExuviaeQuality().toString(),
+                    bean.getFossilExuviaeQualities(),
                     bean.getGeneralComments());
             mcTOs.add(moultingCharactersTO);
             mcNextId++;
@@ -253,9 +256,8 @@ public class TaxonAnnotationParser {
             
             // Ex: 'Stage 3' or 'Sandbian to Katian'
             String fromGeoAgeName = bean.getGeologicalAge();
-            if (StringUtils.isBlank(fromGeoAgeName) && bean.getSpecimenType().contains("observations of living individual(s)")) {
-                logger.debug("Geological age is empty and specimen type contains 'observations of living individual(s)' so, we use 'Meghalayan'");
-                fromGeoAgeName = "Meghalayan";
+            if (bean.getSpecimenTypes() != null && bean.getSpecimenTypes().contains("fossil(s)") && StringUtils.isBlank(fromGeoAgeName)) {
+                throw new IllegalArgumentException("Specimen type contains 'fossil(s) but no geological age is defined");
             }
             GeologicalAgeTO toGeologicalAgeTO = null;
             int i = StringUtils.isNotBlank(bean.getGeologicalAge()) ? bean.getGeologicalAge().indexOf(" to ") : -1;
@@ -311,14 +313,12 @@ public class TaxonAnnotationParser {
             // We don't check whether a sample set is already present/seen because we need to have one sample set per
             // annotation taxon. Indeed, the user might want to modify a sample set with no impact on the other annotations.
             // FIXME add isCaptive?
-            Set<String> specimenTypes = extractValues(bean.getSpecimenType().iterator().next(), true);
-            boolean isFossil = specimenTypes != null && specimenTypes.contains("fossil(s)");
+            boolean isFossil = bean.getSpecimenTypes() != null && bean.getSpecimenTypes().contains("fossil(s)");
             SampleSetTO sampleSetTO = new SampleSetTO(ssNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
-                    bean.getSampleSpecimenCount() == null ? null : Integer.valueOf(bean.getSampleSpecimenCount()),
-                    isFossil, null, extractValues(bean.getMuseumAccession(), false),
+                    bean.getSampleSpecimenCount(), isFossil, null, extractValues(bean.getMuseumAccession(), false),
                     extractValues(bean.getMuseumCollection(), false), extractValues(bean.getLocationName(), false),
-                    bean.getFossilPreservationType(), extractValues(bean.getEnvironment(), true),
-                    extractValues(bean.getGeologicalFormation(), false), specimenTypes, bean.getBiozone());
+                    bean.getFossilPreservationTypes(), extractValues(bean.getEnvironment(), true),
+                    extractValues(bean.getGeologicalFormation(), false), bean.getSpecimenTypes(), bean.getBiozone());
             sampleSetTOs.add(sampleSetTO);
             ssNextId++;
             
@@ -348,7 +348,7 @@ public class TaxonAnnotationParser {
             versionNextId++;
             
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(taxonAnnotNextId, taxonTO, bean.getTaxon(),
-                    bean.getDeterminedBy(), sampleSetTO.getId(), conditionTO, articleTO, null,
+                    bean.getDeterminedBy(), sampleSetTO.getId(), bean.getAnnotSpecimenCount(), conditionTO, articleTO, null,
                     moultingCharactersTO.getId(), null, null, versionTO.getId());
             taxonAnnotationTOs.add(taxonAnnotationTO);
             taxonAnnotNextId++;
@@ -381,6 +381,9 @@ public class TaxonAnnotationParser {
     }
     
     private GeologicalAgeTO getGeologicalAgeTO(GeologicalAgeDAO geologicalAgeDAO, String geoAgeName) {
+        if (StringUtils.isBlank(geoAgeName)) {
+            return null;
+        }
         GeologicalAgeTO geoAgeTO = geologicalAgeDAO.findByLabelOrSynonym(geoAgeName);
         if (geoAgeTO == null) {
             throw new IllegalArgumentException("Unknown geological age name: " + geoAgeName);
@@ -545,7 +548,7 @@ public class TaxonAnnotationParser {
                 case POST_CEPHALIC_SUTURE_LOCATION_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case RESULTING_NAMED_MOULTING_CONFIGURATIONS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(new Optional( new StrReplace("'", "\\\\'", new ParseStringSet(LIST_SEPARATOR))));
                 case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseEnumSet(EgressDirection.class, LIST_SEPARATOR)));
                 case POSITION_EXUVIAE_FOUND_IN_COL_NAME
@@ -608,7 +611,7 @@ public class TaxonAnnotationParser {
                 case LOCATION_GPS_COL_NAME -> "locationGps";
                 case GEOLOGICAL_FORMATION_COL_NAME -> "geologicalFormation";
                 case GEOLOGICAL_AGE_COL_NAME -> "geologicalAge";
-                case FOSSIL_PRESERVATION_TYPE_COL_NAME -> "fossilPreservationType";
+                case FOSSIL_PRESERVATION_TYPE_COL_NAME -> "fossilPreservationTypes";
                 case ENVIRONMENT_COL_NAME -> "environment";
                 case BIOZONE_COL_NAME -> "biozone";
                 case SAMPLE_SPECIMEN_COUNT_COL_NAME -> "sampleSpecimenCount";
@@ -618,7 +621,7 @@ public class TaxonAnnotationParser {
                 case PREVIOUS_DEV_STAGE_COL_NAME -> "previousDevStage";
                 case REPRODUCTIVE_STATE_COL_NAME -> "reproductiveState";
                 case OBSERVED_DEV_STAGE_COL_NAME -> "devStage";
-                case SPECIMEN_TYPE_COL_NAME -> "specimenType";
+                case SPECIMEN_TYPE_COL_NAME -> "specimenTypes";
                 case LIFE_HISTORY_STYLE_COL_NAME -> "lifeHistoryStyle";
                 case LIFE_MODES_COL_NAME -> "lifeModes";
                 case JUVENILE_MOULT_COUNT_COL_NAME -> "juvenileMoultCount";
@@ -639,20 +642,20 @@ public class TaxonAnnotationParser {
                 case PREMOULT_PERIOD_COL_NAME -> "premoultPeriod";
                 case POSTMOULT_PERIOD_COL_NAME -> "postmoultPeriod";
                 case VARIATION_WITHIN_COHORTS_COL_NAME -> "variationWithinCohorts";
-                case MOULTING_SUTURE_LOCATION_COL_NAME -> "moultingSutureLocation";
-                case CEPHALIC_SUTURE_LOCATION_COL_NAME -> "cephalicSutureLocation";
-                case POST_CEPHALIC_SUTURE_LOCATION_COL_NAME -> "postCephalicSutureLocation";
+                case MOULTING_SUTURE_LOCATION_COL_NAME -> "sutureLocations";
+                case CEPHALIC_SUTURE_LOCATION_COL_NAME -> "cephalicSutureLocations";
+                case POST_CEPHALIC_SUTURE_LOCATION_COL_NAME -> "postCephalicSutureLocations";
                 case RESULTING_NAMED_MOULTING_CONFIGURATIONS_COL_NAME -> "resultingNamedMoultingConfigurations";
-                case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME -> "egressDirectionDuringMoulting";
-                case POSITION_EXUVIAE_FOUND_IN_COL_NAME -> "positionExuviaeFoundIn";
+                case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME -> "egressDirectionsDuringMoulting";
+                case POSITION_EXUVIAE_FOUND_IN_COL_NAME -> "positionsExuviaeFoundIn";
                 case MOULTING_PHASE_COL_NAME -> "moultingPhase";
                 case MOULTING_VARIABILITY_COL_NAME -> "moultingVariability";
                 case CALCIFICATION_EVENT_COL_NAME -> "calcificationEvent";
-                case HEAVY_METAL_REINFORCEMENT_COL_NAME -> "heavyMetalReinforcement";
-                case OTHER_BEHAVIOURS_ASSOCIATED_WITH_MOULTING_COL_NAME -> "otherBehavioursAssociatedWithMoulting";
+                case HEAVY_METAL_REINFORCEMENT_COL_NAME -> "heavyMetalReinforcements";
+                case OTHER_BEHAVIOURS_ASSOCIATED_WITH_MOULTING_COL_NAME -> "otherBehaviours";
                 case EXUVIAE_CONSUMPTION_COL_NAME -> "exuviaeConsumption";
                 case REABSORPTION_COL_NAME -> "reabsorption";
-                case FOSSIL_EXUVIAE_QUALITY_COL_NAME -> "fossilExuviaeQuality";
+                case FOSSIL_EXUVIAE_QUALITY_COL_NAME -> "fossilExuviaeQualities";
                 case EVIDENCE_CODE_COL_NAME -> "evidenceCode";
                 case CONFIDENCE_COL_NAME -> "confidence";
                 case GENERAL_COMMENTS_COL_NAME -> "generalComments";

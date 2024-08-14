@@ -16,6 +16,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private final String annotatedSpeciesName;
     private final Integer moultingCharactersId;
     private final Integer sampleSetId;
+    private final String specimenCount;
     private final ConditionTO conditionTO;
     private final ArticleTO articleTO;
     private final ImageTO imageTO;
@@ -25,20 +26,21 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private final Integer versionId;
     
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
-                             Integer sampleSetId, ConditionTO conditionTO, ImageTO imageTO,
+                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, ImageTO imageTO,
                              String determinedBy, Integer versionId) {
-        this(id, taxonTO, annotatedSpeciesName, determinedBy, sampleSetId, conditionTO, null, imageTO,
-                null, null, null, versionId);
+        this(id, taxonTO, annotatedSpeciesName, determinedBy, sampleSetId, specimenCount, conditionTO,
+                null, imageTO, null, null, null, versionId);
     }
     
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName, String determinedBy,
-                             Integer sampleSetId, ConditionTO conditionTO, ArticleTO articleTO, ImageTO imageTO,
+                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, ArticleTO articleTO, ImageTO imageTO,
                              Integer moultingCharactersId, TermTO ecoTO, TermTO cioTO, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
         this.annotatedSpeciesName = annotatedSpeciesName;
         this.moultingCharactersId = moultingCharactersId;
         this.sampleSetId = sampleSetId;
+        this.specimenCount = specimenCount;
         this.conditionTO = conditionTO;
         this.articleTO = articleTO;
         this.imageTO = imageTO;
@@ -62,6 +64,10 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     
     public Integer getSampleSetId() {
         return sampleSetId;
+    }
+    
+    public String getSpecimenCount() {
+        return specimenCount;
     }
     
     public ConditionTO getConditionTO() {
@@ -100,6 +106,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
                 .add("annotatedSpeciesName=" + annotatedSpeciesName)
                 .add("moultingCharactersId=" + moultingCharactersId)
                 .add("sampleId=" + sampleSetId)
+                .add("specimenCount=" + specimenCount)
                 .add("conditionTO=" + conditionTO)
                 .add("articleTO=" + articleTO)
                 .add("imageTO=" + imageTO)

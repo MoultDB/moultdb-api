@@ -72,7 +72,7 @@ public class ImageServiceImpl implements ImageService {
     
     @Override
     public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
-                          String providedMoultingStep, Integer specimenCount, Boolean isFossil, Boolean isCaptive,
+                          String providedMoultingStep, String specimenCount, Boolean isFossil, Boolean isCaptive,
                           String email) {
         String originalFilename = file.getOriginalFilename();
         if (StringUtils.isBlank(originalFilename)) {
@@ -153,13 +153,13 @@ public class ImageServiceImpl implements ImageService {
         versionDAO.insert(versionTO);
         
         TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, taxonName, userTO.getOrcidId(),
-                sampleSetTO.getId(), conditionTO, null, imageTO, null, null, null, versionNextId);
+                sampleSetTO.getId(), specimenCount, conditionTO, null, imageTO, null, null, null, versionNextId);
         taxonAnnotationDAO.insertImageTaxonAnnotation(taxonAnnotationTO);
     }
     
     @Override
     public void saveImage(MultipartFile file, String taxonName, String sex, Integer ageInDays, String location,
-                          String moultingStep, Integer specimenCount, Boolean isFossil, Boolean isCaptive) {
+                          String moultingStep, String specimenCount, Boolean isFossil, Boolean isCaptive) {
         saveImage(file, taxonName, sex, ageInDays, location, moultingStep, specimenCount, isFossil, isCaptive,
                 UserHolder.getEmail());
     }

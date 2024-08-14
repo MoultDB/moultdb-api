@@ -4,7 +4,7 @@ import java.io.Serial;
 
 /**
  * @author Valentine Rech de Laval
- * @since 2022-06-28
+ * @since 2024-08-13
  */
 public class LifeModeTO extends NamedEntityTO<Integer> {
     

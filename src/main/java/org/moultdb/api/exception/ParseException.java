@@ -4,7 +4,7 @@ import java.io.Serial;
 
 /**
  * @author Valentine Rech de Laval
- * @since 2023-11-09
+ * @since 2024-07-23
  */
 public class ParseException extends MoultDBException {
     
