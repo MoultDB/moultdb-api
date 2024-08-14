@@ -4,9 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.MoultingCharactersDAO;
-import org.moultdb.api.repository.dto.MoultingCharactersTO;
-import org.moultdb.api.repository.dto.TransfertObject;
+import org.moultdb.api.repository.dto.*;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,10 +15,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Valentine Rech de Laval
@@ -30,14 +30,14 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     
     NamedParameterJdbcTemplate template;
     
-    private static final String SELECT_STATEMENT = "SELECT * FROM moulting_characters gmc " +
-            "LEFT JOIN segment_addition_mode sam ON gmc.segment_addition_mode_id = sam.id " +
-            "LEFT JOIN suture_location sl ON gmc.suture_location_id = sl.id " +
-            "LEFT JOIN cephalic_suture_location csl ON gmc.cephalic_suture_location_id = csl.id " +
-            "LEFT JOIN post_cephalic_suture_location pcsl ON gmc.post_cephalic_suture_location_id = pcsl.id " +
-            "LEFT JOIN resulting_named_moulting_configuration rnmc ON gmc.resulting_named_moulting_configuration_id = rnmc.id " +
-            "LEFT JOIN other_behaviour ob ON gmc.other_behaviour_id = ob.id " +
-            "LEFT JOIN fossil_exuviae_quality feq ON gmc.fossil_exuviae_quality_id = feq.id ";
+    private static final String SELECT_STATEMENT = "SELECT * FROM moulting_characters mc " +
+            "LEFT JOIN segment_addition_mode sam ON mc.segment_addition_mode_id = sam.id " +
+            "LEFT JOIN suture_location sl ON mc.suture_location_id = sl.id " +
+            "LEFT JOIN cephalic_suture_location csl ON mc.cephalic_suture_location_id = csl.id " +
+            "LEFT JOIN post_cephalic_suture_location pcsl ON mc.post_cephalic_suture_location_id = pcsl.id " +
+            "LEFT JOIN resulting_named_moulting_configuration rnmc ON mc.resulting_named_moulting_configuration_id = rnmc.id " +
+            "LEFT JOIN other_behaviour ob ON mc.other_behaviour_id = ob.id " +
+            "LEFT JOIN fossil_exuviae_quality feq ON mc.fossil_exuviae_quality_id = feq.id ";
     
     public MySQLMoultingCharactersDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -45,7 +45,7 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     
     @Override
     public List<MoultingCharactersTO> findAll() {
-        return template.query(SELECT_STATEMENT, new GeneralMoultingCharactersRowMapper());
+        return template.query(SELECT_STATEMENT, new MoultingCharactersResultSetExtractor());
     }
     
     @Override
@@ -55,8 +55,8 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     
     @Override
     public List<MoultingCharactersTO> findByIds(Set<Integer> ids) {
-        return template.query(SELECT_STATEMENT + " WHERE gmc.id IN (:ids)",
-                new MapSqlParameterSource().addValue("ids", ids), new GeneralMoultingCharactersRowMapper());
+        return template.query(SELECT_STATEMENT + " WHERE mc.id IN (:ids)",
+                new MapSqlParameterSource().addValue("ids", ids), new MoultingCharactersResultSetExtractor());
     }
     
     @Override
@@ -77,8 +77,8 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     
     @Override
     public void batchUpdate(Set<MoultingCharactersTO> moultingCharactersTOs) {
-    
-        String insertStmt = "INSERT INTO moulting_characters (id, life_history_style, life_mode, juvenile_moult_count, " +
+        
+        String insertStmt = "INSERT INTO moulting_characters (id, life_history_style, juvenile_moult_count, " +
                 "major_morphological_transition_count, terminal_adult_stage, observed_moult_stage_count, " +
                 "estimated_moult_count, segment_addition_mode_id, body_segment_count, body_segment_count_in_adults, " +
                 "body_length_average, body_length_increase_average, body_mass_increase_average,  " +
@@ -87,7 +87,7 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
                 "resulting_named_moulting_configuration_id, egress_direction, position_exuviae_found_in, moulting_phase, " +
                 "moulting_variability, calcification_event, heavy_metal_reinforcement, other_behaviour_id, " +
                 "exuviae_consumed, exoskeletal_reabsorption, fossil_exuviae_quality_id, general_comments) " +
-                "VALUES (:id, :life_history_style, :life_mode, :juvenile_moult_count, :major_morphological_transition_count, " +
+                "VALUES (:id, :life_history_style, :juvenile_moult_count, :major_morphological_transition_count, " +
                 ":terminal_adult_stage, :observed_moult_stage_count, :estimated_moult_count, " +
                 "(SELECT id FROM segment_addition_mode WHERE name = :segment_addition_mode_id), " +
                 ":body_segment_count, :body_segment_count_in_adults, " +
@@ -104,7 +104,7 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
                 "(SELECT id FROM fossil_exuviae_quality WHERE name = :fossil_exuviae_quality_id), " +
                 ":general_comments) " +
                 "AS new " +
-                "ON DUPLICATE KEY UPDATE life_history_style = new.life_history_style, life_mode = new.life_mode," +
+                "ON DUPLICATE KEY UPDATE life_history_style = new.life_history_style, " +
                 "juvenile_moult_count = new.juvenile_moult_count, " +
                 "major_morphological_transition_count = new.major_morphological_transition_count, " +
                 "terminal_adult_stage = new.terminal_adult_stage, observed_moult_stage_count = new.observed_moult_stage_count, " +
@@ -122,14 +122,13 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
                 "calcification_event = new.calcification_event, heavy_metal_reinforcement = new.heavy_metal_reinforcement, " +
                 "other_behaviour_id = new.other_behaviour_id, exuviae_consumed = new.exuviae_consumed, " +
                 "exoskeletal_reabsorption = new.exoskeletal_reabsorption, fossil_exuviae_quality_id = new.fossil_exuviae_quality_id," +
-                "general_comments = new.general_comments" ;
-    
+                "general_comments = new.general_comments";
+        
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (MoultingCharactersTO mcTO : moultingCharactersTOs) {
             MapSqlParameterSource mcSource = new MapSqlParameterSource();
             mcSource.addValue("id", mcTO.getId());
             mcSource.addValue("life_history_style", mcTO.getLifeHistoryStyle());
-            mcSource.addValue("life_mode", mcTO.getLifeMode());
             mcSource.addValue("juvenile_moult_count", mcTO.getJuvenileMoultCount());
             mcSource.addValue("major_morphological_transition_count", mcTO.getMajorMorphologicalTransitionCount());
             mcSource.addValue("terminal_adult_stage", mcTO.getHasTerminalAdultStage());
@@ -164,25 +163,109 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
         }
         template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
         logger.info("'moulting_characters' table updated");
+        
+        insertInAssociationTable(moultingCharactersTOs, MoultingCharactersTO::getLifeModes,
+                "life_mode", "mc_life_mode", "life_mode_id",
+                new LifeModeRowMapper());
     }
     
-    private static class GeneralMoultingCharactersRowMapper implements RowMapper<MoultingCharactersTO> {
+    private <T extends NamedEntityTO> void insertInAssociationTable (
+            Set<MoultingCharactersTO> mcTOs, Function<MoultingCharactersTO, Set<String>> func,
+            String otherTableName, String associationTableName, String associationFieldName,
+            RowMapper<T> mapper) {
+        
+        Set<String> names = new HashSet<>();
+        for (MoultingCharactersTO mcTO : mcTOs) {
+            Set<String> apply = func.apply(mcTO);
+            if (apply != null) {
+                names.addAll(apply);
+            }
+        }
+        if (names.isEmpty()) {
+            return;
+        }
+        
+        String sql = "SELECT * FROM " + otherTableName +
+                " WHERE name IN (" + names.stream().collect(Collectors.joining("', '", "'", "'")) + ")";
+        List<T> namedEntityTOs = template.query(sql, mapper);
+        
+        if (namedEntityTOs.size() != names.size()) {
+            throw new IllegalStateException("Not all names " + names.stream().collect(Collectors.joining(", ", "[", "]"))
+                    + " were found in db " + namedEntityTOs.stream().map(NamedEntityTO::getName).collect(Collectors.joining(", ", "[", "]")) +
+                    ": " + sql);
+        }
+        Map<String, NamedEntityTO> namedEntityTOsByName =
+                namedEntityTOs.stream()
+                        .collect(Collectors.toMap(NamedEntityTO::getName, Function.identity()));
+        
+        String stmt = "INSERT INTO " + associationTableName + " (mc_id, " + associationFieldName + ") " +
+                "VALUES (:mc_id, :association_id) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE mc_id = new.mc_id ";
+        
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (MoultingCharactersTO mcTO : mcTOs) {
+            Set<String> apply = func.apply(mcTO);
+            if (apply != null) {
+                for (String name: apply) {
+                    MapSqlParameterSource source = new MapSqlParameterSource();
+                    source.addValue("mc_id", mcTO.getId());
+                    source.addValue("association_id", namedEntityTOsByName.get(name).getId());
+                    params.add(source);
+                }
+            }
+        }
+        template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
+        logger.info("'" + associationTableName + "' table updated");
+    }
+    
+    private static class MoultingCharactersResultSetExtractor implements ResultSetExtractor<List<MoultingCharactersTO>> {
+        
         @Override
-        public MoultingCharactersTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            
-            return new MoultingCharactersTO(rs.getInt("gmc.id"), rs.getString("gmc.life_history_style"),
-                    rs.getString("gmc.life_mode"), rs.getString("juvenile_moult_count"),
-                    DAO.getInteger(rs, "major_morphological_transition_count"), DAO.getBoolean(rs, "gmc.terminal_adult_stage"),
-                    DAO.getInteger(rs, "gmc.observed_moult_stage_count"), DAO.getInteger(rs, "gmc.estimated_moult_count"), rs.getString("sam.name"),
-                    rs.getString("gmc.body_segment_count"), rs.getString("gmc.body_segment_count_in_adults"),
-                    rs.getBigDecimal("gmc.body_length_average"), rs.getBigDecimal("gmc.body_length_increase_average"),
-                    rs.getBigDecimal("gmc.body_mass_increase_average"), rs.getString("gmc.intermoult_period"),
-                    rs.getString("gmc.premoult_period"), rs.getString("gmc.postmoult_period"), rs.getString("gmc.variation_within_cohorts"),
-                    rs.getString("sl.name"), rs.getString("csl.name"), rs.getString("pcsl.name"), rs.getString("rnmc.name"),
-                    rs.getString("gmc.egress_direction"), rs.getString("gmc.position_exuviae_found_in"), rs.getString("gmc.moulting_phase"),
-                    rs.getString("gmc.moulting_variability"), rs.getString("gmc.calcification_event"),
-                    rs.getString("gmc.heavy_metal_reinforcement"), rs.getString("ob.name"), rs.getString("gmc.exuviae_consumed"),
-                    rs.getString("gmc.exoskeletal_reabsorption"), rs.getString("feq.name"), rs.getString("gmc.general_comments"));
+        public List<MoultingCharactersTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            Map<Integer, MoultingCharactersTO> mcSet = new HashMap<>();
+            while (rs.next()) {
+                Integer mcId = rs.getInt("mc.id");
+                MoultingCharactersTO mcTO = mcSet.get(mcId);
+                
+                Set<String> lifeModes = extractNames(rs, "lm.name", mcTO == null ? null : mcTO.getLifeModes());
+                
+                // Build MoultingCharactersTO. Even if it already exists, we create a new one because it's an unmutable object
+                mcTO = new MoultingCharactersTO(rs.getInt("mc.id"), rs.getString("mc.life_history_style"),
+                        lifeModes, rs.getString("juvenile_moult_count"),
+                        DAO.getInteger(rs, "major_morphological_transition_count"), DAO.getBoolean(rs, "mc.terminal_adult_stage"),
+                        DAO.getInteger(rs, "mc.observed_moult_stage_count"), DAO.getInteger(rs, "mc.estimated_moult_count"), rs.getString("sam.name"),
+                        rs.getString("mc.body_segment_count"), rs.getString("mc.body_segment_count_in_adults"),
+                        rs.getBigDecimal("mc.body_length_average"), rs.getBigDecimal("mc.body_length_increase_average"),
+                        rs.getBigDecimal("mc.body_mass_increase_average"), rs.getString("mc.intermoult_period"),
+                        rs.getString("mc.premoult_period"), rs.getString("mc.postmoult_period"), rs.getString("mc.variation_within_cohorts"),
+                        rs.getString("sl.name"), rs.getString("csl.name"), rs.getString("pcsl.name"), rs.getString("rnmc.name"),
+                        rs.getString("mc.egress_direction"), rs.getString("mc.position_exuviae_found_in"), rs.getString("mc.moulting_phase"),
+                        rs.getString("mc.moulting_variability"), rs.getString("mc.calcification_event"),
+                        rs.getString("mc.heavy_metal_reinforcement"), rs.getString("ob.name"), rs.getString("mc.exuviae_consumed"),
+                        rs.getString("mc.exoskeletal_reabsorption"), rs.getString("feq.name"), rs.getString("mc.general_comments"));
+                mcSet.put(mcId, mcTO);
+            }
+            return new ArrayList<>(mcSet.values());
+        }
+        
+        // FIXME refactor with SampleSetResultSetExtractor
+        private Set<String> extractNames(ResultSet rs, String label, Set<String> previousValues) throws SQLException {
+            String value = rs.getString(label);
+            if (previousValues == null) {
+                previousValues = new HashSet<>();
+            }
+            if (value != null) {
+                previousValues.add(value);
+            }
+            return previousValues;
+        }
+    }
+    
+    private static class LifeModeRowMapper implements RowMapper<LifeModeTO> {
+        @Override
+        public LifeModeTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new LifeModeTO(rs.getInt("id"), rs.getString("name"));
         }
     }
 }

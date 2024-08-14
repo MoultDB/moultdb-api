@@ -56,11 +56,17 @@ public class TaxonAnnotationParser {
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
     
-    private final static String TWO_INT_REGEXP = "^[0-9]+([/-][0-9]+)*$";
-    private final static String TWO_BIGINT_REGEXP = "^[0-9]+(\\.[0-9]+)*([/-][0-9]+(\\.[0-9]+)*)*$";
+    private final static String BIGDECIMAL_REGEXP = "[0-9]+(\\.[0-9]+)*";
+    private final static Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^" + BIGDECIMAL_REGEXP + "$");
+    private final static Pattern MULTIPLE_BIG_DECIMAL_PATTERN = Pattern.compile("^" + BIGDECIMAL_REGEXP + "(/" + BIGDECIMAL_REGEXP + ")*$");
+    private final static Pattern RANGE_PATTERN = Pattern.compile("^" + BIGDECIMAL_REGEXP + "-" + BIGDECIMAL_REGEXP + "$");
+    private final static Pattern MORE_OR_LESS_PATTERN = Pattern.compile("^[<>]" + BIGDECIMAL_REGEXP + "$");
+    private final static Pattern UNCERTAINTY_PATTERN = Pattern.compile("^" + BIGDECIMAL_REGEXP + "\\?$");
     private final static String ORCID_ID_REGEXP = "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$";
     private final static String ECO_ID_REGEXP = "^ECO:[0-9]{7}$";
     private final static String CIO_ID_REGEXP = "^CIO:[0-9]{7}$";
+    private final static String LIST_SEPARATOR = ";";
+    
     // Anatomical entity used for all annotations
     private final static AnatEntityTO ANAT_ENTITY_TO = new AnatEntityTO("UBERON:0000468", "multicellular organism", null);
     
@@ -88,7 +94,7 @@ public class TaxonAnnotationParser {
     private final static String OBSERVED_DEV_STAGE_COL_NAME = "Observed ontogenetic stage";
     private final static String SPECIMEN_TYPE_COL_NAME = "Type of specimens of interest";
     private final static String LIFE_HISTORY_STYLE_COL_NAME = "Life history style";
-    private final static String LIFE_MODE_COL_NAME = "Life mode";
+    private final static String LIFE_MODES_COL_NAME = "Life mode";
     private final static String JUVENILE_MOULT_COUNT_COL_NAME = "Number of juvenile moults";
     private final static String MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME = "Number of major morphological transitions";
     private final static String ADULT_STAGE_MOULTING_COL_NAME = "Adult stage moulting";
@@ -179,18 +185,40 @@ public class TaxonAnnotationParser {
             if (beanCount % 5 == 0) {
                 logger.debug(beanCount + " annotations converted");
             }
-            MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(mcNextId, bean.getLifeHistoryStyle(),
-                    bean.getLifeMode(), bean.getJuvenileMoultCount(), bean.getMajorMorphologicalTransitionCount(),
-                    bean.getAdultStageMoulting(), bean.getObservedMoultStagesCount(), bean.getEstimatedMoultStagesCount(),
-                    bean.getSegmentAdditionMode(), bean.getBodySegmentCount(), bean.getBodySegmentCountInAdults(),
-                    bean.getBodyLengthAverage(), bean.getBodyLengthIncreaseAverage(), bean.getBodyMassIncreaseAverage(),
-                    bean.getIntermoultPeriod(), bean.getPremoultPeriod(), bean.getPostmoultPeriod(),
-                    bean.getVariationWithinCohorts(), bean.getMoultingSutureLocation(), bean.getCephalicSutureLocation(),
-                    bean.getPostCephalicSutureLocation(), bean.getResultingNamedMoultingConfigurations(),
-                    bean.getEgressDirectionDuringMoulting(), bean.getPositionExuviaeFoundIn(), bean.getMoultingPhase(),
-                    bean.getMoultingVariability(), bean.getCalcificationEvent(), bean.getHeavyMetalReinforcement(),
-                    bean.getOtherBehavioursAssociatedWithMoulting(), bean.getExuviaeConsumption(),
-                    bean.getReabsorption(), bean.getFossilExuviaeQuality(), bean.getGeneralComments());
+            // FIXME Update MoultingCharactersTO to use correct types
+            MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(
+                    mcNextId,
+                    bean.getLifeHistoryStyle(),
+                    bean.getLifeModes(),
+                    bean.getJuvenileMoultCount(),
+                    bean.getMajorMorphologicalTransitionCount() == null? null : Integer.valueOf(bean.getMajorMorphologicalTransitionCount()),
+                    bean.getAdultStageMoulting(), bean.getObservedMoultStagesCount(),
+                    bean.getEstimatedMoultStagesCount() == null? null : Integer.valueOf(bean.getEstimatedMoultStagesCount()),
+                    bean.getSegmentAdditionMode(),
+                    bean.getBodySegmentCount(),
+                    bean.getBodySegmentCountInAdults(),
+                    bean.getBodyLengthAverage(),
+                    bean.getBodyLengthIncreaseAverage(),
+                    bean.getBodyMassIncreaseAverage(),
+                    bean.getIntermoultPeriod(),
+                    bean.getPremoultPeriod(),
+                    bean.getPostmoultPeriod(),
+                    bean.getVariationWithinCohorts(),
+                    bean.getMoultingSutureLocation()== null? null : bean.getMoultingSutureLocation().iterator().next(),
+                    bean.getCephalicSutureLocation()== null? null : bean.getCephalicSutureLocation().iterator().next(),
+                    bean.getPostCephalicSutureLocation()== null? null : bean.getPostCephalicSutureLocation().iterator().next(),
+                    bean.getResultingNamedMoultingConfigurations()== null? null : bean.getResultingNamedMoultingConfigurations().iterator().next(),
+                    bean.getEgressDirectionDuringMoulting()== null? null : bean.getEgressDirectionDuringMoulting().iterator().next(),
+                    bean.getPositionExuviaeFoundIn()== null? null : bean.getPositionExuviaeFoundIn().iterator().next(),
+                    bean.getMoultingPhase(),
+                    bean.getMoultingVariability(),
+                    bean.getCalcificationEvent(),
+                    bean.getHeavyMetalReinforcement()== null? null : bean.getHeavyMetalReinforcement().iterator().next(),
+                    bean.getOtherBehavioursAssociatedWithMoulting()== null? null : bean.getOtherBehavioursAssociatedWithMoulting().iterator().next(),
+                    bean.getExuviaeConsumption(),
+                    bean.getReabsorption(),
+                    bean.getFossilExuviaeQuality()== null? null : bean.getFossilExuviaeQuality().toString(),
+                    bean.getGeneralComments());
             mcTOs.add(moultingCharactersTO);
             mcNextId++;
             
@@ -283,12 +311,13 @@ public class TaxonAnnotationParser {
             // We don't check whether a sample set is already present/seen because we need to have one sample set per
             // annotation taxon. Indeed, the user might want to modify a sample set with no impact on the other annotations.
             // FIXME add isCaptive?
-            Set<String> specimenTypes = extractValues(bean.getSpecimenType(), true);
+            Set<String> specimenTypes = extractValues(bean.getSpecimenType().iterator().next(), true);
             boolean isFossil = specimenTypes != null && specimenTypes.contains("fossil(s)");
             SampleSetTO sampleSetTO = new SampleSetTO(ssNextId, fromGeologicalAgeTO, toGeologicalAgeTO,
-                    bean.getSampleSpecimenCount(), isFossil, null, extractValues(bean.getMuseumAccession(), false),
+                    bean.getSampleSpecimenCount() == null ? null : Integer.valueOf(bean.getSampleSpecimenCount()),
+                    isFossil, null, extractValues(bean.getMuseumAccession(), false),
                     extractValues(bean.getMuseumCollection(), false), extractValues(bean.getLocationName(), false),
-                    extractValues(bean.getFossilPreservationType(), true), extractValues(bean.getEnvironment(), true),
+                    bean.getFossilPreservationType(), extractValues(bean.getEnvironment(), true),
                     extractValues(bean.getGeologicalFormation(), false), specimenTypes, bean.getBiozone());
             sampleSetTOs.add(sampleSetTO);
             ssNextId++;
@@ -301,9 +330,7 @@ public class TaxonAnnotationParser {
                     devStageTO = devStageDAO.findByName(bean.getDevStage(), taxonTO.getPath());
                 }
                 if (devStageTO == null) {
-//                    throw new IllegalArgumentException("Unknown developmental stage: " + bean.getObservedMoultStage());
-                    logger.error("Unknown developmental stage '" + bean.getDevStage() + "' in taxon '" + taxonTO.getScientificName() +
-                            "'. Set null.");
+                    throw new IllegalArgumentException("Unknown developmental stage: " + bean.getDevStage());
                 }
                 conditionTO = new ConditionTO(conditionNextId, devStageTO, ANAT_ENTITY_TO,
                         bean.getSex(), bean.getReproductiveState(), null);
@@ -448,17 +475,17 @@ public class TaxonAnnotationParser {
                 case GEOLOGICAL_AGE_COL_NAME
                         -> new FmtCustomNull(new Optional(new Trim()));
                 case FOSSIL_PRESERVATION_TYPE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case ENVIRONMENT_COL_NAME
                         -> new FmtCustomNull(new Optional(new Trim()));
                 case BIOZONE_COL_NAME
                         -> new FmtCustomNull(new Optional(new Trim()));
                 case SAMPLE_SPECIMEN_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseInt()));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case ANNOT_SPECIMEN_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseInt()));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case SEX_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
                                 new IsElementOf(getObjects(Sex.class)))));
                 case PREVIOUS_REPRODUCTIVE_STATE_COL_NAME
                         -> new FmtCustomNull(new Optional(new Trim()));
@@ -469,29 +496,28 @@ public class TaxonAnnotationParser {
                 case OBSERVED_DEV_STAGE_COL_NAME
                         -> new FmtCustomNull(new Optional((new Trim())));
                 case SPECIMEN_TYPE_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case LIFE_HISTORY_STYLE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
-                        new IsElementOf(getObjects(LifeHistoryStyle.class)))));
-                case LIFE_MODE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
-                        new IsElementOf(getObjects(LifeMode.class)))));
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                            new IsElementOf(getObjects(LifeHistoryStyle.class)))));
+                case LIFE_MODES_COL_NAME
+                        -> new FmtCustomNull(new Optional(new ParseEnumSet(LifeMode.class, LIST_SEPARATOR)));
                 case JUVENILE_MOULT_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseInt()));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case ADULT_STAGE_MOULTING_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseBool("yes", "no")));
                 case OBSERVED_MOULT_STAGES_COUNT_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseInt()));
                 case ESTIMATED_MOULT_STAGES_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseInt()));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case SEGMENT_ADDITION_MODE_COL_NAME
                         -> new FmtCustomNull(new Optional(new Trim()));
                 case BODY_SEGMENT_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case BODY_SEGMENT_COUNT_IN_ADULTS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case BODY_LENGTH_AVERAGE_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
                 case BODY_WIDTH_AVERAGE_COL_NAME
@@ -503,51 +529,48 @@ public class TaxonAnnotationParser {
                 case BODY_MASS_INCREASE_AVERAGE_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
                 case ONTOGENETIC_STAGE_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_BIGINT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case INTERMOULT_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case PREMOULT_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case POSTMOULT_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case VARIATION_WITHIN_COHORTS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrRegEx(TWO_INT_REGEXP)));
+                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
                 case MOULTING_SUTURE_LOCATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case CEPHALIC_SUTURE_LOCATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case POST_CEPHALIC_SUTURE_LOCATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case RESULTING_NAMED_MOULTING_CONFIGURATIONS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
-                        new IsElementOf(getObjects(EgressDirection.class)))));
+                        -> new FmtCustomNull(new Optional(new ParseEnumSet(EgressDirection.class, LIST_SEPARATOR)));
                 case POSITION_EXUVIAE_FOUND_IN_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
-                        new IsElementOf(getObjects(ExuviaePosition.class)))));
+                        -> new FmtCustomNull(new Optional(new ParseEnumSet(ExuviaePosition.class, LIST_SEPARATOR)));
                 case MOULTING_PHASE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(MoultingPhase.class)))));
                 case MOULTING_VARIABILITY_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(MoultingVariability.class)))));
                 case CALCIFICATION_EVENT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(Calcification.class)))));
                 case HEAVY_METAL_REINFORCEMENT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
-                        new IsElementOf(getObjects(HeavyMetalReinforcement.class)))));
+                        -> new FmtCustomNull(new Optional(new ParseEnumSet(HeavyMetalReinforcement.class, LIST_SEPARATOR)));
                 case OTHER_BEHAVIOURS_ASSOCIATED_WITH_MOULTING_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case EXUVIAE_CONSUMPTION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(ExuviaeConsumption.class)))));
                 case REABSORPTION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStrIgnoringCase(
+                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(Reabsorption.class)))));
                 case FOSSIL_EXUVIAE_QUALITY_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case EVIDENCE_CODE_COL_NAME
                         -> new FmtCustomNull(new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(ECO_ID_REGEXP))));
                 case CONFIDENCE_COL_NAME
@@ -589,7 +612,7 @@ public class TaxonAnnotationParser {
                 case ENVIRONMENT_COL_NAME -> "environment";
                 case BIOZONE_COL_NAME -> "biozone";
                 case SAMPLE_SPECIMEN_COUNT_COL_NAME -> "sampleSpecimenCount";
-                case ANNOT_SPECIMEN_COUNT_COL_NAME -> "rowSpecimenCount";
+                case ANNOT_SPECIMEN_COUNT_COL_NAME -> "annotSpecimenCount";
                 case SEX_COL_NAME -> "sex";
                 case PREVIOUS_REPRODUCTIVE_STATE_COL_NAME -> "previousReproductiveState";
                 case PREVIOUS_DEV_STAGE_COL_NAME -> "previousDevStage";
@@ -597,7 +620,7 @@ public class TaxonAnnotationParser {
                 case OBSERVED_DEV_STAGE_COL_NAME -> "devStage";
                 case SPECIMEN_TYPE_COL_NAME -> "specimenType";
                 case LIFE_HISTORY_STYLE_COL_NAME -> "lifeHistoryStyle";
-                case LIFE_MODE_COL_NAME -> "lifeMode";
+                case LIFE_MODES_COL_NAME -> "lifeModes";
                 case JUVENILE_MOULT_COUNT_COL_NAME -> "juvenileMoultCount";
                 case MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME -> "majorMorphologicalTransitionCount";
                 case ADULT_STAGE_MOULTING_COL_NAME -> "adultStageMoulting";
@@ -662,13 +685,13 @@ public class TaxonAnnotationParser {
         }
     }
     
-    public static class ParseStrIgnoringCase extends CellProcessorAdaptor implements StringCellProcessor {
+    public static class FmtStrLowerCase extends CellProcessorAdaptor implements StringCellProcessor {
         
-        public ParseStrIgnoringCase() {
+        public FmtStrLowerCase() {
             super();
         }
         
-        public ParseStrIgnoringCase(CellProcessor next) {
+        public FmtStrLowerCase(CellProcessor next) {
             // this constructor allows other processors to be chained after this processor
             super(next);
         }
@@ -709,4 +732,96 @@ public class TaxonAnnotationParser {
             return next.execute(String.valueOf(value).split(this.separator)[0], context);
         }
     }
+    
+    public static class ParseEnumSet extends CellProcessorAdaptor implements StringCellProcessor {
+        
+        private final String separator;
+        
+        private final Set<Object> possibleValues = new HashSet<>();
+        
+        public <T extends Enum<T> & MoutldbEnum> ParseEnumSet(final Class<T> enumClass, final String separator) {
+            super();
+            this.separator = separator;
+            this.possibleValues.addAll(MoutldbEnum.getAllStringRepresentations(enumClass));
+        }
+        
+        public <T extends Enum<T> & MoutldbEnum> ParseEnumSet(final Class<T> enumClass, final String separator, final CellProcessor next) {
+            // this constructor allows other processors to be chained after this processor
+            super(next);
+            this.separator = separator;
+            this.possibleValues.addAll(MoutldbEnum.getAllStringRepresentations(enumClass));
+        }
+        
+        public Object execute(Object value, CsvContext context) {
+            
+            // Throws an Exception if the input is null
+            validateInputNotNull(value, context);
+            
+            Set<String> set = Arrays.stream(String.valueOf(value).split(this.separator))
+                    .map(s -> s.trim().toLowerCase())
+                    .collect(Collectors.toSet());
+            
+            if (!this.possibleValues.containsAll(set)) {
+                throw new ParseException(String.format("'%s' does not only contain allowed set of values '%s'",
+                        value, this.possibleValues));
+            }
+            
+            return set;
+        }
+    }
+    
+    public static class ParseStringSet extends CellProcessorAdaptor implements StringCellProcessor {
+        
+        private final String separator;
+        
+        public <T extends Enum<T> & MoutldbEnum> ParseStringSet(final String separator) {
+            super();
+            this.separator = separator;
+        }
+        
+        public <T extends Enum<T> & MoutldbEnum> ParseStringSet(final String separator, final CellProcessor next) {
+            // this constructor allows other processors to be chained after this processor
+            super(next);
+            this.separator = separator;
+        }
+        
+        public Object execute(Object value, CsvContext context) {
+            
+            // Throws an Exception if the input is null
+            validateInputNotNull(value, context);
+            
+            return Arrays.stream(String.valueOf(value).split(this.separator))
+                    .map(s -> s.trim().toLowerCase())
+                    .collect(Collectors.toSet());
+        }
+    }
+    
+    public static class CustomDecimalFormat extends CellProcessorAdaptor implements StringCellProcessor {
+        
+        
+        public <T extends Enum<T> & MoutldbEnum> CustomDecimalFormat() {
+            super();
+        }
+        
+        public <T extends Enum<T> & MoutldbEnum> CustomDecimalFormat(final CellProcessor next) {
+            // this constructor allows other processors to be chained after this processor
+            super(next);
+        }
+        
+        public Object execute(Object value, CsvContext context) {
+            
+            // Throws an Exception if the input is null
+            validateInputNotNull(value, context);
+            
+            final List<Pattern> rxs = Arrays.asList(BIG_DECIMAL_PATTERN, MULTIPLE_BIG_DECIMAL_PATTERN,
+                    RANGE_PATTERN, MORE_OR_LESS_PATTERN, UNCERTAINTY_PATTERN);
+            
+            if (rxs.stream().noneMatch(rx -> rx.matcher(String.valueOf(value)).matches())) {
+                throw new ParseException(String.format("'%s' does not match the decimal expression", value));
+            }
+            
+            return value;
+        }
+    }
+    
 }

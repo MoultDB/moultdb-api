@@ -3,8 +3,8 @@ package org.moultdb.importer.taxonannotation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -25,24 +25,24 @@ public class TaxonAnnotationBean {
     private String locationGps;
     private String geologicalFormation;
     private String geologicalAge;
-    private String fossilPreservationType;
+    private Set<String> fossilPreservationType;
     private String environment;
     private String biozone;
-    private Integer sampleSpecimenCount;
-    private Integer annotSpecimenCount;
+    private String sampleSpecimenCount;
+    private String annotSpecimenCount;
     private String sex;
     private String previousReproductiveState;
     private String previousDevStage;
     private String reproductiveState;
     private String devStage;
-    private String specimenType;
+    private Set<String> specimenType;
     private String lifeHistoryStyle;
-    private String lifeMode;
+    private Set<String> lifeModes;
     private String juvenileMoultCount;
-    private Integer majorMorphologicalTransitionCount;
+    private String majorMorphologicalTransitionCount;
     private Boolean adultStageMoulting;
     private Integer observedMoultStagesCount;
-    private Integer estimatedMoultStagesCount;
+    private String estimatedMoultStagesCount;
     private String segmentAdditionMode;
     private String bodySegmentCount;
     private String bodySegmentCountInAdults;
@@ -56,20 +56,20 @@ public class TaxonAnnotationBean {
     private String premoultPeriod;
     private String postmoultPeriod;
     private String variationWithinCohorts;
-    private String moultingSutureLocation;
-    private String cephalicSutureLocation;
-    private String postCephalicSutureLocation;
-    private String resultingNamedMoultingConfigurations;
-    private String egressDirectionDuringMoulting;
-    private String positionExuviaeFoundIn;
+    private Set<String> moultingSutureLocation;
+    private Set<String> cephalicSutureLocation;
+    private Set<String> postCephalicSutureLocation;
+    private Set<String> resultingNamedMoultingConfigurations;
+    private Set<String> egressDirectionDuringMoulting;
+    private Set<String> positionExuviaeFoundIn;
     private String moultingPhase;
     private String moultingVariability;
     private String calcificationEvent;
-    private String heavyMetalReinforcement;
-    private String otherBehavioursAssociatedWithMoulting;
+    private Set<String> heavyMetalReinforcement;
+    private Set<String> otherBehavioursAssociatedWithMoulting;
     private String exuviaeConsumption;
     private String reabsorption;
-    private String fossilExuviaeQuality;
+    private Set<String> fossilExuviaeQuality;
     private String evidenceCode;
     private String confidence;
     private String generalComments;
@@ -173,12 +173,12 @@ public class TaxonAnnotationBean {
         this.geologicalAge = geologicalAge;
     }
     
-    public String getFossilPreservationType() {
+    public Set<String> getFossilPreservationType() {
         return fossilPreservationType;
     }
     
-    public void setFossilPreservationType(String fossilPreservationType) {
-        this.fossilPreservationType = convertToLowerCase(fossilPreservationType);
+    public void setFossilPreservationType(Set<String> fossilPreservationType) {
+        this.fossilPreservationType = fossilPreservationType;
     }
     
     public String getEnvironment() {
@@ -197,19 +197,19 @@ public class TaxonAnnotationBean {
         this.biozone = biozone;
     }
     
-    public Integer getSampleSpecimenCount() {
+    public String getSampleSpecimenCount() {
         return sampleSpecimenCount;
     }
     
-    public void setSampleSpecimenCount(Integer sampleSpecimenCount) {
+    public void setSampleSpecimenCount(String sampleSpecimenCount) {
         this.sampleSpecimenCount = sampleSpecimenCount;
     }
     
-    public Integer getAnnotSpecimenCount() {
+    public String getAnnotSpecimenCount() {
         return annotSpecimenCount;
     }
     
-    public void setAnnotSpecimenCount(Integer annotSpecimenCount) {
+    public void setAnnotSpecimenCount(String annotSpecimenCount) {
         this.annotSpecimenCount = annotSpecimenCount;
     }
     
@@ -253,12 +253,12 @@ public class TaxonAnnotationBean {
         this.devStage = devStage;
     }
     
-    public String getSpecimenType() {
+    public Set<String> getSpecimenType() {
         return specimenType;
     }
     
-    public void setSpecimenType(String specimenType) {
-        this.specimenType = convertToLowerCase(specimenType);
+    public void setSpecimenType(Set<String> specimenType) {
+        this.specimenType = specimenType;
     
     }
     
@@ -270,12 +270,12 @@ public class TaxonAnnotationBean {
         this.lifeHistoryStyle = convertToLowerCase(lifeHistoryStyle);
     }
     
-    public String getLifeMode() {
-        return lifeMode;
+    public Set<String> getLifeModes() {
+        return lifeModes;
     }
     
-    public void setLifeMode(String lifeMode) {
-        this.lifeMode = convertToLowerCase(lifeMode);
+    public void setLifeModes(Set<String> lifeModes) {
+        this.lifeModes = lifeModes;
     }
     
     public String getJuvenileMoultCount() {
@@ -286,11 +286,11 @@ public class TaxonAnnotationBean {
         this.juvenileMoultCount = juvenileMoultCount;
     }
     
-    public Integer getMajorMorphologicalTransitionCount() {
+    public String getMajorMorphologicalTransitionCount() {
         return majorMorphologicalTransitionCount;
     }
     
-    public void setMajorMorphologicalTransitionCount(Integer majorMorphologicalTransitionCount) {
+    public void setMajorMorphologicalTransitionCount(String majorMorphologicalTransitionCount) {
         this.majorMorphologicalTransitionCount = majorMorphologicalTransitionCount;
     }
     
@@ -310,11 +310,11 @@ public class TaxonAnnotationBean {
         this.observedMoultStagesCount = observedMoultStagesCount;
     }
     
-    public Integer getEstimatedMoultStagesCount() {
+    public String getEstimatedMoultStagesCount() {
         return estimatedMoultStagesCount;
     }
     
-    public void setEstimatedMoultStagesCount(Integer estimatedMoultStagesCount) {
+    public void setEstimatedMoultStagesCount(String estimatedMoultStagesCount) {
         this.estimatedMoultStagesCount = estimatedMoultStagesCount;
     }
     
@@ -422,52 +422,52 @@ public class TaxonAnnotationBean {
         this.variationWithinCohorts = variationWithinCohorts;
     }
     
-    public String getMoultingSutureLocation() {
+    public Set<String> getMoultingSutureLocation() {
         return moultingSutureLocation;
     }
     
-    public void setMoultingSutureLocation(String moultingSutureLocation) {
-        this.moultingSutureLocation = convertToLowerCase(moultingSutureLocation);
+    public void setMoultingSutureLocation(Set<String> moultingSutureLocation) {
+        this.moultingSutureLocation = moultingSutureLocation;
     }
     
-    public String getCephalicSutureLocation() {
+    public Set<String> getCephalicSutureLocation() {
         return cephalicSutureLocation;
     }
     
-    public void setCephalicSutureLocation(String cephalicSutureLocation) {
-        this.cephalicSutureLocation = convertToLowerCase(cephalicSutureLocation);
+    public void setCephalicSutureLocation(Set<String> cephalicSutureLocation) {
+        this.cephalicSutureLocation = cephalicSutureLocation;
     }
     
-    public String getPostCephalicSutureLocation() {
+    public Set<String> getPostCephalicSutureLocation() {
         return postCephalicSutureLocation;
     }
     
-    public void setPostCephalicSutureLocation(String postCephalicSutureLocation) {
-        this.postCephalicSutureLocation = convertToLowerCase(postCephalicSutureLocation);
+    public void setPostCephalicSutureLocation(Set<String> postCephalicSutureLocation) {
+        this.postCephalicSutureLocation = postCephalicSutureLocation;
     }
     
-    public String getResultingNamedMoultingConfigurations() {
+    public Set<String> getResultingNamedMoultingConfigurations() {
         return resultingNamedMoultingConfigurations;
     }
     
-    public void setResultingNamedMoultingConfigurations(String resultingNamedMoultingConfigurations) {
+    public void setResultingNamedMoultingConfigurations(Set<String> resultingNamedMoultingConfigurations) {
         this.resultingNamedMoultingConfigurations = resultingNamedMoultingConfigurations;
     }
     
-    public String getEgressDirectionDuringMoulting() {
+    public Set<String> getEgressDirectionDuringMoulting() {
         return egressDirectionDuringMoulting;
     }
     
-    public void setEgressDirectionDuringMoulting(String egressDirectionDuringMoulting) {
-        this.egressDirectionDuringMoulting = convertToLowerCase(egressDirectionDuringMoulting);
+    public void setEgressDirectionDuringMoulting(Set<String> egressDirectionDuringMoulting) {
+        this.egressDirectionDuringMoulting = egressDirectionDuringMoulting;
     }
     
-    public String getPositionExuviaeFoundIn() {
+    public Set<String> getPositionExuviaeFoundIn() {
         return positionExuviaeFoundIn;
     }
     
-    public void setPositionExuviaeFoundIn(String positionExuviaeFoundIn) {
-        this.positionExuviaeFoundIn = convertToLowerCase(positionExuviaeFoundIn);
+    public void setPositionExuviaeFoundIn(Set<String> positionExuviaeFoundIn) {
+        this.positionExuviaeFoundIn = positionExuviaeFoundIn;
     }
     
     public String getMoultingPhase() {
@@ -494,19 +494,19 @@ public class TaxonAnnotationBean {
         this.calcificationEvent = calcificationEvent;
     }
     
-    public String getHeavyMetalReinforcement() {
+    public Set<String> getHeavyMetalReinforcement() {
         return heavyMetalReinforcement;
     }
     
-    public void setHeavyMetalReinforcement(String heavyMetalReinforcement) {
+    public void setHeavyMetalReinforcement(Set<String> heavyMetalReinforcement) {
         this.heavyMetalReinforcement = heavyMetalReinforcement;
     }
     
-    public String getOtherBehavioursAssociatedWithMoulting() {
+    public Set<String> getOtherBehavioursAssociatedWithMoulting() {
         return otherBehavioursAssociatedWithMoulting;
     }
     
-    public void setOtherBehavioursAssociatedWithMoulting(String otherBehavioursAssociatedWithMoulting) {
+    public void setOtherBehavioursAssociatedWithMoulting(Set<String> otherBehavioursAssociatedWithMoulting) {
         this.otherBehavioursAssociatedWithMoulting = otherBehavioursAssociatedWithMoulting;
     }
     
@@ -526,12 +526,12 @@ public class TaxonAnnotationBean {
         this.reabsorption = convertToLowerCase(reabsorption);
     }
     
-    public String getFossilExuviaeQuality() {
+    public Set<String> getFossilExuviaeQuality() {
         return fossilExuviaeQuality;
     }
     
-    public void setFossilExuviaeQuality(String fossilExuviaeQuality) {
-        this.fossilExuviaeQuality = convertToLowerCase(fossilExuviaeQuality);
+    public void setFossilExuviaeQuality(Set<String> fossilExuviaeQuality) {
+        this.fossilExuviaeQuality = fossilExuviaeQuality;
     }
     
     public String getEvidenceCode() {
@@ -591,7 +591,7 @@ public class TaxonAnnotationBean {
                 && Objects.equals(devStage, that.devStage)
                 && Objects.equals(specimenType, that.specimenType)
                 && Objects.equals(lifeHistoryStyle, that.lifeHistoryStyle)
-                && Objects.equals(lifeMode, that.lifeMode)
+                && Objects.equals(lifeModes, that.lifeModes)
                 && Objects.equals(juvenileMoultCount, that.juvenileMoultCount)
                 && Objects.equals(majorMorphologicalTransitionCount, that.majorMorphologicalTransitionCount)
                 && Objects.equals(adultStageMoulting, that.adultStageMoulting)
@@ -635,7 +635,7 @@ public class TaxonAnnotationBean {
                 museumCollection, museumAccession, locationName, locationGps, geologicalFormation, geologicalAge,
                 fossilPreservationType, environment, biozone, sampleSpecimenCount, annotSpecimenCount, sex,
                 previousReproductiveState, previousDevStage, reproductiveState, devStage,
-                specimenType, lifeHistoryStyle, lifeMode, juvenileMoultCount,
+                specimenType, lifeHistoryStyle, lifeModes, juvenileMoultCount,
                 majorMorphologicalTransitionCount, adultStageMoulting, observedMoultStagesCount, 
                 estimatedMoultStagesCount, segmentAdditionMode, bodySegmentCount, bodySegmentCountInAdults,
                 bodyLengthAverage, bodyWidthAverage, bodyLengthIncreaseAverage, bodyWidthIncreaseAverage,
@@ -674,7 +674,7 @@ public class TaxonAnnotationBean {
                 .add("devStage='" + devStage + "'")
                 .add("specimenType='" + specimenType + "'")
                 .add("lifeHistoryStyle='" + lifeHistoryStyle + "'")
-                .add("lifeMode='" + lifeMode + "'")
+                .add("lifeModes='" + lifeModes + "'")
                 .add("juvenileMoultCount='" + juvenileMoultCount + "'")
                 .add("majorMorphologicalTransitionCount='" + majorMorphologicalTransitionCount + "'")
                 .add("adultStageMoulting=" + adultStageMoulting)

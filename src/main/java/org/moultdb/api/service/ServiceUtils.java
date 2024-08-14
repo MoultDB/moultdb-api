@@ -164,7 +164,7 @@ public class ServiceUtils {
             return null;
         }
         return new MoultingCharacters(LifeHistoryStyle.valueOfByStringRepresentation(mcTO.getLifeHistoryStyle()),
-                LifeMode.valueOfByStringRepresentation(mcTO.getLifeMode()), mcTO.getJuvenileMoultCount(),
+                MoutldbEnum.valueOfByStringRepresentation(LifeMode.class, mcTO.getLifeModes()), mcTO.getJuvenileMoultCount(),
                 mcTO.getMajorMorphologicalTransitionCount(), mcTO.getHasTerminalAdultStage(),
                 mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSegmentAdditionMode(),
                 mcTO.getBodySegmentCount(), mcTO.getBodySegmentCountInAdults(), mcTO.getBodyLengthAverage(),

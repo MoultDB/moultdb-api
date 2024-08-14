@@ -3,6 +3,7 @@ package org.moultdb.api.model.moutldbenum;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +52,15 @@ public interface MoutldbEnum {
             }
         }
         throw new IllegalArgumentException("'" + representation + "' is unknown for " + enumClass.getName());
+    }
+    
+    static <T extends Enum<T> & MoutldbEnum> Set<T> valueOfByStringRepresentation(Class<T> enumClass, Set<String> representations) throws IllegalArgumentException {
+        if (representations == null) {
+            return null;
+        }
+        return representations.stream()
+                .map(s -> valueOfByStringRepresentation(enumClass, s))
+                .collect(Collectors.toSet());
     }
     
 }

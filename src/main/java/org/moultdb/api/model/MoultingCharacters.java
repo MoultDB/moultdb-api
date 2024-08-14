@@ -3,8 +3,7 @@ package org.moultdb.api.model;
 import org.moultdb.api.model.moutldbenum.*;
 
 import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -18,7 +17,7 @@ public class MoultingCharacters {
      */
     private final LifeHistoryStyle lifeHistoryStyle;
     
-    private final LifeMode lifeMode;
+    private final Set<LifeMode> lifeModes;
     
     private final String juvenileMoultCount;
     
@@ -142,7 +141,7 @@ public class MoultingCharacters {
     
     private final String generalComments;
     
-    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, LifeMode lifeMode, String juvenileMoultCount,
+    public MoultingCharacters(LifeHistoryStyle lifeHistoryStyle, Set<LifeMode> lifeModes, String juvenileMoultCount,
                               Integer majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
                               Integer observedMoultCount, Integer estimatedMoultCount, String segmentAdditionMode,
                               String bodySegmentCount, String bodySegmentCountInAdults, BigDecimal bodyLengthAverage,
@@ -156,7 +155,7 @@ public class MoultingCharacters {
                               ExuviaeConsumption exuviaeConsumption, Reabsorption reabsorption,
                               String fossilExuviaeQuality, String generalComments) {
         this.lifeHistoryStyle = lifeHistoryStyle;
-        this.lifeMode = lifeMode;
+        this.lifeModes =  Collections.unmodifiableSet(lifeModes == null ? new HashSet<>(): new HashSet<>(lifeModes));
         this.juvenileMoultCount = juvenileMoultCount;
         this.majorMorphologicalTransitionCount = majorMorphologicalTransitionCount;
         this.hasTerminalAdultStage = hasTerminalAdultStage;
@@ -193,8 +192,8 @@ public class MoultingCharacters {
         return lifeHistoryStyle;
     }
     
-    public LifeMode getLifeMode() {
-        return lifeMode;
+    public Set<LifeMode> getLifeModes() {
+        return lifeModes;
     }
     
     public String getJuvenileMoultCount() {
@@ -325,7 +324,7 @@ public class MoultingCharacters {
             return false;
         MoultingCharacters that = (MoultingCharacters) o;
         return lifeHistoryStyle == that.lifeHistoryStyle
-                && lifeMode == that.lifeMode
+                && lifeModes == that.lifeModes
                 && Objects.equals(juvenileMoultCount, that.juvenileMoultCount)
                 && Objects.equals(majorMorphologicalTransitionCount, that.majorMorphologicalTransitionCount)
                 && Objects.equals(hasTerminalAdultStage, that.hasTerminalAdultStage)
@@ -360,7 +359,7 @@ public class MoultingCharacters {
     
     @Override
     public int hashCode() {
-        return Objects.hash(lifeHistoryStyle, lifeMode, juvenileMoultCount, majorMorphologicalTransitionCount,
+        return Objects.hash(lifeHistoryStyle, lifeModes, juvenileMoultCount, majorMorphologicalTransitionCount,
                 hasTerminalAdultStage, observedMoultCount, estimatedMoultCount, segmentAdditionMode, bodySegmentCount,
                 bodySegmentCountInAdults, bodyLengthAverage, bodyLengthIncreaseAverage, bodyMassIncreaseAverage,
                 intermoultPeriod, premoultPeriod, postmoultPeriod, variationWithinCohorts, sutureLocation,
@@ -374,7 +373,7 @@ public class MoultingCharacters {
     public String toString() {
         return new StringJoiner(", ", MoultingCharacters.class.getSimpleName() + "[", "]")
                 .add("lifeHistoryStyle=" + lifeHistoryStyle)
-                .add("lifeMode=" + lifeMode)
+                .add("lifeModes=" + lifeModes)
                 .add("juvenileMoultCount=" + juvenileMoultCount)
                 .add("majorMorphologicalTransitionCount=" + majorMorphologicalTransitionCount)
                 .add("hasTerminalAdultStage=" + hasTerminalAdultStage)

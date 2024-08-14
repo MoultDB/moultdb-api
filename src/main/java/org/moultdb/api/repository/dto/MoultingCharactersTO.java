@@ -2,7 +2,7 @@ package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -15,7 +15,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private static final long serialVersionUID = -558466073558777076L;
     
     private final String lifeHistoryStyle;
-    private final String lifeMode;
+    private final Set<String> lifeModes;
     private final String juvenileMoultCount;
     private final Integer majorMorphologicalTransitionCount;
     private final Boolean hasTerminalAdultStage;
@@ -47,7 +47,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private final String fossilExuviaeQuality;
     private final String generalComments;
     
-    public MoultingCharactersTO(Integer id, String lifeHistoryStyle, String lifeMode, String juvenileMoultCount,
+    public MoultingCharactersTO(Integer id, String lifeHistoryStyle, Set<String> lifeModes, String juvenileMoultCount,
                                 Integer majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
                                 Integer observedMoultStageCount, Integer estimatedMoultStageCount,
                                 String segmentAdditionMode, String bodySegmentCount,
@@ -63,7 +63,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
             throws IllegalArgumentException {
         super(id);
         this.lifeHistoryStyle = lifeHistoryStyle;
-        this.lifeMode = lifeMode;
+        this.lifeModes = lifeModes;
         this.juvenileMoultCount = juvenileMoultCount;
         this.majorMorphologicalTransitionCount = majorMorphologicalTransitionCount;
         this.hasTerminalAdultStage = hasTerminalAdultStage;
@@ -100,8 +100,8 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return lifeHistoryStyle;
     }
     
-    public String getLifeMode() {
-        return lifeMode;
+    public Set<String> getLifeModes() {
+        return lifeModes;
     }
     
     public String getJuvenileMoultCount() {
@@ -228,7 +228,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     public String toString() {
         return new StringJoiner(", ", MoultingCharactersTO.class.getSimpleName() + "[", "]")
                 .add("lifeHistoryStyle='" + lifeHistoryStyle + "'")
-                .add("lifeMode='" + lifeMode + "'")
+                .add("lifeMode='" + lifeModes + "'")
                 .add("juvenileMoultCount=" + juvenileMoultCount)
                 .add("majorMorphologicalTransitionCount=" + majorMorphologicalTransitionCount)
                 .add("hasTerminalAdultStage=" + hasTerminalAdultStage)
