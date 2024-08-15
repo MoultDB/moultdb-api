@@ -271,41 +271,38 @@ public class TaxonAnnotationParser {
                 toGeologicalAgeTO = fromGeologicalAgeTO;
             }
             
-            if (bean.getPublishedReferenceAcc() != null && bean.getPublishedReferenceText() == null) {
-                throw new IllegalArgumentException("You should provide the published reference citation " +
-                        "when you provide a published reference accession: " + bean.getPublishedReferenceAcc());
-            }
-            
-            Set<DbXrefTO> articleDbXrefTOs = new HashSet<>();
-            if (bean.getPublishedReferenceAcc() != null) {
-                for (String acc : bean.getPublishedReferenceAcc().split(";")) {
-                    Matcher m = Pattern.compile("^([A-Z]+):(\\S+)$").matcher(String.valueOf(acc));
-                    if (m.find()) {
-                        DataSourceTO dataSourceTO = dataSourceDAO.findByName(m.group(1));
-                        if (dataSourceTO == null) {
-                            throw new IllegalArgumentException("Unknown data source: " + m.group(1));
-                        }
-                        DbXrefTO dbXrefTO = dbXrefDAO.findByAccessionAndDatasource(m.group(2).trim(), dataSourceTO.getId());
-                        if (dbXrefTO == null) {
-                            dbXrefTO = new DbXrefTO(dbXrefNextId, m.group(2).trim(), null, dataSourceTO);
-                            dbXrefTOs.add(dbXrefTO);
-                            dbXrefNextId++;
-                        }
-                        articleDbXrefTOs.add(dbXrefTO);
-                    }
-                }
+            if (bean.getPublishedReferenceAcc() == null || bean.getPublishedReferenceText() == null) {
+                throw new IllegalArgumentException("You should provide the published reference accession " +
+                        "and citation: " + bean.getPublishedReferenceText() + " - " + bean.getPublishedReferenceAcc());
             }
             
             ArticleTO articleTO = viewedArticleCitations.get(bean.getPublishedReferenceText());
-            if (bean.getPublishedReferenceText() != null && articleTO == null) {
+            if (articleTO == null) {
                 articleTO = articleDAO.findByCitation(bean.getPublishedReferenceText());
                 if (articleTO == null) {
+                    Set<DbXrefTO> articleDbXrefTOs = new HashSet<>();
+                    for (String acc : bean.getPublishedReferenceAcc().split(";")) {
+                        Matcher m = Pattern.compile("^([A-Z]+): *(\\S+)$").matcher(acc);
+                        if (m.find()) {
+                            DataSourceTO dataSourceTO = dataSourceDAO.findByShortName(m.group(1));
+                            if (dataSourceTO == null) {
+                                throw new IllegalArgumentException("Unknown data source: " + m.group(1));
+                            }
+                            DbXrefTO dbXrefTO = dbXrefDAO.findByAccessionAndDatasource(m.group(2).trim(), dataSourceTO.getId());
+                            if (dbXrefTO == null) {
+                                dbXrefTO = new DbXrefTO(dbXrefNextId, m.group(2).trim(), null, dataSourceTO);
+                                dbXrefTOs.add(dbXrefTO);
+                                dbXrefNextId++;
+                            }
+                            articleDbXrefTOs.add(dbXrefTO);
+                        }
+                    }
                     articleTO = new ArticleTO(articleNextId, bean.getPublishedReferenceText(), null, null, dbXrefTOs);
                     articleTOs.add(articleTO);
                     articleNextId++;
-                }
-                for (DbXrefTO dbXrefTO : articleDbXrefTOs) {
-                    articleToDbXrefTOs.add(new ArticleToDbXrefTO(articleTO.getId(), dbXrefTO.getId()));
+                    for (DbXrefTO dbXrefTO : articleDbXrefTOs) {
+                        articleToDbXrefTOs.add(new ArticleToDbXrefTO(articleTO.getId(), dbXrefTO.getId()));
+                    }
                 }
                 viewedArticleCitations.put(bean.getPublishedReferenceText(), articleTO);
             }

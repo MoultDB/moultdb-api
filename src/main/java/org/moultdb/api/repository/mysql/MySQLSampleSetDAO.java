@@ -1,5 +1,6 @@
 package org.moultdb.api.repository.mysql;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.DAO;
@@ -154,7 +155,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 continue;
             }
             for (String name: values) {
-                if (name != null) {
+                if (StringUtils.isNotBlank(name)) {
                     MapSqlParameterSource source = new MapSqlParameterSource();
                     source.addValue("name", name);
                     params.add(source);
