@@ -457,9 +457,9 @@ public class TaxonAnnotationParser {
                 case DETERMINED_BY_COL_NAME
                         -> new FmtCustomNull(new Optional(new Trim()));
                 case PUBLISHED_REFERENCE_TEXT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
                 case PUBLISHED_REFERENCE_ACC_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
                 case CONTRIBUTOR_COL_NAME
                         -> new FmtCustomNull(new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(ORCID_ID_REGEXP))));
                 case MUSEUM_COLLECTION_COL_NAME
@@ -545,7 +545,7 @@ public class TaxonAnnotationParser {
                 case POST_CEPHALIC_SUTURE_LOCATION_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case RESULTING_NAMED_MOULTING_CONFIGURATIONS_COL_NAME
-                        -> new FmtCustomNull(new Optional( new StrReplace("'", "\\\\'", new ParseStringSet(LIST_SEPARATOR))));
+                        -> new FmtCustomNull(new Optional(new StrReplace("'", "\\\\'", new ParseStringSet(LIST_SEPARATOR))));
                 case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME
                         -> new FmtCustomNull(new Optional(new ParseEnumSet(EgressDirection.class, LIST_SEPARATOR)));
                 case POSITION_EXUVIAE_FOUND_IN_COL_NAME
