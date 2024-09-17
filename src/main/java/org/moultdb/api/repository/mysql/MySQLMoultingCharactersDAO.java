@@ -45,9 +45,9 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
             "LEFT JOIN mc_egress_direction mced ON (mc.id = mced.mc_id) " +
             "LEFT JOIN egress_direction ed ON (mced.egress_direction_id = ed.id) " +
             "LEFT JOIN mc_exuviae_position mcep ON (mc.id = mcep.mc_id) " +
-            "LEFT JOIN exuviae_position ep ON (mcep.egress_direction_id = ep.id) " +
+            "LEFT JOIN exuviae_position ep ON (mcep.exuviae_position_id = ep.id) " +
             "LEFT JOIN mc_heavy_metal_reinforcement mchmr ON (mc.id = mchmr.mc_id) " +
-            "LEFT JOIN heavy_metal_reinforcement mchmr ON (mchmr.heavy_metal_reinforcement_id = hmr.id) " +
+            "LEFT JOIN heavy_metal_reinforcement hmr ON (mchmr.heavy_metal_reinforcement_id = hmr.id) " +
             "LEFT JOIN mc_other_behaviour mcob ON mcob.mc_id = mc.id " +
             "LEFT JOIN other_behaviour ob ON mcob.other_behaviour_id = ob.id " +
             "LEFT JOIN mc_fossil_exuviae_quality mcfeq ON mcfeq.mc_id = mc.id " +
