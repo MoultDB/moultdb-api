@@ -137,8 +137,8 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
             source.addValue("articleId", taxonAnnotationTO.getArticleTO().getId());
             source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
-            source.addValue("ecoId", taxonAnnotationTO.getEcoTO() == null? null: taxonAnnotationTO.getEcoTO().getId());
-            source.addValue("cioId", taxonAnnotationTO.getCioTO() == null? null: taxonAnnotationTO.getCioTO().getId());
+            source.addValue("ecoId", taxonAnnotationTO.getEcoTermTO() == null? null: taxonAnnotationTO.getEcoTermTO().getId());
+            source.addValue("cioId", taxonAnnotationTO.getCioStatementTO() == null? null: taxonAnnotationTO.getCioStatementTO().getId());
             source.addValue("versionId", taxonAnnotationTO.getVersionId());
             params.add(source);
         }
@@ -229,19 +229,20 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                     imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.description"));
                 }
                 
-                TermTO ecoTO = null;
+                ECOTermTO ecoTO = null;
                 if (StringUtils.isNotBlank(rs.getString("ta.eco_id"))) {
-                    ecoTO = new TermTO(rs.getString("ecoTO.id"), rs.getString("ecoTO.name"), rs.getString("ecoTO.description"));
+                    ecoTO = new ECOTermTO(rs.getString("eco.id"), rs.getString("eco.name"), rs.getString("eco.description"));
                 }
                 
-                TermTO cioTO = null;
+                CIOStatementTO cioTO = null;
                 if (StringUtils.isNotBlank(rs.getString("ta.cio_id"))) {
-                    cioTO = new TermTO(rs.getString("cioTO.id"), rs.getString("cioTO.name"), rs.getString("cioTO.description"));
+                    cioTO = new CIOStatementTO(rs.getString("cio.id"), rs.getString("cio.name"), rs.getString("cio.description"));
                 }
                 
                 taxonAnnotationTOs.put(id, new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
                         rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), rs.getString("ta.specimen_count"),
-                        conditionTO, articleTO, imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"),
+                        conditionTO, rs.getString("ta.annotated_dev_stage"), rs.getString("ta.annotated_anat_entity"),
+                        articleTO, imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"),
                         ecoTO, cioTO, rs.getInt("ta.version_id")));
             }
             return new ArrayList<>(taxonAnnotationTOs.values());

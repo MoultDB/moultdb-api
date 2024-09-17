@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,10 +41,13 @@ public class TaxonAnnotationParser {
     
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
+    @Autowired CIOStatementDAO cioDAO;
     @Autowired ConditionDAO conditionDAO;
     @Autowired DataSourceDAO dataSourceDAO;
     @Autowired DbXrefDAO dbXrefDAO;
     @Autowired DevStageDAO devStageDAO;
+    @Autowired
+    ECOTermDAO ecoDAO;
     @Autowired GeologicalAgeDAO geologicalAgeDAO;
     @Autowired MoultingCharactersDAO moultingCharactersDAO;
     @Autowired SampleSetDAO sampleSetDAO;
@@ -151,17 +155,24 @@ public class TaxonAnnotationParser {
     }
     
     public void insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans) {
-        insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO, dataSourceDAO,
-                dbXrefDAO, devStageDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO, taxonDAO, taxonAnnotationDAO,
+        insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, cioDAO, conditionDAO, dataSourceDAO,
+                dbXrefDAO, devStageDAO, ecoDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO, taxonDAO,
+                taxonAnnotationDAO,
                 versionDAO, userDAO);
     }
     
     public int insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans, ArticleDAO articleDAO,
-                                      ArticleToDbXrefDAO articleToDbXrefDAO, ConditionDAO conditionDAO,
+                                      ArticleToDbXrefDAO articleToDbXrefDAO, CIOStatementDAO cioDAO, ConditionDAO conditionDAO,
                                       DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO, DevStageDAO devStageDAO,
-                                      GeologicalAgeDAO geologicalAgeDAO, MoultingCharactersDAO moultingCharactersDAO,
-                                      SampleSetDAO sampleSetDAO, TaxonDAO taxonDAO, TaxonAnnotationDAO taxonAnnotationDAO,
+                                      ECOTermDAO ecoDAO, GeologicalAgeDAO geologicalAgeDAO, 
+                                      MoultingCharactersDAO moultingCharactersDAO, SampleSetDAO sampleSetDAO,
+                                      TaxonDAO taxonDAO, TaxonAnnotationDAO taxonAnnotationDAO,
                                       VersionDAO versionDAO, UserDAO userDAO) {
+        
+        Map<String, ECOTermTO> ecoTosByIds = ecoDAO.findAll().stream()
+                .collect(Collectors.toMap(EntityTO::getId, Function.identity()));
+        Map<String, CIOStatementTO> cioTosByIds = cioDAO.findAll().stream()
+                .collect(Collectors.toMap(EntityTO::getId, Function.identity()));
         
         Integer mcNextId = getNextId(moultingCharactersDAO.getLastId());
         Integer ssNextId = getNextId(sampleSetDAO.getLastId());
@@ -250,8 +261,8 @@ public class TaxonAnnotationParser {
             }
             
             if (StringUtils.isNotBlank(taxonType)) {
-                logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
-                        "Found " + taxonType + " '" + taxonTO.getScientificName() + "'.");
+//                logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
+//                        "Found " + taxonType + " '" + taxonTO.getScientificName() + "'.");
             }
             
             // Ex: 'Stage 3' or 'Sandbian to Katian'
@@ -322,12 +333,17 @@ public class TaxonAnnotationParser {
             ConditionTO conditionTO = conditionDAO.find(bean.getDevStage(), ANAT_ENTITY_TO.getId(),
                     bean.getSex(), bean.getReproductiveState());
             if (conditionTO == null) {
-                DevStageTO devStageTO = devStageDAO.findById(bean.getDevStage());
+                DevStageTO devStageTO = null; //devStageDAO.findById(bean.getDevStage());
+//                if (devStageTO == null) {
+//                    devStageTO = devStageDAO.findByName(bean.getDevStage(), taxonTO.getPath());
+//                }
                 if (devStageTO == null) {
-                    devStageTO = devStageDAO.findByName(bean.getDevStage(), taxonTO.getPath());
-                }
-                if (devStageTO == null) {
-                    throw new IllegalArgumentException("Unknown developmental stage: " + bean.getDevStage());
+//                    throw new IllegalArgumentException("Unknown developmental stage: " + bean.getDevStage());
+//                    logger.error("Unknown developmental stage '" + bean.getDevStage() + "' in taxon '" + taxonTO.getScientificName() +
+//                            "'. Set null.");
+                    logger.info("(" +
+                            "'" + taxonTO.getScientificName().replaceAll(" ", ".").toLowerCase() + "." + bean.getDevStage().toLowerCase().replaceAll(" ", ".") + "', " +
+                            "'" + bean.getDevStage() + "', '" + taxonTO.getPath() +"')," );
                 }
                 conditionTO = new ConditionTO(conditionNextId, devStageTO, ANAT_ENTITY_TO,
                         bean.getSex(), bean.getReproductiveState(), null);
@@ -343,10 +359,18 @@ public class TaxonAnnotationParser {
             VersionTO versionTO = new VersionTO(versionNextId, userTO, current, userTO, current, 1);
             versionTOs.add(versionTO);
             versionNextId++;
-            
+            ECOTermTO ecoTO = ecoTosByIds.get(bean.getEvidenceCode());
+            if (ecoTO == null) {
+                throw new IllegalArgumentException("ECO term not found: " + bean.getEvidenceCode());
+            }
+            CIOStatementTO cioTO = cioTosByIds.get(bean.getConfidence());
+            if (cioTO == null) {
+                
+            }
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(taxonAnnotNextId, taxonTO, bean.getTaxon(),
-                    bean.getDeterminedBy(), sampleSetTO.getId(), bean.getAnnotSpecimenCount(), conditionTO, articleTO, null,
-                    moultingCharactersTO.getId(), null, null, versionTO.getId());
+                    bean.getDeterminedBy(), sampleSetTO.getId(), bean.getAnnotSpecimenCount(), conditionTO,
+                    bean.getDevStage(), ANAT_ENTITY_TO.getName(), articleTO, null,
+                    moultingCharactersTO.getId(), ecoTO, cioTO, versionTO.getId());
             taxonAnnotationTOs.add(taxonAnnotationTO);
             taxonAnnotNextId++;
         }

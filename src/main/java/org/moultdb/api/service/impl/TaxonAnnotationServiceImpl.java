@@ -3,6 +3,7 @@ package org.moultdb.api.service.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
+import org.moultdb.api.model.ECOTerm;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.*;
@@ -30,10 +31,12 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
+    @Autowired CIOStatementDAO cioDAO;
     @Autowired ConditionDAO conditionDAO;
     @Autowired DataSourceDAO dataSourceDAO;
     @Autowired DbXrefDAO dbXrefDAO;
     @Autowired DevStageDAO devStageDAO;
+    @Autowired ECOTermDAO ecoTermDAO;
     @Autowired GeologicalAgeDAO geologicalAgeDAO;
     @Autowired MoultingCharactersDAO moultingCharactersDAO;
     @Autowired SampleSetDAO sampleSetDAO;
@@ -142,8 +145,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             List<TaxonAnnotationBean> taxonAnnotationBeans = importer.parseAnnotations(file);
             
             logger.info("Load annotations in db...");
-            count = importer.insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO,
-                    dataSourceDAO, dbXrefDAO, devStageDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO,
+            count = importer.insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, cioDAO, conditionDAO,
+                    dataSourceDAO, dbXrefDAO, devStageDAO, ecoTermDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO,
                     taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
         
         } catch (Exception e) {

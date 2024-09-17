@@ -18,34 +18,39 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private final Integer sampleSetId;
     private final String specimenCount;
     private final ConditionTO conditionTO;
+    private final String annotatedDevStage;
+    private final String annotatedAnatEntity;
     private final ArticleTO articleTO;
     private final ImageTO imageTO;
-    private final TermTO ecoTO;
-    private final TermTO cioTO;
+    private final ECOTermTO ecoTermTO;
+    private final CIOStatementTO cioStatementTO;
     private final String determinedBy;
     private final Integer versionId;
     
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
                              Integer sampleSetId, String specimenCount, ConditionTO conditionTO, ImageTO imageTO,
-                             String determinedBy, Integer versionId) {
-        this(id, taxonTO, annotatedSpeciesName, determinedBy, sampleSetId, specimenCount, conditionTO,
+                             String determinedBy, Integer versionId, String annotatedDevStage, String annotatedAnatEntity) {
+        this(id, taxonTO, annotatedSpeciesName, determinedBy, sampleSetId, specimenCount, conditionTO, annotatedAnatEntity, annotatedDevStage,
                 null, imageTO, null, null, null, versionId);
     }
     
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName, String determinedBy,
-                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, ArticleTO articleTO, ImageTO imageTO,
-                             Integer moultingCharactersId, TermTO ecoTO, TermTO cioTO, Integer versionId) {
+                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, String annotatedDevStage,
+                             String annotatedAnatEntity, ArticleTO articleTO, ImageTO imageTO, Integer moultingCharactersId,
+                             ECOTermTO ecoTermTO, CIOStatementTO cioStatementTO, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
         this.annotatedSpeciesName = annotatedSpeciesName;
+        this.annotatedDevStage = annotatedDevStage;
+        this.annotatedAnatEntity = annotatedAnatEntity;
         this.moultingCharactersId = moultingCharactersId;
         this.sampleSetId = sampleSetId;
         this.specimenCount = specimenCount;
         this.conditionTO = conditionTO;
         this.articleTO = articleTO;
         this.imageTO = imageTO;
-        this.ecoTO = ecoTO;
-        this.cioTO = cioTO;
+        this.ecoTermTO = ecoTermTO;
+        this.cioStatementTO = cioStatementTO;
         this.determinedBy = determinedBy;
         this.versionId = versionId;
     }
@@ -74,6 +79,14 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return conditionTO;
     }
     
+    public String getAnnotatedDevStage() {
+        return annotatedDevStage;
+    }
+    
+    public String getAnnotatedAnatEntity() {
+        return annotatedAnatEntity;
+    }
+    
     public ArticleTO getArticleTO() {
         return articleTO;
     }
@@ -82,12 +95,12 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return imageTO;
     }
     
-    public TermTO getEcoTO() {
-        return ecoTO;
+    public ECOTermTO getEcoTermTO() {
+        return ecoTermTO;
     }
     
-    public TermTO getCioTO() {
-        return cioTO;
+    public CIOStatementTO getCioStatementTO() {
+        return cioStatementTO;
     }
     
     public String getDeterminedBy() {
@@ -110,8 +123,8 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
                 .add("conditionTO=" + conditionTO)
                 .add("articleTO=" + articleTO)
                 .add("imageTO=" + imageTO)
-                .add("ecoTO=" + ecoTO)
-                .add("cioTO=" + cioTO)
+                .add("ecoTermTO=" + ecoTermTO)
+                .add("cioStatementTO=" + cioStatementTO)
                 .add("determinedBy=" + determinedBy)
                 .add("versionId=" + versionId)
                 .toString();

@@ -43,11 +43,18 @@ public class ServiceUtils {
                 dataSourceTO.getReleaseVersion());
     }
     
-    public static Term mapFromTO(TermTO termTO) {
-        if (termTO == null) {
+    public static ECOTerm mapFromTO(ECOTermTO ecoTermTO) {
+        if (ecoTermTO == null) {
             return null;
         }
-        return new Term(termTO.getId(), termTO.getName(), termTO.getDescription());
+        return new ECOTerm(ecoTermTO.getId(), ecoTermTO.getName(), ecoTermTO.getDescription());
+    }
+    
+    public static CIOStatement mapFromTO(CIOStatementTO cioStatementTO) {
+        if (cioStatementTO == null) {
+            return null;
+        }
+        return new CIOStatement(cioStatementTO.getId(), cioStatementTO.getName(), cioStatementTO.getDescription());
     }
     
     public static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO, SampleSetTO sampleSetTO,
@@ -70,11 +77,13 @@ public class ServiceUtils {
                 taxonAnnotationTO.getDeterminedBy(), 
                 mapFromTO(sampleSetTO),
                 mapFromTO(taxonAnnotationTO.getConditionTO()),
+                taxonAnnotationTO.getAnnotatedDevStage(),
+                taxonAnnotationTO.getAnnotatedAnatEntity(),
                 mapFromTO(moultingCharactersTO),
                 article,
                 mapFromTO(taxonAnnotationTO.getImageTO(), taxonAnnotationTO),
-                mapFromTO(taxonAnnotationTO.getEcoTO()),
-                mapFromTO(taxonAnnotationTO.getCioTO()),
+                mapFromTO(taxonAnnotationTO.getEcoTermTO()),
+                mapFromTO(taxonAnnotationTO.getCioStatementTO()),
                 taxonAnnotVersion);
     }
     
@@ -90,8 +99,11 @@ public class ServiceUtils {
         if (sampleSetTO == null) {
             return null;
         }
-        TimePeriod timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
-                mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
+        TimePeriod timePeriod = null;
+        if (sampleSetTO.getFromGeologicalAgeTO() != null) {
+            timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
+                    mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
+        }
         return new SampleSet(
                 timePeriod,
                 sampleSetTO.getCollectionLocationNames(),
@@ -168,8 +180,9 @@ public class ServiceUtils {
                 mcTO.getMajorMorphologicalTransitionCount(), mcTO.getHasTerminalAdultStage(),
                 mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSegmentAdditionMode(),
                 mcTO.getBodySegmentCount(), mcTO.getBodySegmentCountInAdults(), mcTO.getBodyLengthAverage(),
-                mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyMassIncreaseAverage(), mcTO.getIntermoultPeriod(),
-                mcTO.getPremoultPeriod(), mcTO.getPostmoultPeriod(), mcTO.getVariationWithinCohorts(),
+                mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyWidthAverage(),
+                mcTO.getBodyWidthIncreaseAverage(), mcTO.getBodyMassIncreaseAverage(), mcTO.getDevStagePeriod(),
+                mcTO.getIntermoultPeriod(), mcTO.getPremoultPeriod(), mcTO.getPostmoultPeriod(), mcTO.getVariationWithinCohorts(),
                 mcTO.getSutureLocations(), mcTO.getCephalicSutureLocations(), mcTO.getPostCephalicSutureLocations(),
                 mcTO.getResultingNamedMoultingConfigurations(),
                 MoutldbEnum.valueOfByStringRepresentation(EgressDirection.class, mcTO.getEgressDirections()),

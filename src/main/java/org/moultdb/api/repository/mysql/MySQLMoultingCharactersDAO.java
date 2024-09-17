@@ -31,27 +31,27 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT * FROM moulting_characters mc " +
-            "LEFT JOIN segment_addition_mode sam ON mc.segment_addition_mode_id = sam.id " +
+            "LEFT JOIN segment_addition_mode sam ON (mc.segment_addition_mode_id = sam.id) " +
             "LEFT JOIN mc_life_mode mclm ON (mc.id = mclm.mc_id) " +
             "LEFT JOIN life_mode lm ON (mclm.life_mode_id = lm.id) " +
-            "LEFT JOIN mc_suture_location mccl ON (mc.id = mccl.mc_id = mc.id) " +
-            "LEFT JOIN suture_location sl ON (sl.id = mccl.suture_location_id) " +
-            "LEFT JOIN mc_cephalic_suture_location mccsl ON mccsl.mc_id = mc.id " +
-            "LEFT JOIN cephalic_suture_location csl ON mccsl.cephalic_suture_location_id = csl.id " +
-            "LEFT JOIN mc_post_cephalic_suture_location mcpcsl ON mcpcsl.mc_id = mc.id " +
-            "LEFT JOIN post_cephalic_suture_location pcsl ON mcpcsl.post_cephalic_suture_location_id = pcsl.id " +
-            "LEFT JOIN mc_resulting_named_moulting_configuration mcrnmc ON mcrnmc.mc_id = mc.id " +
-            "LEFT JOIN resulting_named_moulting_configuration rnmc ON mcrnmc.resulting_named_moulting_configuration_id = rnmc.id " +
+            "LEFT JOIN mc_suture_location mcsl ON (mcsl.mc_id = mc.id) " +
+            "LEFT JOIN suture_location sl ON (sl.id = mcsl.suture_location_id) " +
+            "LEFT JOIN mc_cephalic_suture_location mccsl ON (mccsl.mc_id = mc.id) " +
+            "LEFT JOIN cephalic_suture_location csl ON (mccsl.cephalic_suture_location_id = csl.id) " +
+            "LEFT JOIN mc_post_cephalic_suture_location mcpcsl ON (mcpcsl.mc_id = mc.id) " +
+            "LEFT JOIN post_cephalic_suture_location pcsl ON (mcpcsl.post_cephalic_suture_location_id = pcsl.id) " +
+            "LEFT JOIN mc_resulting_named_moulting_configuration mcrnmc ON (mcrnmc.mc_id = mc.id) " +
+            "LEFT JOIN resulting_named_moulting_configuration rnmc ON (mcrnmc.resulting_named_moulting_configuration_id = rnmc.id) " +
             "LEFT JOIN mc_egress_direction mced ON (mc.id = mced.mc_id) " +
             "LEFT JOIN egress_direction ed ON (mced.egress_direction_id = ed.id) " +
             "LEFT JOIN mc_exuviae_position mcep ON (mc.id = mcep.mc_id) " +
             "LEFT JOIN exuviae_position ep ON (mcep.exuviae_position_id = ep.id) " +
             "LEFT JOIN mc_heavy_metal_reinforcement mchmr ON (mc.id = mchmr.mc_id) " +
             "LEFT JOIN heavy_metal_reinforcement hmr ON (mchmr.heavy_metal_reinforcement_id = hmr.id) " +
-            "LEFT JOIN mc_other_behaviour mcob ON mcob.mc_id = mc.id " +
-            "LEFT JOIN other_behaviour ob ON mcob.other_behaviour_id = ob.id " +
-            "LEFT JOIN mc_fossil_exuviae_quality mcfeq ON mcfeq.mc_id = mc.id " +
-            "LEFT JOIN fossil_exuviae_quality feq ON mcfeq.fossil_exuviae_quality_id = feq.id ";
+            "LEFT JOIN mc_other_behaviour mcob ON (mcob.mc_id = mc.id) " +
+            "LEFT JOIN other_behaviour ob ON (mcob.other_behaviour_id = ob.id) " +
+            "LEFT JOIN mc_fossil_exuviae_quality mcfeq ON (mcfeq.mc_id = mc.id) " +
+            "LEFT JOIN fossil_exuviae_quality feq ON (mcfeq.fossil_exuviae_quality_id = feq.id) ";
     
     public MySQLMoultingCharactersDAO(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -285,8 +285,11 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
         private Set<String> extractNames(ResultSet rs, String label, Set<String> previousValues) throws SQLException {
             String value = rs.getString(label);
             Set<String> newValues = new HashSet<>();
-            if (previousValues != null && value != null) {
+            if (previousValues != null) {
                 newValues.addAll(previousValues);
+            }
+            if (value != null) {
+                newValues.add(value);
             }
             return newValues;
         }

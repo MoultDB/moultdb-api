@@ -64,9 +64,21 @@ public class MoultingCharacters {
     private final BigDecimal bodyLengthIncreaseAverage;
     
     /**
+     * Define the average body width of individuals at this defined and observed moult stage
+     */
+    private final BigDecimal bodyWidthAverage;
+    
+    /**
+     * Define the average body Width increase with the previous moult stage (can be a range)
+     */
+    private final BigDecimal bodyWidthIncreaseAverage;
+    
+    /**
      * Define the average body mass increase with the previous moult stage (can be a range)
      */
     private final BigDecimal bodyMassIncreaseAverage;
+    
+    private final String devStagePeriod;
     
     private final String intermoultPeriod;
     
@@ -145,9 +157,11 @@ public class MoultingCharacters {
                               String majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
                               Integer observedMoultCount, String estimatedMoultCount, String segmentAdditionMode,
                               String bodySegmentCount, String bodySegmentCountInAdults, BigDecimal bodyLengthAverage,
-                              BigDecimal bodyLengthIncreaseAverage, BigDecimal bodyMassIncreaseAverage, String intermoultPeriod,
-                              String premoultPeriod, String postmoultPeriod, String variationWithinCohorts,
-                              Set<String> sutureLocations, Set<String> cephalicSutureLocations, Set<String> postCephalicSutureLocations,
+                              BigDecimal bodyLengthIncreaseAverage, BigDecimal bodyWidthAverage,
+                              BigDecimal bodyWidthIncreaseAverage, BigDecimal bodyMassIncreaseAverage, String devStagePeriod,
+                              String intermoultPeriod, String premoultPeriod, String postmoultPeriod,
+                              String variationWithinCohorts, Set<String> sutureLocations, Set<String> cephalicSutureLocations,
+                              Set<String> postCephalicSutureLocations,
                               Set<String> resultingNamedMoultingConfigurations, Set<EgressDirection> egressDirections,
                               Set<ExuviaePosition> positionsExuviaeFoundIn, MoultingPhase moultingPhase,
                               MoultingVariability moultingVariability, Calcification calcificationEvent,
@@ -166,7 +180,10 @@ public class MoultingCharacters {
         this.bodySegmentCountInAdults = bodySegmentCountInAdults;
         this.bodyLengthAverage = bodyLengthAverage;
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
+        this.bodyWidthAverage = bodyWidthAverage;
+        this.bodyWidthIncreaseAverage = bodyWidthIncreaseAverage;
         this.bodyMassIncreaseAverage = bodyMassIncreaseAverage;
+        this.devStagePeriod = devStagePeriod;
         this.intermoultPeriod = intermoultPeriod;
         this.premoultPeriod = premoultPeriod;
         this.postmoultPeriod = postmoultPeriod;
@@ -236,8 +253,20 @@ public class MoultingCharacters {
         return bodyLengthIncreaseAverage;
     }
     
+    public BigDecimal getBodyWidthAverage() {
+        return bodyWidthAverage;
+    }
+    
+    public BigDecimal getBodyWidthIncreaseAverage() {
+        return bodyWidthIncreaseAverage;
+    }
+    
     public BigDecimal getBodyMassIncreaseAverage() {
         return bodyMassIncreaseAverage;
+    }
+    
+    public String getDevStagePeriod() {
+        return devStagePeriod;
     }
     
     public String getIntermoultPeriod() {
@@ -335,7 +364,10 @@ public class MoultingCharacters {
                 && Objects.equals(bodySegmentCountInAdults, that.bodySegmentCountInAdults)
                 && Objects.equals(bodyLengthAverage, that.bodyLengthAverage)
                 && Objects.equals(bodyLengthIncreaseAverage, that.bodyLengthIncreaseAverage)
+                && Objects.equals(bodyWidthAverage, that.bodyWidthAverage)
+                && Objects.equals(bodyWidthIncreaseAverage, that.bodyWidthIncreaseAverage)
                 && Objects.equals(bodyMassIncreaseAverage, that.bodyMassIncreaseAverage)
+                && Objects.equals(devStagePeriod, that.devStagePeriod)
                 && Objects.equals(intermoultPeriod, that.intermoultPeriod)
                 && Objects.equals(premoultPeriod, that.premoultPeriod)
                 && Objects.equals(postmoultPeriod, that.postmoultPeriod)
@@ -361,7 +393,8 @@ public class MoultingCharacters {
     public int hashCode() {
         return Objects.hash(lifeHistoryStyle, lifeModes, juvenileMoultCount, majorMorphologicalTransitionCount,
                 hasTerminalAdultStage, observedMoultCount, estimatedMoultCount, segmentAdditionMode, bodySegmentCount,
-                bodySegmentCountInAdults, bodyLengthAverage, bodyLengthIncreaseAverage, bodyMassIncreaseAverage,
+                bodySegmentCountInAdults, bodyLengthAverage, bodyLengthIncreaseAverage, bodyWidthAverage,
+                bodyWidthIncreaseAverage, bodyMassIncreaseAverage, devStagePeriod,
                 intermoultPeriod, premoultPeriod, postmoultPeriod, variationWithinCohorts, sutureLocations,
                 cephalicSutureLocations, postCephalicSutureLocations, resultingNamedMoultingConfigurations,
                 egressDirections, positionsExuviaeFoundIn, moultingPhase, moultingVariability, calcificationEvent,
@@ -384,7 +417,10 @@ public class MoultingCharacters {
                 .add("bodySegmentCountInAdults='" + bodySegmentCountInAdults + "'")
                 .add("bodyLengthAverage=" + bodyLengthAverage)
                 .add("bodyLengthIncreaseAverage='" + bodyLengthIncreaseAverage + "'")
+                .add("bodyWidthAverage=" + bodyWidthAverage)
+                .add("bodyWidthIncreaseAverage='" + bodyWidthIncreaseAverage + "'")
                 .add("bodyMassIncreaseAverage='" + bodyMassIncreaseAverage + "'")
+                .add("devStagePeriod='" + devStagePeriod + "'")
                 .add("intermoultPeriod='" + intermoultPeriod + "'")
                 .add("premoultPeriod='" + premoultPeriod + "'")
                 .add("postmoultPeriod='" + postmoultPeriod + "'")
