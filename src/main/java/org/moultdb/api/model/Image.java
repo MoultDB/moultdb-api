@@ -2,6 +2,8 @@ package org.moultdb.api.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2023-06-20
@@ -37,5 +39,18 @@ public class Image {
     
     public String getDescription() {
         return description;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Image image = (Image) o;
+        return Objects.equals(filePath, image.filePath);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(filePath);
     }
 }
