@@ -284,13 +284,11 @@ public class MySQLMoultingCharactersDAO implements MoultingCharactersDAO {
         // FIXME refactor with SampleSetResultSetExtractor
         private Set<String> extractNames(ResultSet rs, String label, Set<String> previousValues) throws SQLException {
             String value = rs.getString(label);
-            if (previousValues == null) {
-                previousValues = new HashSet<>();
+            Set<String> newValues = new HashSet<>();
+            if (previousValues != null && value != null) {
+                newValues.addAll(previousValues);
             }
-            if (value != null) {
-                previousValues.add(value);
-            }
-            return previousValues;
+            return newValues;
         }
     }
     
