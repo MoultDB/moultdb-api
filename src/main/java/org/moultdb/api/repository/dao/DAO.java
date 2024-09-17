@@ -15,13 +15,15 @@ import java.sql.SQLException;
 // TODO add findAll() to force method implementation in implementation classes
 public interface DAO<T extends TransfertObject> {
     
-    static GeologicalAgeTO mapToGeologicalAgeTO(ResultSet rs, String geoAgeTableAlias)
-            throws SQLException {
+    static GeologicalAgeTO mapToGeologicalAgeTO(ResultSet rs, String geoAgeTableAlias) throws SQLException {
         String alias = "";
         if (StringUtils.isNotBlank(geoAgeTableAlias)) {
             alias = geoAgeTableAlias + ".";
         }
     
+        if (StringUtils.isBlank(rs.getString(alias + "notation"))) {
+            return null;
+        }
         return new GeologicalAgeTO(rs.getString(alias + "notation"), rs.getString(alias + "name"), rs.getString(alias + "rank_type"),
                 rs.getBigDecimal(alias + "younger_bound"), rs.getBigDecimal(alias + "younger_bound_imprecision"),
                 rs.getBigDecimal(alias + "older_bound"), rs.getBigDecimal(alias + "older_bound_imprecision"), null);
