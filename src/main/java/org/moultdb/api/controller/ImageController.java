@@ -33,7 +33,7 @@ public class ImageController {
     public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam MultipartFile file,
                                                            @RequestParam String taxonName,
                                                            @RequestParam String moultingStep,
-                                                           @RequestParam Integer specimenCount,
+                                                           @RequestParam String specimenCount,
                                                            @RequestParam Boolean isFossil,
                                                            @RequestParam Boolean isCaptive,
                                                            @RequestParam(required = false) String sex,

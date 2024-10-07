@@ -1,6 +1,7 @@
 package org.moultdb.api.model;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
@@ -57,6 +58,19 @@ public class DataSource {
     
     public String getReleaseVersion() {
         return releaseVersion;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataSource that = (DataSource) o;
+        return Objects.equals(name, that.name);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
     
     @Override

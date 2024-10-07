@@ -22,7 +22,7 @@ public class SampleSet {
     private final Set<String> environments;
     private final String biozone;
     private final Set<String> specimenTypes;
-    private final Integer specimenCount;
+    private final String specimenCount;
     private final Boolean isFossil;
     private final Boolean isCaptive;
     
@@ -31,7 +31,7 @@ public class SampleSet {
                      Collection<String> storageAccessions, Collection<String> storageLocations,
                      Collection<String> geologicalFormations, Collection<String> fossilPreservationTypes,
                      Collection<String> environments, String biozone, Collection<String> specimenTypes,
-                     Integer specimenCount, Boolean isFossil, Boolean isCaptive) {
+                     String specimenCount, Boolean isFossil, Boolean isCaptive) {
         this.timePeriod = timePeriod;
         this.collectionLocations = Collections.unmodifiableSet(collectionLocations == null ?
                 new HashSet<>(): new HashSet<>(collectionLocations));
@@ -89,7 +89,7 @@ public class SampleSet {
         return specimenTypes;
     }
     
-    public Integer getSpecimenCount() {
+    public String getSpecimenCount() {
         return specimenCount;
     }
     
@@ -131,7 +131,7 @@ public class SampleSet {
                 .add("specimenTypes=" + specimenTypes)
                 .add("environments=" + environments)
                 .add("biozone=" + biozone)
-                .add("specimenCount=" + specimenCount)
+                .add("specimenCount='" + specimenCount + "'")
                 .add("isFossil=" + isFossil)
                 .add("isCaptive=" + isCaptive)
                 .toString();

@@ -17,6 +17,8 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     
     TaxonTO findByScientificName(String taxonScientificName);
     
+    TaxonTO findBySynonym(String taxonName);
+    
     TaxonTO findByAccession(String accession, String datasourceName);
     
     TaxonTO findByPath(String id);
@@ -27,5 +29,5 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     
     void insert(TaxonTO taxon);
     
-    void batchUpdate(Set<TaxonTO> taxonTOs);
+    int batchUpdate(Set<TaxonTO> taxonTOs);
 }

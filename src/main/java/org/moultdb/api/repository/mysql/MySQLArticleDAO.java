@@ -112,7 +112,7 @@ public class MySQLArticleDAO implements ArticleDAO {
                 
                 // Build DbXrefs
                 DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow());
-                Set<DbXrefTO> dbXrefTOs = articleTO == null ? new HashSet<>(): articleTO.getDbXrefTOs();
+                Set<DbXrefTO> dbXrefTOs = articleTO == null ? new HashSet<>(): new HashSet<>(articleTO.getDbXrefTOs());
                 if (dbXrefTO != null && dbXrefTO.getAccession() != null) {
                     dbXrefTOs.add(dbXrefTO);
                 }

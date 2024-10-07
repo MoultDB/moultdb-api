@@ -1,5 +1,6 @@
 package org.moultdb.api.repository.mysql;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.repository.dao.DAO;
@@ -106,8 +107,8 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
             MapSqlParameterSource source = new MapSqlParameterSource();
             source.addValue("id", sampleSetTO.getId());
             source.addValue("museum_accessions", storageAccessions);
-            source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO().getNotation());
-            source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO().getNotation());
+            source.addValue("from_geological_age_notation", sampleSetTO.getFromGeologicalAgeTO() == null? null : sampleSetTO.getFromGeologicalAgeTO().getNotation());
+            source.addValue("to_geological_age_notation", sampleSetTO.getToGeologicalAgeTO() == null? null : sampleSetTO.getToGeologicalAgeTO().getNotation());
             source.addValue("specimen_count", sampleSetTO.getSpecimenCount());
             source.addValue("is_fossil", sampleSetTO.isFossil());
             source.addValue("is_captive", sampleSetTO.isCaptive());
@@ -154,7 +155,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 continue;
             }
             for (String name: values) {
-                if (name != null) {
+                if (StringUtils.isNotBlank(name)) {
                     MapSqlParameterSource source = new MapSqlParameterSource();
                     source.addValue("name", name);
                     params.add(source);
@@ -193,8 +194,9 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         List<T> namedEntityTOs = template.query(sql, mapper);
   
         if (namedEntityTOs.size() != names.size()) {
-            throw new IllegalStateException("Not all names were found with query: SELECT * FROM " + otherTableName +
-                    " WHERE name IN (" + names.stream().collect(Collectors.joining("', '", "'", "'")) + ")");
+            throw new IllegalStateException("Not all names " + names.stream().collect(Collectors.joining(", ", "[", "]"))
+                    + " were found in db " + namedEntityTOs.stream().map(NamedEntityTO::getName).collect(Collectors.joining(", ", "[", "]")) +
+                    ": " + sql);
         }
         Map<String, NamedEntityTO> namedEntityTOsByName =
                 namedEntityTOs.stream()
@@ -207,11 +209,14 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
         
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (SampleSetTO sampleSetTO : sampleSetTOs) {
-            for (String name: func.apply(sampleSetTO)) {
-                MapSqlParameterSource source = new MapSqlParameterSource();
-                source.addValue("sample_set_id", sampleSetTO.getId());
-                source.addValue("association_id", namedEntityTOsByName.get(name).getId());
-                params.add(source);
+            Set<String> apply = func.apply(sampleSetTO);
+            if (apply != null) {
+                for (String name: apply) {
+                    MapSqlParameterSource source = new MapSqlParameterSource();
+                    source.addValue("sample_set_id", sampleSetTO.getId());
+                    source.addValue("association_id", namedEntityTOsByName.get(name).getId());
+                    params.add(source);
+                }
             }
         }
         template.batchUpdate(stmt, params.toArray(MapSqlParameterSource[]::new));
@@ -253,7 +258,7 @@ public class MySQLSampleSetDAO implements SampleSetDAO {
                 
                 // Build SampleSetTO. Even if it already exists, we create a new one because it's an unmutable object
                 sampleSetTO = new SampleSetTO(sampleSetId, DAO.mapToGeologicalAgeTO(rs, "gaf"),
-                        DAO.mapToGeologicalAgeTO(rs, "gat"), DAO.getInteger(rs, "s.specimen_count"),
+                        DAO.mapToGeologicalAgeTO(rs, "gat"), rs.getString("s.specimen_count"),
                         DAO.getBoolean(rs, "s.is_fossil"), DAO.getBoolean(rs, "s.is_captive"),
                         museumAccessions, slNames, clNames, fptNames, eNames, gfNames, stNames, rs.getString("s.biozone"));
                 sampleSets.put(sampleSetId, sampleSetTO);

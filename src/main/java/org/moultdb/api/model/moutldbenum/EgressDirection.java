@@ -7,7 +7,9 @@ package org.moultdb.api.model.moutldbenum;
 public enum EgressDirection implements MoutldbEnum {
     
     ANTERIOR("anterior"),
-    POSTERIOR("posterior");
+    POSTERIOR("posterior"),
+    VENTRAL("ventral"),
+    DORSAL("dorsal");
     
     private final String stringRepresentation;
     

@@ -3,6 +3,7 @@ package org.moultdb.api.model.moutldbenum;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +23,7 @@ public interface MoutldbEnum {
      * @return                  The {@code boolean} defining whether {@code representation} is a
      *                          representation of an element of the {@code enumClass}.
      */
-    static <T extends Enum<T> & MoutldbEnum> boolean isInEnum(Class<T> enumClass, String representation) {
+    public static <T extends Enum<T> & MoutldbEnum> boolean isInEnum(Class<T> enumClass, String representation) {
         String lowCaseRepresentation = representation.toLowerCase(Locale.ENGLISH);
         for (T moultdbEnum: EnumSet.allOf(enumClass)) {
             if (moultdbEnum.getStringRepresentation().toLowerCase(Locale.ENGLISH).equals(lowCaseRepresentation) ||
@@ -33,7 +34,7 @@ public interface MoutldbEnum {
         return false;
     }
     
-    static <T extends Enum<T> & MoutldbEnum> List<String> getAllStringRepresentations(Class<T> enumClass) {
+    public static <T extends Enum<T> & MoutldbEnum> List<String> getAllStringRepresentations(Class<T> enumClass) {
         return EnumSet.allOf(enumClass)
                       .stream()
                       .map(MoutldbEnum::getStringRepresentation)
@@ -51,6 +52,15 @@ public interface MoutldbEnum {
             }
         }
         throw new IllegalArgumentException("'" + representation + "' is unknown for " + enumClass.getName());
+    }
+    
+    static <T extends Enum<T> & MoutldbEnum> Set<T> valueOfByStringRepresentation(Class<T> enumClass, Set<String> representations) throws IllegalArgumentException {
+        if (representations == null) {
+            return null;
+        }
+        return representations.stream()
+                .map(s -> valueOfByStringRepresentation(enumClass, s))
+                .collect(Collectors.toSet());
     }
     
 }

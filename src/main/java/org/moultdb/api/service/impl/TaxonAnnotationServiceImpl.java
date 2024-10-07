@@ -9,8 +9,8 @@ import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.api.service.TaxonAnnotationService;
-import org.moultdb.importer.fossilannotation.FossilAnnotationBean;
-import org.moultdb.importer.fossilannotation.FossilParser;
+import org.moultdb.importer.taxonannotation.TaxonAnnotationBean;
+import org.moultdb.importer.taxonannotation.TaxonAnnotationParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,10 +30,12 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
     @Autowired ArticleDAO articleDAO;
     @Autowired ArticleToDbXrefDAO articleToDbXrefDAO;
+    @Autowired CIOStatementDAO cioDAO;
     @Autowired ConditionDAO conditionDAO;
     @Autowired DataSourceDAO dataSourceDAO;
     @Autowired DbXrefDAO dbXrefDAO;
     @Autowired DevStageDAO devStageDAO;
+    @Autowired ECOTermDAO ecoTermDAO;
     @Autowired GeologicalAgeDAO geologicalAgeDAO;
     @Autowired MoultingCharactersDAO moultingCharactersDAO;
     @Autowired SampleSetDAO sampleSetDAO;
@@ -131,23 +133,26 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public Integer importTaxonAnnotations(MultipartFile file) {
+    public Integer importTaxonAnnotations(MultipartFile dataFile, MultipartFile mappingFile) {
     
         logger.info("Start taxon annotations import...");
         
-        FossilParser importer = new FossilParser();
+        TaxonAnnotationParser importer = new TaxonAnnotationParser();
         int count;
         try {
-            logger.info("Parse annotation file " + file.getOriginalFilename() + "...");
-            List<FossilAnnotationBean> fossilAnnotationBeans = importer.parseFossilAnnotation(file);
+            logger.info("Parse annotation file " + dataFile.getOriginalFilename() + "...");
+            List<TaxonAnnotationBean> taxonAnnotationBeans = importer.parseAnnotations(dataFile);
+            
+            logger.info("Parse mapping dataFile " + mappingFile.getOriginalFilename() + "...");
+            Map<String, String> devStageMapping = importer.parseDevStageMapping(mappingFile);
             
             logger.info("Load annotations in db...");
-            count = importer.insertFossilAnnotation(fossilAnnotationBeans, articleDAO, articleToDbXrefDAO, conditionDAO,
-                    dataSourceDAO, dbXrefDAO, devStageDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO,
-                    taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
+            count = importer.insertTaxonAnnotations(taxonAnnotationBeans, devStageMapping, articleDAO, articleToDbXrefDAO,
+                    cioDAO, conditionDAO, dataSourceDAO, dbXrefDAO, devStageDAO, ecoTermDAO, geologicalAgeDAO,
+                    moultingCharactersDAO, sampleSetDAO, taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
         
         } catch (Exception e) {
-            throw new ImportException("Unable to import annotations from " + file.getOriginalFilename() + ". " +
+            throw new ImportException("Unable to import annotations from " + dataFile.getOriginalFilename() + ". " +
                     "Error: " + e.getMessage());
         }
         logger.info("End taxon annotations import");

@@ -86,10 +86,11 @@ public class TaxonAnnotationController {
     
     @PostMapping("/import-file")
     public
-    ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile file) {
+    ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
+                                                                @RequestParam MultipartFile mappingFile) {
         Integer integer;
         try {
-            integer = taxonAnnotationService.importTaxonAnnotations(file);
+            integer = taxonAnnotationService.importTaxonAnnotations(dataFile, mappingFile);
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

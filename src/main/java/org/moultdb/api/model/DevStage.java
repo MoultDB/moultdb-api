@@ -9,28 +9,35 @@ import java.util.StringJoiner;
  */
 public class DevStage extends NamedEntity<String> {
     
-    private final int leftBound;
+    private final String taxon;
     
-    private final int rightBound;
+    private final Integer leftBound;
     
-    public DevStage(String accession, String name, String description, int leftBound, int rightBound)
+    private final Integer rightBound;
+    
+    public DevStage(String accession, String name, String description, String taxon, Integer leftBound, Integer rightBound)
             throws IllegalArgumentException {
         super(accession, name, description);
-        if (leftBound < 1) {
+        this.taxon = taxon;
+        if (leftBound != null && leftBound < 1) {
             throw new IllegalArgumentException("The provided left bound cannot be less than 1");
         }
-        if (rightBound <= leftBound) {
+        if (leftBound!= null && rightBound != null && rightBound <= leftBound) {
             throw new IllegalArgumentException("The provided right bound cannot be less than or equal to the provided left bound");
         }
         this.leftBound = leftBound;
         this.rightBound = rightBound;
     }
     
-    public int getLeftBound() {
+    public String getTaxon() {
+        return taxon;
+    }
+    
+    public Integer getLeftBound() {
         return leftBound;
     }
     
-    public int getRightBound() {
+    public Integer getRightBound() {
         return rightBound;
     }
     
@@ -43,12 +50,14 @@ public class DevStage extends NamedEntity<String> {
         if (!super.equals(o))
             return false;
         DevStage that = (DevStage) o;
-        return leftBound == that.leftBound && rightBound == that.rightBound;
+        return Objects.equals(leftBound, that.leftBound)
+                && Objects.equals(rightBound, that.rightBound)
+                && Objects.equals(taxon, that.taxon);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), leftBound, rightBound);
+        return Objects.hash(super.hashCode(), taxon, leftBound, rightBound);
     }
     
     @Override
@@ -57,6 +66,7 @@ public class DevStage extends NamedEntity<String> {
                 .add("id=" + getId())
                 .add("name=" + getName())
                 .add("description=" + getDescription())
+                .add("taxon='" + taxon + "'")
                 .add("leftBound=" + leftBound)
                 .add("rightBound=" + rightBound)
                 .toString();

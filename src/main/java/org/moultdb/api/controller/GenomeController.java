@@ -18,6 +18,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  */
 @RestController
 @RequestMapping(path="/genomes")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class GenomeController {
     
     @Autowired GenomeService genomeService;

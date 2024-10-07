@@ -9,30 +9,35 @@ import java.util.Objects;
 public class TaxonAnnotation {
     
     private final Taxon taxon;
-    private final String annotatedSpeciesName;
+    private final String authorSpeciesName;
     private final String determinedBy;
     private final SampleSet sampleSet;
     private final Condition condition;
+    private final String authorDevStage;
+    private final String authorAnatEntity;
     private final MoultingCharacters moultingCharacters;
     private final Article article;
     private final ImageInfo imageInfo;
-    private final Term eco;
-    private final Term cio;
+    private final ECOTerm ecoTerm;
+    private final CIOStatement cioStatement;
     private final Version version;
     
-    public TaxonAnnotation(Taxon taxon, String annotatedSpeciesName, String determinedBy, SampleSet sampleSet,
-                           Condition condition, MoultingCharacters moultingCharacters, Article article,
-                           ImageInfo imageInfo, Term eco, Term cio, Version version) {
+    public TaxonAnnotation(Taxon taxon, String authorSpeciesName, String determinedBy, SampleSet sampleSet,
+                           Condition condition, String authorDevStage, String authorAnatEntity,
+                           MoultingCharacters moultingCharacters, Article article, ImageInfo imageInfo,
+                           ECOTerm ecoTerm, CIOStatement cioStatement, Version version) {
         this.taxon = taxon;
-        this.annotatedSpeciesName = annotatedSpeciesName;
+        this.authorSpeciesName = authorSpeciesName;
         this.determinedBy = determinedBy;
         this.sampleSet = sampleSet;
         this.condition = condition;
+        this.authorDevStage = authorDevStage;
+        this.authorAnatEntity = authorAnatEntity;
         this.moultingCharacters = moultingCharacters;
         this.article = article;
         this.imageInfo = imageInfo;
-        this.eco = eco;
-        this.cio = cio;
+        this.ecoTerm = ecoTerm;
+        this.cioStatement = cioStatement;
         this.version = version;
     }
     
@@ -40,8 +45,8 @@ public class TaxonAnnotation {
         return taxon;
     }
     
-    public String getAnnotatedSpeciesName() {
-        return annotatedSpeciesName;
+    public String getAuthorSpeciesName() {
+        return authorSpeciesName;
     }
     
     public String getDeterminedBy() {
@@ -56,6 +61,14 @@ public class TaxonAnnotation {
         return condition;
     }
     
+    public String getAuthorDevStage() {
+        return authorDevStage;
+    }
+    
+    public String getAuthorAnatEntity() {
+        return authorAnatEntity;
+    }
+    
     public MoultingCharacters getMoultingCharacters() {
         return moultingCharacters;
     }
@@ -68,12 +81,12 @@ public class TaxonAnnotation {
         return imageInfo;
     }
     
-    public Term getEco() {
-        return eco;
+    public ECOTerm getEcoTerm() {
+        return ecoTerm;
     }
     
-    public Term getCio() {
-        return cio;
+    public CIOStatement getCioStatement() {
+        return cioStatement;
     }
     
     public Version getVersion() {
@@ -88,21 +101,23 @@ public class TaxonAnnotation {
             return false;
         TaxonAnnotation that = (TaxonAnnotation) o;
         return Objects.equals(taxon, that.taxon)
-                && Objects.equals(annotatedSpeciesName, that.annotatedSpeciesName)
+                && Objects.equals(authorSpeciesName, that.authorSpeciesName)
                 && Objects.equals(determinedBy, that.determinedBy)
                 && Objects.equals(sampleSet, that.sampleSet)
                 && Objects.equals(condition, that.condition)
+                && Objects.equals(authorDevStage, that.authorDevStage)
+                && Objects.equals(authorAnatEntity, that.authorAnatEntity)
                 && Objects.equals(moultingCharacters, that.moultingCharacters)
                 && Objects.equals(article, that.article)
                 && Objects.equals(imageInfo, that.imageInfo)
-                && Objects.equals(eco, that.eco)
-                && Objects.equals(cio, that.cio)
+                && Objects.equals(ecoTerm, that.ecoTerm)
+                && Objects.equals(cioStatement, that.cioStatement)
                 && Objects.equals(version, that.version);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(taxon, annotatedSpeciesName, determinedBy, sampleSet, condition, moultingCharacters, article,
-                imageInfo, eco, cio, version);
+        return Objects.hash(taxon, authorSpeciesName, determinedBy, sampleSet, condition,
+                authorDevStage, authorAnatEntity, article, imageInfo, ecoTerm, cioStatement, version);
     }
 }

@@ -38,6 +38,12 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
                 new MapSqlParameterSource().addValue("name", name), new DataSourceRowMapper()));
     }
     
+    @Override
+    public DataSourceTO findByShortName(String shortName) {
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE LOWER(ds.short_name) = LOWER(:shortName)",
+                new MapSqlParameterSource().addValue("shortName", shortName), new DataSourceRowMapper()));
+    }
+    
     protected static class DataSourceRowMapper implements RowMapper<DataSourceTO> {
         @Override
         public DataSourceTO mapRow(ResultSet rs, int rowNum) throws SQLException {
