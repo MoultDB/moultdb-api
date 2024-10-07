@@ -11,18 +11,18 @@ public class DevStage extends NamedEntity<String> {
     
     private final String taxon;
     
-    private final int leftBound;
+    private final Integer leftBound;
     
-    private final int rightBound;
+    private final Integer rightBound;
     
-    public DevStage(String accession, String name, String description, String taxon, int leftBound, int rightBound)
+    public DevStage(String accession, String name, String description, String taxon, Integer leftBound, Integer rightBound)
             throws IllegalArgumentException {
         super(accession, name, description);
         this.taxon = taxon;
-        if (leftBound < 1) {
+        if (leftBound != null && leftBound < 1) {
             throw new IllegalArgumentException("The provided left bound cannot be less than 1");
         }
-        if (rightBound <= leftBound) {
+        if (leftBound!= null && rightBound != null && rightBound <= leftBound) {
             throw new IllegalArgumentException("The provided right bound cannot be less than or equal to the provided left bound");
         }
         this.leftBound = leftBound;
@@ -33,11 +33,11 @@ public class DevStage extends NamedEntity<String> {
         return taxon;
     }
     
-    public int getLeftBound() {
+    public Integer getLeftBound() {
         return leftBound;
     }
     
-    public int getRightBound() {
+    public Integer getRightBound() {
         return rightBound;
     }
     
@@ -50,7 +50,9 @@ public class DevStage extends NamedEntity<String> {
         if (!super.equals(o))
             return false;
         DevStage that = (DevStage) o;
-        return leftBound == that.leftBound && rightBound == that.rightBound && Objects.equals(taxon, that.taxon);
+        return Objects.equals(leftBound, that.leftBound)
+                && Objects.equals(rightBound, that.rightBound)
+                && Objects.equals(taxon, that.taxon);
     }
     
     @Override
@@ -64,7 +66,7 @@ public class DevStage extends NamedEntity<String> {
                 .add("id=" + getId())
                 .add("name=" + getName())
                 .add("description=" + getDescription())
-                .add("taxon=" + taxon)
+                .add("taxon='" + taxon + "'")
                 .add("leftBound=" + leftBound)
                 .add("rightBound=" + rightBound)
                 .toString();

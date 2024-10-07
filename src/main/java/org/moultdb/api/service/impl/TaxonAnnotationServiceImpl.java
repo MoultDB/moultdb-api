@@ -3,7 +3,6 @@ package org.moultdb.api.service.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
-import org.moultdb.api.model.ECOTerm;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.*;
@@ -134,23 +133,26 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public Integer importTaxonAnnotations(MultipartFile file) {
+    public Integer importTaxonAnnotations(MultipartFile dataFile, MultipartFile mappingFile) {
     
         logger.info("Start taxon annotations import...");
         
         TaxonAnnotationParser importer = new TaxonAnnotationParser();
         int count;
         try {
-            logger.info("Parse annotation file " + file.getOriginalFilename() + "...");
-            List<TaxonAnnotationBean> taxonAnnotationBeans = importer.parseAnnotations(file);
+            logger.info("Parse annotation file " + dataFile.getOriginalFilename() + "...");
+            List<TaxonAnnotationBean> taxonAnnotationBeans = importer.parseAnnotations(dataFile);
+            
+            logger.info("Parse mapping dataFile " + mappingFile.getOriginalFilename() + "...");
+            Map<String, String> devStageMapping = importer.parseDevStageMapping(mappingFile);
             
             logger.info("Load annotations in db...");
-            count = importer.insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, cioDAO, conditionDAO,
-                    dataSourceDAO, dbXrefDAO, devStageDAO, ecoTermDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO,
-                    taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
+            count = importer.insertTaxonAnnotations(taxonAnnotationBeans, devStageMapping, articleDAO, articleToDbXrefDAO,
+                    cioDAO, conditionDAO, dataSourceDAO, dbXrefDAO, devStageDAO, ecoTermDAO, geologicalAgeDAO,
+                    moultingCharactersDAO, sampleSetDAO, taxonDAO, taxonAnnotationDAO, versionDAO, userDAO);
         
         } catch (Exception e) {
-            throw new ImportException("Unable to import annotations from " + file.getOriginalFilename() + ". " +
+            throw new ImportException("Unable to import annotations from " + dataFile.getOriginalFilename() + ". " +
                     "Error: " + e.getMessage());
         }
         logger.info("End taxon annotations import");

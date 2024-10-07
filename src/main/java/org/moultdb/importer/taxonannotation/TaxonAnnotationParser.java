@@ -46,8 +46,7 @@ public class TaxonAnnotationParser {
     @Autowired DataSourceDAO dataSourceDAO;
     @Autowired DbXrefDAO dbXrefDAO;
     @Autowired DevStageDAO devStageDAO;
-    @Autowired
-    ECOTermDAO ecoDAO;
+    @Autowired ECOTermDAO ecoDAO;
     @Autowired GeologicalAgeDAO geologicalAgeDAO;
     @Autowired MoultingCharactersDAO moultingCharactersDAO;
     @Autowired SampleSetDAO sampleSetDAO;
@@ -73,6 +72,11 @@ public class TaxonAnnotationParser {
     
     // Anatomical entity used for all annotations
     private final static AnatEntityTO ANAT_ENTITY_TO = new AnatEntityTO("UBERON:0000468", "multicellular organism", null);
+    
+    
+    private final static String DEV_STAGE_NAME_COL_NAME = "Ontogenetic stage";
+    private final static String UBERON_ID_COL_NAME = "UBERON ID";
+    private final static String UBERON_NAME_COL_NAME = "UBERON name";
     
     private final static String ORDER_COL_NAME = "Order";
     private final static String TAXON_COL_NAME = "Taxon";
@@ -141,30 +145,73 @@ public class TaxonAnnotationParser {
     public static void main(String[] args) {
         logger.traceEntry(Arrays.toString(args));
         
-        if (args.length != 1) {
-            throw new IllegalArgumentException("Incorrect number of arguments provided, expected 1 argument, " +
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Incorrect number of arguments provided, expected 2 argument, " +
                     args.length + " provided");
         }
     
         TaxonAnnotationParser parser = new TaxonAnnotationParser();
         List<TaxonAnnotationBean> taxonAnnotationBeans = parser.parseAnnotations(args[0]);
+        Map<String, String> devStageMapping = parser.parseDevStageMapping(args[1]);
     
-        parser.insertTaxonAnnotations(taxonAnnotationBeans);
+        parser.insertTaxonAnnotations(taxonAnnotationBeans, devStageMapping);
     
         logger.traceExit();
     }
     
-    public void insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans) {
-        insertTaxonAnnotations(taxonAnnotationBeans, articleDAO, articleToDbXrefDAO, cioDAO, conditionDAO, dataSourceDAO,
+    public Map<String, String> parseDevStageMapping(String fileName) {
+        try (ICsvBeanReader reader = new CsvBeanReader(new FileReader(fileName), TSV_COMMENTED)) {
+            return  parseDevStageMapping(reader);
+        } catch (SuperCsvException e) {
+            throw new IllegalArgumentException("The provided file " + fileName + " could not be properly parsed. " +
+                    "Error: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Can not read file " + fileName, e);
+        }
+    }
+    
+    public Map<String, String> parseDevStageMapping(MultipartFile file) {
+        try (ICsvBeanReader reader = new CsvBeanReader(new InputStreamReader(file.getInputStream()), TSV_COMMENTED)) {
+            return  parseDevStageMapping(reader);
+        } catch (SuperCsvException e) {
+            throw new IllegalArgumentException("The provided file " + file.getOriginalFilename()
+                    + " could not be properly parsed. Error: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Can not read file " + file.getOriginalFilename(), e);
+        }
+    }
+    
+    private Map<String, String> parseDevStageMapping(ICsvBeanReader reader) throws IOException {
+        Map<String, String> mapping = new HashMap<>();
+        
+        final String[] header = reader.getHeader(true);
+        String[] attributeMapping = mapMappingHeaderToAttributes(header);
+        CellProcessor[] cellProcessorMapping = mapMappingHeaderToCellProcessors(header);
+        
+        DevStageMappingBean bean;
+        while((bean = reader.read(DevStageMappingBean.class, attributeMapping, cellProcessorMapping)) != null) {
+            assert bean.getDevStageName() != null && bean.getUberonId() != null;
+            if (mapping.putIfAbsent(bean.getDevStageName().toLowerCase(), bean.getUberonId().toUpperCase()) != null) {
+                throw new IllegalArgumentException("Duplicated dev stage name: " + bean.getDevStageName());
+            }
+        }
+        if (mapping.isEmpty()) {
+            throw new IllegalArgumentException("The provided file did not allow to retrieve any mapping");
+        }
+        return mapping;
+    }
+    
+    public void insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans, Map<String, String> devStageMapping) {
+        insertTaxonAnnotations(taxonAnnotationBeans, devStageMapping, articleDAO, articleToDbXrefDAO, cioDAO, conditionDAO, dataSourceDAO,
                 dbXrefDAO, devStageDAO, ecoDAO, geologicalAgeDAO, moultingCharactersDAO, sampleSetDAO, taxonDAO,
                 taxonAnnotationDAO,
                 versionDAO, userDAO);
     }
     
-    public int insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans, ArticleDAO articleDAO,
-                                      ArticleToDbXrefDAO articleToDbXrefDAO, CIOStatementDAO cioDAO, ConditionDAO conditionDAO,
-                                      DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO, DevStageDAO devStageDAO,
-                                      ECOTermDAO ecoDAO, GeologicalAgeDAO geologicalAgeDAO, 
+    public int insertTaxonAnnotations(List<TaxonAnnotationBean> taxonAnnotationBeans, Map<String, String> devStageMapping,
+                                      ArticleDAO articleDAO, ArticleToDbXrefDAO articleToDbXrefDAO, CIOStatementDAO cioDAO,
+                                      ConditionDAO conditionDAO, DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO,
+                                      DevStageDAO devStageDAO, ECOTermDAO ecoDAO, GeologicalAgeDAO geologicalAgeDAO, 
                                       MoultingCharactersDAO moultingCharactersDAO, SampleSetDAO sampleSetDAO,
                                       TaxonDAO taxonDAO, TaxonAnnotationDAO taxonAnnotationDAO,
                                       VersionDAO versionDAO, UserDAO userDAO) {
@@ -193,8 +240,8 @@ public class TaxonAnnotationParser {
         Map<String, ArticleTO> viewedArticleCitations = new HashMap<>();
         for (int beanCount = 0; beanCount < taxonAnnotationBeans.size(); beanCount++) {
             TaxonAnnotationBean bean = taxonAnnotationBeans.get(beanCount);
-            if (beanCount % 5 == 0) {
-                logger.debug(beanCount + " annotations converted");
+            if (beanCount % 10 == 0) {
+                logger.info("{} annotations converted", beanCount);
             }
             MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(
                     mcNextId,
@@ -261,8 +308,8 @@ public class TaxonAnnotationParser {
             }
             
             if (StringUtils.isNotBlank(taxonType)) {
-//                logger.warn("Taxon scientific name '" + bean.getTaxon() + "' has not been found. " +
-//                        "Found " + taxonType + " '" + taxonTO.getScientificName() + "'.");
+                logger.warn("Taxon scientific name '{}' has not been found. Found {} '{}'.",
+                        bean.getTaxon(), taxonType, taxonTO.getScientificName());
             }
             
             // Ex: 'Stage 3' or 'Sandbian to Katian'
@@ -330,20 +377,22 @@ public class TaxonAnnotationParser {
             sampleSetTOs.add(sampleSetTO);
             ssNextId++;
             
-            ConditionTO conditionTO = conditionDAO.find(bean.getDevStage(), ANAT_ENTITY_TO.getId(),
+            
+            String uberonId = null;
+            if (StringUtils.isNotBlank(bean.getDevStage())) {
+                uberonId = devStageMapping.get(bean.getDevStage().toLowerCase());
+            }
+            if (uberonId == null) {
+                throw new IllegalArgumentException("Not found UBERON term from developmental stage: " + bean.getDevStage());
+            }
+            ConditionTO conditionTO = conditionDAO.find(uberonId, ANAT_ENTITY_TO.getId(),
                     bean.getSex(), bean.getReproductiveState());
             if (conditionTO == null) {
-                DevStageTO devStageTO = null; //devStageDAO.findById(bean.getDevStage());
-//                if (devStageTO == null) {
-//                    devStageTO = devStageDAO.findByName(bean.getDevStage(), taxonTO.getPath());
-//                }
+                DevStageTO devStageTO = devStageDAO.findById(uberonId);
                 if (devStageTO == null) {
-//                    throw new IllegalArgumentException("Unknown developmental stage: " + bean.getDevStage());
-//                    logger.error("Unknown developmental stage '" + bean.getDevStage() + "' in taxon '" + taxonTO.getScientificName() +
+//                    throw new IllegalArgumentException("Unknown UBERON term '" + uberonId + "' from developmental stage '" + bean.getDevStage() +
 //                            "'. Set null.");
-                    logger.info("(" +
-                            "'" + taxonTO.getScientificName().replaceAll(" ", ".").toLowerCase() + "." + bean.getDevStage().toLowerCase().replaceAll(" ", ".") + "', " +
-                            "'" + bean.getDevStage() + "', '" + taxonTO.getPath() +"')," );
+                    logger.error("Unknown UBERON term '{}' from developmental stage '{}'. Set null.", uberonId, bean.getDevStage());
                 }
                 conditionTO = new ConditionTO(conditionNextId, devStageTO, ANAT_ENTITY_TO,
                         bean.getSex(), bean.getReproductiveState(), null);
@@ -464,7 +513,6 @@ public class TaxonAnnotationParser {
         
         return annots;
     }
-    
     
     private CellProcessor[] mapHeaderToCellProcessors(String[] header) {
         CellProcessor[] processors = new CellProcessor[header.length];
@@ -604,12 +652,48 @@ public class TaxonAnnotationParser {
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonAnnotationBean");
             };
         }
-        logger.trace("processors: " + Arrays.stream(processors).toList());
+        logger.trace("data processors: {}", Arrays.stream(processors).toList());
         return processors;
     }
     
     private static <T extends Enum<T> & MoutldbEnum> List<Object> getObjects(Class<T> enumClass) {
         return new ArrayList<>(MoutldbEnum.getAllStringRepresentations(enumClass));
+    }
+    
+    private String[] mapMappingHeaderToAttributes(String[] header) {
+        
+        String[] mapping = new String[header.length];
+        for (int i = 0; i < header.length; i++) {
+            if (header[i] == null) {
+                continue;
+            }
+            mapping[i] = switch (header[i]) {
+                case DEV_STAGE_NAME_COL_NAME -> "devStageName";
+                case UBERON_ID_COL_NAME -> "uberonId";
+                case UBERON_NAME_COL_NAME -> "uberonName";
+                default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for DevStageMappingBean");
+            };
+        }
+        logger.trace("data attributes: {}", Arrays.stream(mapping).toList());
+        return mapping;
+    }
+    
+    private CellProcessor[] mapMappingHeaderToCellProcessors(String[] header) {
+        CellProcessor[] processors = new CellProcessor[header.length];
+        for (int i = 0; i < header.length; i++) {
+            if (header[i] == null) {
+                continue;
+            }
+            // For the moment, we're keeping the switch not refactored to simplify the update
+            processors[i] = switch (header[i]) {
+                case DEV_STAGE_NAME_COL_NAME -> new StrNotNullOrEmpty(new Trim());
+                case UBERON_ID_COL_NAME -> new StrNotNullOrEmpty(new Trim());
+                case UBERON_NAME_COL_NAME -> new StrNotNullOrEmpty(new Trim());
+                default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for DevStageMappingBean");
+            };
+        }
+        logger.trace("mapping processors: {}", Arrays.stream(processors).toList());
+        return processors;
     }
     
     private String[] mapHeaderToAttributes(String[] header) {
@@ -683,7 +767,7 @@ public class TaxonAnnotationParser {
                 default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for TaxonAnnotationBean");
             };
         }
-        logger.trace("mapping: " + Arrays.stream(mapping).toList());
+        logger.trace("mapping attributes: {}", Arrays.stream(mapping).toList());
         return mapping;
     }
     

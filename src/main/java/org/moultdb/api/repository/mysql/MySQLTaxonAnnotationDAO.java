@@ -99,15 +99,19 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     @Override
     public int insertImageTaxonAnnotation(TaxonAnnotationTO taxonAnnotationTO) {
-        String sql = "INSERT INTO taxon_annotation (taxon_path, annotated_species_name, " +
+        if (StringUtils.isNotBlank(taxonAnnotationTO.getAuthorAnatEntity()) ||
+                StringUtils.isNotBlank(taxonAnnotationTO.getAuthorDevStage())) {
+            throw new UnsupportedOperationException("New fields not supported");
+        }
+        String sql = "INSERT INTO taxon_annotation (taxon_path, author_species_name, " +
                 "sample_set_id, condition_id, image_id, version_id) " +
-                "VALUES (:taxonPath, :annotatedSpeciesName, " +
+                "VALUES (:taxonPath, :authorSpeciesName, " +
                 ":sampleSetId, :conditionId, :imageId, :versionId)";
     
         List<MapSqlParameterSource> params = new ArrayList<>();
         MapSqlParameterSource source = new MapSqlParameterSource();
         source.addValue("taxonPath", taxonAnnotationTO.getTaxonTO().getPath());
-        source.addValue("annotatedSpeciesName", taxonAnnotationTO.getAnnotatedSpeciesName());
+        source.addValue("authorSpeciesName", taxonAnnotationTO.getAuthorSpeciesName());
         source.addValue("sampleSetId", taxonAnnotationTO.getSampleSetId());
         source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
         source.addValue("imageId", taxonAnnotationTO.getImageTO().getId());
@@ -122,19 +126,23 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     @Override
     public int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
-        String sql = "INSERT INTO taxon_annotation (taxon_path, annotated_species_name, determined_by,  " +
-                "sample_set_id, condition_id, article_id, moulting_characters_id, eco_id, cio_id, version_id) " +
-                "VALUES (:taxonPath, :annotatedSpeciesName, :determinedBy, " +
-                ":sampleSetId, :conditionId, :articleId, :moultingCharactersId, :ecoId, :cioId, :versionId)";
+        String sql = "INSERT INTO taxon_annotation (taxon_path, author_species_name, determined_by,  " +
+                "sample_set_id, condition_id, author_dev_stage, author_anat_entity, article_id, " +
+                "moulting_characters_id, eco_id, cio_id, version_id) " +
+                "VALUES (:taxonPath, :authorSpeciesName, :determinedBy, :sampleSetId, " +
+                ":conditionId, :authorDevStage, :authorAnatEntity, :articleId, :moultingCharactersId, " +
+                ":ecoId, :cioId, :versionId)";
         
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (TaxonAnnotationTO taxonAnnotationTO : taxonAnnotationTOs) {
             MapSqlParameterSource source = new MapSqlParameterSource();
             source.addValue("taxonPath", taxonAnnotationTO.getTaxonTO().getPath());
-            source.addValue("annotatedSpeciesName", taxonAnnotationTO.getAnnotatedSpeciesName());
+            source.addValue("authorSpeciesName", taxonAnnotationTO.getAuthorSpeciesName());
             source.addValue("determinedBy", taxonAnnotationTO.getDeterminedBy());
             source.addValue("sampleSetId", taxonAnnotationTO.getSampleSetId());
             source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
+            source.addValue("authorDevStage", taxonAnnotationTO.getAuthorDevStage());
+            source.addValue("authorAnatEntity", taxonAnnotationTO.getAuthorAnatEntity());
             source.addValue("articleId", taxonAnnotationTO.getArticleTO().getId());
             source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
             source.addValue("ecoId", taxonAnnotationTO.getEcoTermTO() == null? null: taxonAnnotationTO.getEcoTermTO().getId());
@@ -196,7 +204,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 DevStageTO devStageTO = null;
                 if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {
                     devStageTO = new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
-                            rs.getString("ds.taxon_path"), rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound"));
+                            rs.getString("ds.taxon_path"), DAO.getInteger(rs, "ds.left_bound"), DAO.getInteger(rs, "ds.right_bound"));
                 }
                 AnatEntityTO anatEntityTO = null;
                 if (StringUtils.isNotBlank(rs.getString("c.anatomical_entity_id"))) {
@@ -239,9 +247,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                     cioTO = new CIOStatementTO(rs.getString("cio.id"), rs.getString("cio.name"), rs.getString("cio.description"));
                 }
                 
-                taxonAnnotationTOs.put(id, new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.annotated_species_name"),
+                taxonAnnotationTOs.put(id, new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.author_species_name"),
                         rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), rs.getString("ta.specimen_count"),
-                        conditionTO, rs.getString("ta.annotated_dev_stage"), rs.getString("ta.annotated_anat_entity"),
+                        conditionTO, rs.getString("ta.author_dev_stage"), rs.getString("ta.author_anat_entity"),
                         articleTO, imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"),
                         ecoTO, cioTO, rs.getInt("ta.version_id")));
             }

@@ -73,12 +73,12 @@ public class ServiceUtils {
 
         return new TaxonAnnotation(
                 mapFromTO(taxonAnnotationTO.getTaxonTO()),
-                taxonAnnotationTO.getAnnotatedSpeciesName(),
+                taxonAnnotationTO.getAuthorSpeciesName(),
                 taxonAnnotationTO.getDeterminedBy(), 
                 mapFromTO(sampleSetTO),
                 mapFromTO(taxonAnnotationTO.getConditionTO()),
-                taxonAnnotationTO.getAnnotatedDevStage(),
-                taxonAnnotationTO.getAnnotatedAnatEntity(),
+                taxonAnnotationTO.getAuthorDevStage(),
+                taxonAnnotationTO.getAuthorAnatEntity(),
                 mapFromTO(moultingCharactersTO),
                 article,
                 mapFromTO(taxonAnnotationTO.getImageTO(), taxonAnnotationTO),
@@ -92,7 +92,7 @@ public class ServiceUtils {
             return null;
         }
         return new ImageInfo(imageTO.getFileName().substring(0, imageTO.getFileName().indexOf(".")),
-                taxonAnnotationTO.getAnnotatedSpeciesName(), getImageUrl(imageTO.getFileName()));
+                taxonAnnotationTO.getAuthorSpeciesName(), getImageUrl(imageTO.getFileName()));
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {

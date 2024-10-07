@@ -13,13 +13,13 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private static final long serialVersionUID = 5144072593844456844L;
     
     private final TaxonTO taxonTO;
-    private final String annotatedSpeciesName;
+    private final String authorSpeciesName;
     private final Integer moultingCharactersId;
     private final Integer sampleSetId;
     private final String specimenCount;
     private final ConditionTO conditionTO;
-    private final String annotatedDevStage;
-    private final String annotatedAnatEntity;
+    private final String authorDevStage;
+    private final String authorAnatEntity;
     private final ArticleTO articleTO;
     private final ImageTO imageTO;
     private final ECOTermTO ecoTermTO;
@@ -27,22 +27,22 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private final String determinedBy;
     private final Integer versionId;
     
-    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName,
+    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String authorSpeciesName,
                              Integer sampleSetId, String specimenCount, ConditionTO conditionTO, ImageTO imageTO,
-                             String determinedBy, Integer versionId, String annotatedDevStage, String annotatedAnatEntity) {
-        this(id, taxonTO, annotatedSpeciesName, determinedBy, sampleSetId, specimenCount, conditionTO, annotatedAnatEntity, annotatedDevStage,
-                null, imageTO, null, null, null, versionId);
+                             String determinedBy, Integer versionId, String authorDevStage, String authorAnatEntity) {
+        this(id, taxonTO, authorSpeciesName, determinedBy, sampleSetId, specimenCount, conditionTO,
+                authorAnatEntity, authorDevStage, null, imageTO, null, null, null, versionId);
     }
     
-    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String annotatedSpeciesName, String determinedBy,
-                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, String annotatedDevStage,
-                             String annotatedAnatEntity, ArticleTO articleTO, ImageTO imageTO, Integer moultingCharactersId,
+    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String authorSpeciesName, String determinedBy,
+                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, String authorDevStage,
+                             String authorAnatEntity, ArticleTO articleTO, ImageTO imageTO, Integer moultingCharactersId,
                              ECOTermTO ecoTermTO, CIOStatementTO cioStatementTO, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
-        this.annotatedSpeciesName = annotatedSpeciesName;
-        this.annotatedDevStage = annotatedDevStage;
-        this.annotatedAnatEntity = annotatedAnatEntity;
+        this.authorSpeciesName = authorSpeciesName;
+        this.authorDevStage = authorDevStage;
+        this.authorAnatEntity = authorAnatEntity;
         this.moultingCharactersId = moultingCharactersId;
         this.sampleSetId = sampleSetId;
         this.specimenCount = specimenCount;
@@ -59,8 +59,8 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return taxonTO;
     }
     
-    public String getAnnotatedSpeciesName() {
-        return annotatedSpeciesName;
+    public String getAuthorSpeciesName() {
+        return authorSpeciesName;
     }
     
     public Integer getMoultingCharactersId() {
@@ -79,12 +79,12 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return conditionTO;
     }
     
-    public String getAnnotatedDevStage() {
-        return annotatedDevStage;
+    public String getAuthorDevStage() {
+        return authorDevStage;
     }
     
-    public String getAnnotatedAnatEntity() {
-        return annotatedAnatEntity;
+    public String getAuthorAnatEntity() {
+        return authorAnatEntity;
     }
     
     public ArticleTO getArticleTO() {
@@ -116,16 +116,18 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return new StringJoiner(", ", TaxonAnnotationTO.class.getSimpleName() + "[", "]")
                 .add("id=" + getId())
                 .add("taxonTO=" + taxonTO)
-                .add("annotatedSpeciesName=" + annotatedSpeciesName)
+                .add("authorSpeciesName='" + authorSpeciesName + "'")
                 .add("moultingCharactersId=" + moultingCharactersId)
-                .add("sampleId=" + sampleSetId)
-                .add("specimenCount=" + specimenCount)
+                .add("sampleSetId=" + sampleSetId)
+                .add("specimenCount='" + specimenCount + "'")
                 .add("conditionTO=" + conditionTO)
+                .add("authorDevStage='" + authorDevStage + "'")
+                .add("authorAnatEntity='" + authorAnatEntity + "'")
                 .add("articleTO=" + articleTO)
                 .add("imageTO=" + imageTO)
                 .add("ecoTermTO=" + ecoTermTO)
                 .add("cioStatementTO=" + cioStatementTO)
-                .add("determinedBy=" + determinedBy)
+                .add("determinedBy='" + determinedBy + "'")
                 .add("versionId=" + versionId)
                 .toString();
     }
