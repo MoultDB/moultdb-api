@@ -6,10 +6,11 @@ package org.moultdb.api.model.moutldbenum;
  */
 public enum Reabsorption implements MoutldbEnum {
     
-    YES("yes"),
-    NO("no"),
-    PARTIAL("partial"),
-    CALCIUM_REABSORPTION("calcium reabsorption");
+    YES("reabsorption of exoskeleton material"),
+    NO("no reabsorption of exoskeleton material"),
+    PARTIAL("partial reabsorption of exoskeleton material"),
+    CALCIUM_REABSORPTION("calcium reabsorption"),
+    ENDOCUTICLE_REABSORPTION("reabsorption of endocuticle");
     
     private final String stringRepresentation;
     

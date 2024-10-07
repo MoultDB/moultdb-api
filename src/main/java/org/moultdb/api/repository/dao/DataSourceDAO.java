@@ -15,4 +15,6 @@ public interface DataSourceDAO extends DAO<DataSourceTO> {
     List<DataSourceTO> findAll();
     
     DataSourceTO findByName(String name);
+    
+    DataSourceTO findByShortName(String shortName);
 }

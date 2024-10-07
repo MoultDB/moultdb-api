@@ -43,11 +43,18 @@ public class ServiceUtils {
                 dataSourceTO.getReleaseVersion());
     }
     
-    public static Term mapFromTO(TermTO termTO) {
-        if (termTO == null) {
+    public static ECOTerm mapFromTO(ECOTermTO ecoTermTO) {
+        if (ecoTermTO == null) {
             return null;
         }
-        return new Term(termTO.getId(), termTO.getName(), termTO.getDescription());
+        return new ECOTerm(ecoTermTO.getId(), ecoTermTO.getName(), ecoTermTO.getDescription());
+    }
+    
+    public static CIOStatement mapFromTO(CIOStatementTO cioStatementTO) {
+        if (cioStatementTO == null) {
+            return null;
+        }
+        return new CIOStatement(cioStatementTO.getId(), cioStatementTO.getName(), cioStatementTO.getDescription());
     }
     
     public static TaxonAnnotation mapFromTO(TaxonAnnotationTO taxonAnnotationTO, SampleSetTO sampleSetTO,
@@ -66,15 +73,17 @@ public class ServiceUtils {
 
         return new TaxonAnnotation(
                 mapFromTO(taxonAnnotationTO.getTaxonTO()),
-                taxonAnnotationTO.getAnnotatedSpeciesName(),
+                taxonAnnotationTO.getAuthorSpeciesName(),
                 taxonAnnotationTO.getDeterminedBy(), 
                 mapFromTO(sampleSetTO),
                 mapFromTO(taxonAnnotationTO.getConditionTO()),
+                taxonAnnotationTO.getAuthorDevStage(),
+                taxonAnnotationTO.getAuthorAnatEntity(),
                 mapFromTO(moultingCharactersTO),
                 article,
                 mapFromTO(taxonAnnotationTO.getImageTO(), taxonAnnotationTO),
-                mapFromTO(taxonAnnotationTO.getEcoTO()),
-                mapFromTO(taxonAnnotationTO.getCioTO()),
+                mapFromTO(taxonAnnotationTO.getEcoTermTO()),
+                mapFromTO(taxonAnnotationTO.getCioStatementTO()),
                 taxonAnnotVersion);
     }
     
@@ -83,15 +92,18 @@ public class ServiceUtils {
             return null;
         }
         return new ImageInfo(imageTO.getFileName().substring(0, imageTO.getFileName().indexOf(".")),
-                taxonAnnotationTO.getAnnotatedSpeciesName(), getImageUrl(imageTO.getFileName()));
+                taxonAnnotationTO.getAuthorSpeciesName(), getImageUrl(imageTO.getFileName()));
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {
         if (sampleSetTO == null) {
             return null;
         }
-        TimePeriod timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
-                mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
+        TimePeriod timePeriod = null;
+        if (sampleSetTO.getFromGeologicalAgeTO() != null) {
+            timePeriod = new TimePeriod(mapFromTO(sampleSetTO.getFromGeologicalAgeTO()),
+                    mapFromTO(sampleSetTO.getToGeologicalAgeTO()));
+        }
         return new SampleSet(
                 timePeriod,
                 sampleSetTO.getCollectionLocationNames(),
@@ -109,13 +121,14 @@ public class ServiceUtils {
         if (conditionTO.getDevStageTO() != null) {
             devStage = new DevStage(conditionTO.getDevStageTO().getId(),
                     conditionTO.getDevStageTO().getName(), conditionTO.getDevStageTO().getDescription(),
+                    conditionTO.getDevStageTO().getTaxonPath(),
                     conditionTO.getDevStageTO().getLeftBound(), conditionTO.getDevStageTO().getRightBound());
         }
         
         AnatEntity anatEntity = null;
-        if (conditionTO.getAnatomicalEntityTO() != null) {
-            anatEntity = new AnatEntity(conditionTO.getAnatomicalEntityTO().getId(),
-                    conditionTO.getAnatomicalEntityTO().getName(), conditionTO.getAnatomicalEntityTO().getDescription());
+        if (conditionTO.getAnatEntityTO() != null) {
+            anatEntity = new AnatEntity(conditionTO.getAnatEntityTO().getId(),
+                    conditionTO.getAnatEntityTO().getName(), conditionTO.getAnatEntityTO().getDescription());
         }
         
         MoultingStep moultingStep = null;
@@ -123,7 +136,8 @@ public class ServiceUtils {
             moultingStep = MoultingStep.valueOfByStringRepresentation(conditionTO.getMoultingStep());
         }
         
-        return new Condition(devStage, anatEntity, conditionTO.getSex(),moultingStep);
+        return new Condition(devStage, anatEntity, conditionTO.getSex(), conditionTO.getReproductiveState(),
+                moultingStep);
     }
     
     private static DbXref mapFromTO(DbXrefTO dbXrefTO, Map<Integer, TaxonToDbXrefTO> dbXrefIdToTaxonToDbXrefTO) {
@@ -162,23 +176,24 @@ public class ServiceUtils {
             return null;
         }
         return new MoultingCharacters(LifeHistoryStyle.valueOfByStringRepresentation(mcTO.getLifeHistoryStyle()),
-                LifeMode.valueOfByStringRepresentation(mcTO.getLifeMode()), mcTO.getJuvenileMoultCount(),
+                MoutldbEnum.valueOfByStringRepresentation(LifeMode.class, mcTO.getLifeModes()), mcTO.getJuvenileMoultCount(),
                 mcTO.getMajorMorphologicalTransitionCount(), mcTO.getHasTerminalAdultStage(),
                 mcTO.getObservedMoultStageCount(), mcTO.getEstimatedMoultStageCount(), mcTO.getSegmentAdditionMode(),
                 mcTO.getBodySegmentCount(), mcTO.getBodySegmentCountInAdults(), mcTO.getBodyLengthAverage(),
-                mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyMassIncreaseAverage(), mcTO.getIntermoultPeriod(),
-                mcTO.getPremoultPeriod(), mcTO.getPostmoultPeriod(), mcTO.getVariationWithinCohorts(),
-                mcTO.getSutureLocation(), mcTO.getCephalicSutureLocation(), mcTO.getPostCephalicSutureLocation(),
-                mcTO.getResultingNamedMoultingConfiguration(),
-                EgressDirection.valueOfByStringRepresentation(mcTO.getEgressDirection()),
-                ExuviaePosition.valueOfByStringRepresentation(mcTO.getPositionExuviaeFoundIn()),
+                mcTO.getBodyLengthIncreaseAverage(), mcTO.getBodyWidthAverage(),
+                mcTO.getBodyWidthIncreaseAverage(), mcTO.getBodyMassIncreaseAverage(), mcTO.getDevStagePeriod(),
+                mcTO.getIntermoultPeriod(), mcTO.getPremoultPeriod(), mcTO.getPostmoultPeriod(), mcTO.getVariationWithinCohorts(),
+                mcTO.getSutureLocations(), mcTO.getCephalicSutureLocations(), mcTO.getPostCephalicSutureLocations(),
+                mcTO.getResultingNamedMoultingConfigurations(),
+                MoutldbEnum.valueOfByStringRepresentation(EgressDirection.class, mcTO.getEgressDirections()),
+                MoutldbEnum.valueOfByStringRepresentation(ExuviaePosition.class, mcTO.getPositionsExuviaeFoundIn()),
                 MoultingPhase.valueOfByStringRepresentation(mcTO.getMoultingPhase()),
                 MoultingVariability.valueOfByStringRepresentation(mcTO.getMoultingVariability()),
                 Calcification.valueOfByStringRepresentation(mcTO.getCalcificationEvent()),
-                HeavyMetalReinforcement.valueOfByStringRepresentation(mcTO.getHeavyMetalReinforcement()),
-                mcTO.getOtherBehaviour(), ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
+                MoutldbEnum.valueOfByStringRepresentation(HeavyMetalReinforcement.class, mcTO.getHeavyMetalReinforcements()),
+                mcTO.getOtherBehaviours(), ExuviaeConsumption.valueOfByStringRepresentation(mcTO.getExuviaeConsumed()),
                 Reabsorption.valueOfByStringRepresentation(mcTO.getExoskeletalMaterialReabsorption()),
-                mcTO.getFossilExuviaeQuality(), mcTO.getGeneralComments());
+                mcTO.getFossilExuviaeQualities(), mcTO.getGeneralComments());
     }
     
     public static GeologicalAge mapFromTO(GeologicalAgeTO geologicalAgeTO) {

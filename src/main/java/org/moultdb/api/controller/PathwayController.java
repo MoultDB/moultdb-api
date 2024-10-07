@@ -18,6 +18,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  */
 @RestController
 @RequestMapping(path="/pathways")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class PathwayController {
     
     @Autowired PathwayService pathwayService;

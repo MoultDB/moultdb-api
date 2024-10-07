@@ -2,6 +2,9 @@ package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -14,55 +17,59 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private static final long serialVersionUID = -558466073558777076L;
     
     private final String lifeHistoryStyle;
-    private final String lifeMode;
-    private final Integer juvenileMoultCount;
-    private final Integer majorMorphologicalTransitionCount;
+    private final Set<String> lifeModes;
+    private final String juvenileMoultCount;
+    private final String majorMorphologicalTransitionCount;
     private final Boolean hasTerminalAdultStage;
     private final Integer observedMoultStageCount;
-    private final Integer estimatedMoultStageCount;
+    private final String estimatedMoultStageCount;
     private final String segmentAdditionMode;
     private final String bodySegmentCount;
     private final String bodySegmentCountInAdults;
     private final BigDecimal bodyLengthAverage;
+    private final BigDecimal bodyWidthAverage;
     private final BigDecimal bodyLengthIncreaseAverage;
+    private final BigDecimal bodyWidthIncreaseAverage;
     private final BigDecimal bodyMassIncreaseAverage;
+    private final String devStagePeriod;
     private final String intermoultPeriod;
     private final String premoultPeriod;
     private final String postmoultPeriod;
     private final String variationWithinCohorts;
-    private final String sutureLocation;
-    private final String cephalicSutureLocation;
-    private final String postCephalicSutureLocation;
-    private final String resultingNamedMoultingConfiguration;
-    private final String egressDirection;
-    private final String positionExuviaeFoundIn;
+    private final Set<String> sutureLocations;
+    private final Set<String> cephalicSutureLocations;
+    private final Set<String> postCephalicSutureLocations;
+    private final Set<String> resultingNamedMoultingConfigurations;
+    private final Set<String> egressDirections;
+    private final Set<String> positionsExuviaeFoundIn;
     private final String moultingPhase;
     private final String moultingVariability;
     private final String calcificationEvent;
-    private final String heavyMetalReinforcement;
-    private final String otherBehaviour;
+    private final Set<String> heavyMetalReinforcements;
+    private final Set<String> otherBehaviours;
     private final String exuviaeConsumed;
     private final String exoskeletalMaterialReabsorption;
-    private final String fossilExuviaeQuality;
+    private final Set<String> fossilExuviaeQualities;
     private final String generalComments;
     
-    public MoultingCharactersTO(Integer id, String lifeHistoryStyle, String lifeMode, Integer juvenileMoultCount,
-                                Integer majorMorphologicalTransitionCount, Boolean hasTerminalAdultStage,
-                                Integer observedMoultStageCount, Integer estimatedMoultStageCount,
-                                String segmentAdditionMode, String bodySegmentCount,
-                                String bodySegmentCountInAdults, BigDecimal bodyLengthAverage,
-                                BigDecimal bodyLengthIncreaseAverage, BigDecimal bodyMassIncreaseAverage,
-                                String intermoultPeriod, String premoultPeriod, String postmoultPeriod,
-                                String variationWithinCohorts, String sutureLocation, String cephalicSutureLocation,
-                                String postCephalicSutureLocation, String resultingNamedMoultingConfiguration,
-                                String egressDirection, String positionExuviaeFoundIn, String moultingPhase,
-                                String moultingVariability, String calcificationEvent, String heavyMetalReinforcement,
-                                String otherBehaviour, String exuviaeConsumed, String exoskeletalMaterialReabsorption,
-                                String fossilExuviaeQuality, String generalComments)
+    public MoultingCharactersTO(Integer id, String lifeHistoryStyle, Set<String> lifeModes,
+                                String juvenileMoultCount, String majorMorphologicalTransitionCount,
+                                Boolean hasTerminalAdultStage, Integer observedMoultStageCount,
+                                String estimatedMoultStageCount, String segmentAdditionMode, String bodySegmentCount,
+                                String bodySegmentCountInAdults, BigDecimal bodyLengthAverage, BigDecimal bodyWidthAverage,
+                                BigDecimal bodyLengthIncreaseAverage, BigDecimal bodyWidthIncreaseAverage,
+                                BigDecimal bodyMassIncreaseAverage, String devStagePeriod, String intermoultPeriod,
+                                String premoultPeriod, String postmoultPeriod, String variationWithinCohorts,
+                                Set<String> sutureLocations, Set<String> cephalicSutureLocations,
+                                Set<String> postCephalicSutureLocations, Set<String> resultingNamedMoultingConfigurations,
+                                Set<String> egressDirections, Set<String> positionsExuviaeFoundIn, String moultingPhase,
+                                String moultingVariability, String calcificationEvent, Set<String> heavyMetalReinforcements,
+                                Set<String> otherBehaviours, String exuviaeConsumed, String exoskeletalMaterialReabsorption,
+                                Set<String> fossilExuviaeQualities, String generalComments)
             throws IllegalArgumentException {
         super(id);
         this.lifeHistoryStyle = lifeHistoryStyle;
-        this.lifeMode = lifeMode;
+        this.lifeModes = lifeModes;
         this.juvenileMoultCount = juvenileMoultCount;
         this.majorMorphologicalTransitionCount = majorMorphologicalTransitionCount;
         this.hasTerminalAdultStage = hasTerminalAdultStage;
@@ -72,26 +79,29 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         this.bodySegmentCount = bodySegmentCount;
         this.bodySegmentCountInAdults = bodySegmentCountInAdults;
         this.bodyLengthAverage = bodyLengthAverage;
+        this.bodyWidthAverage = bodyWidthAverage;
         this.bodyLengthIncreaseAverage = bodyLengthIncreaseAverage;
+        this.bodyWidthIncreaseAverage = bodyWidthIncreaseAverage;
         this.bodyMassIncreaseAverage = bodyMassIncreaseAverage;
+        this.devStagePeriod = devStagePeriod;
         this.intermoultPeriod = intermoultPeriod;
         this.premoultPeriod = premoultPeriod;
         this.postmoultPeriod = postmoultPeriod;
         this.variationWithinCohorts = variationWithinCohorts;
-        this.sutureLocation = sutureLocation;
-        this.cephalicSutureLocation = cephalicSutureLocation;
-        this.postCephalicSutureLocation = postCephalicSutureLocation;
-        this.resultingNamedMoultingConfiguration = resultingNamedMoultingConfiguration;
-        this.egressDirection = egressDirection;
-        this.positionExuviaeFoundIn = positionExuviaeFoundIn;
+        this.sutureLocations = Collections.unmodifiableSet(sutureLocations == null ? new HashSet<>(): new HashSet<>(sutureLocations));
+        this.cephalicSutureLocations = Collections.unmodifiableSet(cephalicSutureLocations == null ? new HashSet<>(): new HashSet<>(cephalicSutureLocations));
+        this.postCephalicSutureLocations = Collections.unmodifiableSet(postCephalicSutureLocations == null ? new HashSet<>(): new HashSet<>(postCephalicSutureLocations));
+        this.resultingNamedMoultingConfigurations = Collections.unmodifiableSet(resultingNamedMoultingConfigurations == null ? new HashSet<>(): new HashSet<>(resultingNamedMoultingConfigurations));
+        this.egressDirections = Collections.unmodifiableSet(egressDirections == null ? new HashSet<>(): new HashSet<>(egressDirections));
+        this.positionsExuviaeFoundIn = Collections.unmodifiableSet(positionsExuviaeFoundIn == null ? new HashSet<>(): new HashSet<>(positionsExuviaeFoundIn));
         this.moultingPhase = moultingPhase;
         this.moultingVariability = moultingVariability;
         this.calcificationEvent = calcificationEvent;
-        this.heavyMetalReinforcement = heavyMetalReinforcement;
-        this.otherBehaviour = otherBehaviour;
+        this.heavyMetalReinforcements = Collections.unmodifiableSet(heavyMetalReinforcements == null ? new HashSet<>(): new HashSet<>(heavyMetalReinforcements));
+        this.otherBehaviours = Collections.unmodifiableSet(otherBehaviours == null ? new HashSet<>(): new HashSet<>(otherBehaviours));
         this.exuviaeConsumed = exuviaeConsumed;
         this.exoskeletalMaterialReabsorption = exoskeletalMaterialReabsorption;
-        this.fossilExuviaeQuality = fossilExuviaeQuality;
+        this.fossilExuviaeQualities = Collections.unmodifiableSet(fossilExuviaeQualities == null ? new HashSet<>(): new HashSet<>(fossilExuviaeQualities));
         this.generalComments = generalComments;
     }
     
@@ -99,15 +109,15 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return lifeHistoryStyle;
     }
     
-    public String getLifeMode() {
-        return lifeMode;
+    public Set<String> getLifeModes() {
+        return lifeModes;
     }
     
-    public Integer getJuvenileMoultCount() {
+    public String getJuvenileMoultCount() {
         return juvenileMoultCount;
     }
     
-    public Integer getMajorMorphologicalTransitionCount() {
+    public String getMajorMorphologicalTransitionCount() {
         return majorMorphologicalTransitionCount;
     }
     
@@ -119,7 +129,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return observedMoultStageCount;
     }
     
-    public Integer getEstimatedMoultStageCount() {
+    public String getEstimatedMoultStageCount() {
         return estimatedMoultStageCount;
     }
     
@@ -139,12 +149,24 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return bodyLengthAverage;
     }
     
+    public BigDecimal getBodyWidthAverage() {
+        return bodyWidthAverage;
+    }
+    
     public BigDecimal getBodyLengthIncreaseAverage() {
         return bodyLengthIncreaseAverage;
     }
     
+    public BigDecimal getBodyWidthIncreaseAverage() {
+        return bodyWidthIncreaseAverage;
+    }
+    
     public BigDecimal getBodyMassIncreaseAverage() {
         return bodyMassIncreaseAverage;
+    }
+    
+    public String getDevStagePeriod() {
+        return devStagePeriod;
     }
     
     public String getIntermoultPeriod() {
@@ -163,28 +185,28 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return variationWithinCohorts;
     }
     
-    public String getSutureLocation() {
-        return sutureLocation;
+    public Set<String> getSutureLocations() {
+        return sutureLocations;
     }
     
-    public String getCephalicSutureLocation() {
-        return cephalicSutureLocation;
+    public Set<String> getCephalicSutureLocations() {
+        return cephalicSutureLocations;
     }
     
-    public String getPostCephalicSutureLocation() {
-        return postCephalicSutureLocation;
+    public Set<String> getPostCephalicSutureLocations() {
+        return postCephalicSutureLocations;
     }
     
-    public String getResultingNamedMoultingConfiguration() {
-        return resultingNamedMoultingConfiguration;
+    public Set<String> getResultingNamedMoultingConfigurations() {
+        return resultingNamedMoultingConfigurations;
     }
     
-    public String getEgressDirection() {
-        return egressDirection;
+    public Set<String> getEgressDirections() {
+        return egressDirections;
     }
     
-    public String getPositionExuviaeFoundIn() {
-        return positionExuviaeFoundIn;
+    public Set<String> getPositionsExuviaeFoundIn() {
+        return positionsExuviaeFoundIn;
     }
     
     public String getMoultingPhase() {
@@ -199,12 +221,12 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return calcificationEvent;
     }
     
-    public String getHeavyMetalReinforcement() {
-        return heavyMetalReinforcement;
+    public Set<String> getHeavyMetalReinforcements() {
+        return heavyMetalReinforcements;
     }
     
-    public String getOtherBehaviour() {
-        return otherBehaviour;
+    public Set<String> getOtherBehaviours() {
+        return otherBehaviours;
     }
     
     public String getExuviaeConsumed() {
@@ -215,8 +237,8 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
         return exoskeletalMaterialReabsorption;
     }
     
-    public String getFossilExuviaeQuality() {
-        return fossilExuviaeQuality;
+    public Set<String> getFossilExuviaeQualities() {
+        return fossilExuviaeQualities;
     }
     
     public String getGeneralComments() {
@@ -227,7 +249,7 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     public String toString() {
         return new StringJoiner(", ", MoultingCharactersTO.class.getSimpleName() + "[", "]")
                 .add("lifeHistoryStyle='" + lifeHistoryStyle + "'")
-                .add("lifeMode='" + lifeMode + "'")
+                .add("lifeMode='" + lifeModes + "'")
                 .add("juvenileMoultCount=" + juvenileMoultCount)
                 .add("majorMorphologicalTransitionCount=" + majorMorphologicalTransitionCount)
                 .add("hasTerminalAdultStage=" + hasTerminalAdultStage)
@@ -237,26 +259,29 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
                 .add("bodySegmentCount='" + bodySegmentCount + "'")
                 .add("bodySegmentCountInAdults='" + bodySegmentCountInAdults + "'")
                 .add("bodyLengthAverage=" + bodyLengthAverage)
+                .add("bodyLengthAverage=" + bodyWidthAverage)
                 .add("bodyLengthIncreaseAverage=" + bodyLengthIncreaseAverage)
+                .add("bodyLengthIncreaseAverage=" + bodyWidthIncreaseAverage)
                 .add("bodyMassIncreaseAverage=" + bodyMassIncreaseAverage)
+                .add("devStagePeriod='" + devStagePeriod + "'")
                 .add("intermoultPeriod='" + intermoultPeriod + "'")
                 .add("premoultPeriod='" + premoultPeriod + "'")
                 .add("postmoultPeriod='" + postmoultPeriod + "'")
                 .add("variationWithinCohorts='" + variationWithinCohorts + "'")
-                .add("sutureLocation='" + sutureLocation + "'")
-                .add("cephalicSutureLocation='" + cephalicSutureLocation + "'")
-                .add("postCephalicSutureLocation='" + postCephalicSutureLocation + "'")
-                .add("resultingNamedMoultingConfiguration='" + resultingNamedMoultingConfiguration + "'")
-                .add("egressDirection='" + egressDirection + "'")
-                .add("positionExuviaeFoundIn='" + positionExuviaeFoundIn + "'")
+                .add("sutureLocations='" + sutureLocations + "'")
+                .add("cephalicSutureLocations='" + cephalicSutureLocations + "'")
+                .add("postCephalicSutureLocations='" + postCephalicSutureLocations + "'")
+                .add("resultingNamedMoultingConfigurations='" + resultingNamedMoultingConfigurations + "'")
+                .add("egressDirections='" + egressDirections + "'")
+                .add("positionsExuviaeFoundIn='" + positionsExuviaeFoundIn + "'")
                 .add("moultingPhase='" + moultingPhase + "'")
                 .add("moultingVariability='" + moultingVariability + "'")
                 .add("calcificationEvent='" + calcificationEvent + "'")
-                .add("heavyMetalReinforcement='" + heavyMetalReinforcement + "'")
-                .add("otherBehaviour='" + otherBehaviour + "'")
+                .add("heavyMetalReinforcements='" + heavyMetalReinforcements + "'")
+                .add("otherBehaviours='" + otherBehaviours + "'")
                 .add("exuviaeConsumed='" + exuviaeConsumed + "'")
                 .add("exoskeletalMaterialReabsorption='" + exoskeletalMaterialReabsorption + "'")
-                .add("fossilExuviaeQuality='" + fossilExuviaeQuality + "'")
+                .add("fossilExuviaeQualities='" + fossilExuviaeQualities + "'")
                 .add("generalComments='" + generalComments + "'")
                 .toString();
     }

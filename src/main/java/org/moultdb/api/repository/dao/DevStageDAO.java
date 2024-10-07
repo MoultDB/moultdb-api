@@ -14,5 +14,7 @@ public interface DevStageDAO extends DAO<DevStageTO> {
     
     DevStageTO findById(String id);
     
+    DevStageTO findByName(String id, String taxonPath);
+    
     Integer getLastId();
 }

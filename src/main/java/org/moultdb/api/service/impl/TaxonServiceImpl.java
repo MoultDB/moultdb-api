@@ -155,7 +155,7 @@ public class TaxonServiceImpl implements TaxonService {
             
             logger.debug("# Start of taxon insertion...");
             long startTimePoint2 = System.currentTimeMillis();
-            taxonDAO.batchUpdate(taxonTOs);
+            sum += taxonDAO.batchUpdate(taxonTOs);
             endTimePoint = System.currentTimeMillis();
             logger.debug("# End of taxon insertion. " + getExecutionTime(startTimePoint2, endTimePoint));
             logger.info("# End of subset taxon import. " + getExecutionTime(startTimePoint1, endTimePoint));

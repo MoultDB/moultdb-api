@@ -45,10 +45,21 @@ public class MySQLConditionDAO implements ConditionDAO {
     }
     
     @Override
-    public ConditionTO find(String devStageId, String anatEntityId) {
+    public List<ConditionTO> find(String devStageId, String anatEntityId) {
         String sql = SELECT_STATEMENT + "WHERE ds.id = :dsId AND ae.id =:aeId ";
         MapSqlParameterSource source = new MapSqlParameterSource().addValue("dsId", devStageId)
                                                                   .addValue("aeId", anatEntityId);
+        return template.query(sql, source, new MySQLConditionDAO.ConditionRowMapper());
+    }
+    
+    @Override
+    public ConditionTO find(String devStageId, String anatEntityId, String sex, String reproductiveState) {
+        String sql = SELECT_STATEMENT + "WHERE ds.id = :dsId AND ae.id =:aeId AND sex = :sex AND reproductive_state = :rState ";
+        MapSqlParameterSource source = new MapSqlParameterSource()
+                .addValue("dsId", devStageId)
+                .addValue("aeId", anatEntityId)
+                .addValue("sex", sex)
+                .addValue("rState", reproductiveState);
         return TransfertObject.getOneTO(template.query(sql, source, new MySQLConditionDAO.ConditionRowMapper()));
     }
     
@@ -76,7 +87,7 @@ public class MySQLConditionDAO implements ConditionDAO {
             source.addValue("id", conditionTO.getId());
             source.addValue("dev_stage_id", conditionTO.getDevStageTO() == null? null : conditionTO.getDevStageTO().getId());
             source.addValue("dev_stage_days", conditionTO.getAgeInDays());
-            source.addValue("anatomical_entity_id", conditionTO.getAnatomicalEntityTO() == null? null : conditionTO.getAnatomicalEntityTO().getId());
+            source.addValue("anatomical_entity_id", conditionTO.getAnatEntityTO() == null? null : conditionTO.getAnatEntityTO().getId());
             source.addValue("sex", conditionTO.getSex());
             source.addValue("moulting_step", conditionTO.getMoultingStep());
             params.add(source);
@@ -102,9 +113,9 @@ public class MySQLConditionDAO implements ConditionDAO {
         public ConditionTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new ConditionTO(rs.getInt("c.id"),
                     new DevStageTO(rs.getString("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
-                            rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound")),
+                            rs.getString("ds.taxon_path"), rs.getInt("ds.left_bound"), rs.getInt("ds.right_bound")),
                     new AnatEntityTO(rs.getString("ae.id"), rs.getString("ae.name"), rs.getString("ae.description")),
-                    rs.getString("c.sex"), rs.getString("c.moulting_step"));
+                    rs.getString("c.sex"), rs.getString("c.reproductive_state"), rs.getString("c.moulting_step"));
         }
     }
 }

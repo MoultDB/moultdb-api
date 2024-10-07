@@ -17,7 +17,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * @author Valentine Rech de Laval
@@ -71,6 +70,12 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public TaxonTO findBySynonym(String taxonName) {
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE lower(x.name) = lower(:taxon_name)",
+                new MapSqlParameterSource().addValue("taxon_name", taxonName), new TaxonResultSetExtractor()));
+    }
+    
+    @Override
     public TaxonTO findByAccession(String accession, String datasourceName) {
         if (StringUtils.isBlank(accession) || StringUtils.isBlank(datasourceName)) {
             throw new UnsupportedOperationException("Empty parameters not supported: accession [" + accession + 
@@ -116,7 +121,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
-    public void batchUpdate(Set<TaxonTO> taxonTOs) {
+    public int batchUpdate(Set<TaxonTO> taxonTOs) {
         String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, extinct) " +
                 "VALUES (:path, :scientific_name, :common_name, :extinct) " +
                 "AS new " +
@@ -163,8 +168,9 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 taxonToDbXrefParams.add(taxonToDbXrefSource);
             }
         }
+        int[] ints;
         try {
-            template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
+            ints = template.batchUpdate(taxonSql, taxonParams.toArray(MapSqlParameterSource[]::new));
             logger.debug("'taxon' table updated");
 
             template.batchUpdate(dbXrefSql, dbXrefParams.toArray(MapSqlParameterSource[]::new));
@@ -175,6 +181,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
         } catch (Exception e) {
             throw new MoultDBException("Insertion of taxa failed: " + e.getMessage());
         }
+        return Arrays.stream(ints).sum();
     }
     
     private static class TaxonResultSetExtractor implements ResultSetExtractor<List<TaxonTO>> {

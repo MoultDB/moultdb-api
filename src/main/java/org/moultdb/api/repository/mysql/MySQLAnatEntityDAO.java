@@ -34,14 +34,14 @@ public class MySQLAnatEntityDAO implements AnatEntityDAO {
     
     @Override
     public List<AnatEntityTO> findAll() {
-        return template.query(SELECT_STATEMENT, new MySQLAnatEntityDAO.AnatEntityRowMapper());
+        return template.query(SELECT_STATEMENT, new AnatEntityRowMapper());
     }
 
     @Override
     public AnatEntityTO findById(String id) {
         String sql = SELECT_STATEMENT + "WHERE id = :aeId ";
         MapSqlParameterSource source = new MapSqlParameterSource().addValue("aeId", id);
-        return TransfertObject.getOneTO(template.query(sql, source, new MySQLAnatEntityDAO.AnatEntityRowMapper()));
+        return TransfertObject.getOneTO(template.query(sql, source, new AnatEntityRowMapper()));
     }
 
     @Override

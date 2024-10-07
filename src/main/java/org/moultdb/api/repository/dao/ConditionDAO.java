@@ -13,7 +13,9 @@ public interface ConditionDAO extends DAO<ConditionTO> {
     
     List<ConditionTO> findAll();
     
-    ConditionTO find(String devStageName, String anatEntityName);
+    List<ConditionTO> find(String devStageName, String anatEntityName);
+    
+    ConditionTO find(String devStageId, String anatEntityId, String sex, String reproductiveState);
     
     List<ConditionTO> find(Integer ageInDays, String sex, String moultingStep);
     

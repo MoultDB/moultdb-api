@@ -45,6 +45,15 @@ public class MySQLDevStageDAO implements DevStageDAO {
     }
     
     @Override
+    public DevStageTO findByName(String id, String taxonPath) {
+        String sql = SELECT_STATEMENT + "WHERE name = :dsId AND taxon_path = :dsTaxon";
+        MapSqlParameterSource source = new MapSqlParameterSource()
+                .addValue("dsId", id)
+                .addValue("dsTaxon", taxonPath);
+        return TransfertObject.getOneTO(template.query(sql, source, new MySQLDevStageDAO.DevStageRowMapper()));
+    }
+    
+    @Override
     public Integer getLastId() {
         String sql = "SELECT id FROM developmental_stage ORDER BY id DESC LIMIT 1";
         try {
@@ -59,7 +68,7 @@ public class MySQLDevStageDAO implements DevStageDAO {
         @Override
         public DevStageTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new DevStageTO(rs.getString("id"), rs.getString("name"), rs.getString("description"),
-                    rs.getInt("left_bound"), rs.getInt("right_bound"));
+                    rs.getString("taxon_path"), rs.getInt("left_bound"), rs.getInt("right_bound"));
         }
     }
 }

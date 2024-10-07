@@ -6,9 +6,8 @@ package org.moultdb.api.model.moutldbenum;
  */
 public enum MoultingVariability implements MoutldbEnum {
     
-    NONE("none"),
-    SOME("some"),
-    LOTS("lots");
+    NO("no"),
+    Yes("yes");
     
     private final String stringRepresentation;
     
