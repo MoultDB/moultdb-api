@@ -43,9 +43,17 @@ public class Taxon extends NamedEntity<String> {
         return dbXrefs;
     }
     
+    public String getAccession() {
+        if (!getDbXrefs().isEmpty()) {
+            return dbXrefs.get(0).getDataSource().getShortName() + "/" + dbXrefs.get(0).getAccession();
+        }
+        return null;
+    }
+    
     @Override
     public String toString() {
         return new StringJoiner(", ", Taxon.class.getSimpleName() + "[", "]")
+                .add("accession=" + getAccession())
                 .add("path='" + getPath() + "'")
                 .add("scientificName='" + getScientificName() + "'")
                 .add("commonName='" + commonName + "'")
