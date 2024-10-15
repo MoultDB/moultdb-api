@@ -18,6 +18,8 @@ public interface TaxonService {
     
     public List<Taxon> getTaxonLineage(String taxonPath);
     
+    public List<Taxon> getTaxonChildren(String taxonPath);
+    
     public void insertTaxon(Taxon taxon);
     
     public Integer insertTaxa(MultipartFile file);
