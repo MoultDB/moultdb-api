@@ -69,6 +69,11 @@ public class TaxonServiceImpl implements TaxonService {
         return getTaxons(taxonDAO.findLineageByPath(taxonPath));
     }
     
+    @Override
+    public List<Taxon> getTaxonChildren(String taxonPath) {
+        return getTaxons(taxonDAO.findChildrenByPath(taxonPath));
+    }
+    
     private List<Taxon> getTaxons(List<TaxonTO> taxonTOs) {
         return taxonTOs.stream()
                        .map(ServiceUtils::mapFromTO)

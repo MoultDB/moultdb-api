@@ -18,7 +18,6 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
 
 @RestController
 @RequestMapping(path="/taxa")
-//@CrossOrigin(origins = "http://localhost:3000")
 public class TaxonController {
     
     @Autowired
@@ -49,6 +48,11 @@ public class TaxonController {
     @GetMapping("/{taxonPath}/lineage")
     public ResponseEntity<Map<String, List<Taxon>>> getTaxonLineage(@PathVariable String taxonPath) {
         return generateValidResponse(taxonService.getTaxonLineage(taxonPath));
+    }
+    
+    @GetMapping("/{taxonPath}/children")
+    public ResponseEntity<Map<String, List<Taxon>>> getTaxonChildren(@PathVariable String taxonPath) {
+        return generateValidResponse(taxonService.getTaxonChildren(taxonPath));
     }
     
     @PostMapping(value = "/import-file")

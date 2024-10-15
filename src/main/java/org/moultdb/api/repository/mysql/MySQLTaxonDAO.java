@@ -116,6 +116,17 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public List<TaxonTO> findChildrenByPath(String taxonPath) {
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE path like CONCAT(:taxonPath, '.%') ",
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), new TaxonResultSetExtractor());
+        // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
+        if (taxonTOs != null) {
+            taxonTOs.sort(Comparator.comparing(TaxonTO::getPath));
+        }
+        return taxonTOs;
+    }
+    
+    @Override
     public void insert(TaxonTO taxonTO) {
         batchUpdate(Collections.singleton(taxonTO));
     }
