@@ -130,6 +130,14 @@
 			<version>5.2.0</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- The Sphinx search -->
+		<dependency>
+			<groupId>org.sphx</groupId>
+			<artifactId>api</artifactId>
+			<version>3.4.1</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
