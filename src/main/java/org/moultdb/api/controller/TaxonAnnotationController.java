@@ -23,6 +23,7 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  */
 @RestController
 @RequestMapping(path="/taxon-annotations")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TaxonAnnotationController {
     
     @Autowired
@@ -84,8 +85,7 @@ public class TaxonAnnotationController {
     }
     
     @PostMapping("/import-file")
-    public
-    ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
+    public ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
                                                                 @RequestParam MultipartFile mappingFile) {
         Integer integer;
         try {

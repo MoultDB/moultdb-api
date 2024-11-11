@@ -17,7 +17,6 @@ import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
  */
 @RestController
 @RequestMapping(path="/search")
-@CrossOrigin(origins = "http://localhost:3000")
 public class SearchController {
     
     @Autowired SearchService searchService;
