@@ -13,7 +13,9 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     List<TaxonAnnotationTO> findAll();
     
-    List<TaxonAnnotationTO> findLast(int limit);
+    List<TaxonAnnotationTO> findLastCreated(int limit);
+    
+    List<TaxonAnnotationTO> findLastUpdated(int limit);
     
     List<TaxonAnnotationTO> findByUser(String username, Integer limit);
     

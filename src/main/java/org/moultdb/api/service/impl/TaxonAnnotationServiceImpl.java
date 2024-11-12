@@ -51,8 +51,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public List<TaxonAnnotation> getLastTaxonAnnotations(int limit) {
-        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findLast(limit);
+    public List<TaxonAnnotation> getLastUpdatedTaxonAnnotations(int limit) {
+        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findLastUpdated(limit);
         return getTaxonAnnotations(taxonAnnotationTOs);
     }
     

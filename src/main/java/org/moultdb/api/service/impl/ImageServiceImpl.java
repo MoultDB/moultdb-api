@@ -216,7 +216,7 @@ public class ImageServiceImpl implements ImageService {
         if (StringUtils.isNotBlank(email)) {
             annots = taxonAnnotationDAO.findByUser(email, limit);
         } else if (limit != null && limit > 0) {
-            annots = taxonAnnotationDAO.findLast(limit);
+            annots = taxonAnnotationDAO.findLastCreated(limit);
         } else {
             annots = taxonAnnotationDAO.findAll();
         }
