@@ -97,4 +97,13 @@ public class TaxonAnnotationController {
         resp.put("count", integer);
         return generateValidResponse("Taxon annotations imported",resp);
     }
+    
+    @GetMapping("/last-updated")
+    public ResponseEntity<Map<String, Object>> getLastTaxonAnnotation() {
+        List<TaxonAnnotation> lastTaxonAnnotations = taxonAnnotationService.getLastUpdatedTaxonAnnotations(1);
+        if (lastTaxonAnnotations.isEmpty()) {
+            return generateValidResponse(null);
+        }
+        return generateValidResponse(lastTaxonAnnotations.get(0));
+    }
 }
