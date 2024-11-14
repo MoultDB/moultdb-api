@@ -12,7 +12,7 @@
 
 	<groupId>org.moultdb</groupId>
 	<artifactId>moultdb-api</artifactId>
-	<version>3.0.2</version>
+	<version>3.0.3</version>
 	<name>moultdb-api</name>
 	<description>An API to access and search for MoultDB data</description>
 	<packaging>war</packaging>
@@ -129,6 +129,14 @@
 			<artifactId>mockito-core</artifactId>
 			<version>5.2.0</version>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- The Sphinx search -->
+		<dependency>
+			<groupId>org.sphx</groupId>
+			<artifactId>api</artifactId>
+			<version>3.4.1</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

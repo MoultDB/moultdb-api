@@ -61,10 +61,15 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public List<TaxonAnnotationTO> findLast(int limit) {
+    public List<TaxonAnnotationTO> findLastCreated(int limit) {
         return template.query(SELECT_STATEMENT + " ORDER BY v.creation_date DESC LIMIT " + limit, new TaxonAnnotationResultSetExtractor());
     }
-
+    
+    @Override
+    public List<TaxonAnnotationTO> findLastUpdated(int limit) {
+        return template.query(SELECT_STATEMENT + " ORDER BY v.last_update_date DESC LIMIT " + limit, new TaxonAnnotationResultSetExtractor());
+    }
+    
     @Override
     public List<TaxonAnnotationTO> findByUser(String email, Integer limit) {
         String limitSql = limit != null ? " LIMIT " + limit : "";

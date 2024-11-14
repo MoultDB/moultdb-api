@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     MailService mailService;
     
-    @Value("${url.webapp}")
+    @Value("${moultdb.url.webapp}")
     private String WEBAPP_URL;
     
     private static final String ROLE_SEPARATOR = ",";

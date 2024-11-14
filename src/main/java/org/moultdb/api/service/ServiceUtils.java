@@ -20,7 +20,7 @@ public class ServiceUtils {
     
     public static String API_URL;
     
-    @Value("${url.api}")
+    @Value("${moultdb.url.api}")
     public void setApiUrl(String apiUrl) {
         API_URL = apiUrl;
     }

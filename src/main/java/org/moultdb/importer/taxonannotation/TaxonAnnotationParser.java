@@ -58,6 +58,7 @@ public class TaxonAnnotationParser {
     private final static Logger logger = LogManager.getLogger(TaxonAnnotationParser.class.getName());
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
+    public static final List<String> EMPTY_VALUES = List.of("NA", "?");
     
     private final static String BIGDECIMAL_REGEXP = "[0-9]+(\\.[0-9]+)*";
     private final static Pattern BIG_DECIMAL_PATTERN = Pattern.compile("^" + BIGDECIMAL_REGEXP + "$");
@@ -283,18 +284,21 @@ public class TaxonAnnotationParser {
             mcTOs.add(moultingCharactersTO);
             mcNextId++;
             
-            TaxonTO taxonTO = taxonDAO.findByScientificName(bean.getTaxon());
+            TaxonTO taxonTO = null;
             String taxonType = null;
-            if (taxonTO == null) {
-                // Try to find synonym taxon
-                taxonTO = taxonDAO.findBySynonym(bean.getTaxon());
-                taxonType = (taxonTO == null ? null : "synonym");
-            }
-            if (taxonTO == null) {
-                // Try to find genus taxon
-                String genus = bean.getTaxon().split(" ")[0];
-                taxonTO = taxonDAO.findByScientificName(genus);
-                taxonType = (taxonTO == null ? null : "genus");
+            if (StringUtils.isNotBlank(bean.getTaxon())) {
+                taxonTO = taxonDAO.findByScientificName(bean.getTaxon());
+                if (taxonTO == null) {
+                    // Try to find synonym taxon
+                    taxonTO = taxonDAO.findBySynonym(bean.getTaxon());
+                    taxonType = (taxonTO == null ? null : "synonym");
+                }
+                if (taxonTO == null) {
+                    // Try to find genus taxon
+                    String genus = bean.getTaxon().split(" ")[0];
+                    taxonTO = taxonDAO.findByScientificName(genus);
+                    taxonType = (taxonTO == null ? null : "genus");
+                }
             }
             if (taxonTO == null) {
                 // Try to find order taxon
@@ -414,7 +418,7 @@ public class TaxonAnnotationParser {
             }
             CIOStatementTO cioTO = cioTosByIds.get(bean.getConfidence());
             if (cioTO == null) {
-                
+                throw new IllegalArgumentException("CIO term not found: " + bean.getEvidenceCode());
             }
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(taxonAnnotNextId, taxonTO, bean.getTaxon(),
                     bean.getDeterminedBy(), sampleSetTO.getId(), bean.getAnnotSpecimenCount(), conditionTO,
@@ -520,135 +524,135 @@ public class TaxonAnnotationParser {
             if (header[i] == null) {
                 continue;
             }
-            // For the moment, we're keeping the switch not refactored to simplify the update
+            // We're keeping the switch not refactored to simplify updates
             processors[i] = switch (header[i]) {
                 case ORDER_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new StrNotNullOrEmpty(new Trim()));
                 case TAXON_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case DETERMINED_BY_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case PUBLISHED_REFERENCE_TEXT_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new StrNotNullOrEmpty(new Trim()));
                 case PUBLISHED_REFERENCE_ACC_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new StrNotNullOrEmpty(new Trim()));
                 case CONTRIBUTOR_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(ORCID_ID_REGEXP))));
+                        -> new FmtCustomNull(EMPTY_VALUES, new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(ORCID_ID_REGEXP))));
                 case MUSEUM_COLLECTION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case MUSEUM_ACCESSION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case LOCATION_NAME_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new Trim()));
+                        -> new FmtCustomNull(List.of("?"), new StrNotNullOrEmpty(new Trim()));
                 case LOCATION_GPS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case GEOLOGICAL_FORMATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case GEOLOGICAL_AGE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case FOSSIL_PRESERVATION_TYPE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case ENVIRONMENT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case BIOZONE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case SAMPLE_SPECIMEN_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case ANNOT_SPECIMEN_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case SEX_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                                 new IsElementOf(getObjects(Sex.class)))));
                 case PREVIOUS_REPRODUCTIVE_STATE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case PREVIOUS_DEV_STAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional((new Trim())));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional((new Trim())));
                 case REPRODUCTIVE_STATE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case OBSERVED_DEV_STAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional((new Trim())));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional((new Trim())));
                 case SPECIMEN_TYPE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case LIFE_HISTORY_STYLE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                             new IsElementOf(getObjects(LifeHistoryStyle.class)))));
                 case LIFE_MODES_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseEnumSet(LifeMode.class, LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseEnumSet(LifeMode.class, LIST_SEPARATOR)));
                 case JUVENILE_MOULT_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case MAJOR_MORPHOLOGICAL_TRANSITION_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case ADULT_STAGE_MOULTING_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseBool("yes", "no")));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseBool("yes", "no")));
                 case OBSERVED_MOULT_STAGES_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseInt()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseInt()));
                 case ESTIMATED_MOULT_STAGES_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case SEGMENT_ADDITION_MODE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 case BODY_SEGMENT_COUNT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case BODY_SEGMENT_COUNT_IN_ADULTS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case BODY_LENGTH_AVERAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseBigDecimal()));
                 case BODY_WIDTH_AVERAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseBigDecimal()));
                 case BODY_LENGTH_INCREASE_AVERAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseBigDecimal()));
                 case BODY_WIDTH_INCREASE_AVERAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseBigDecimal()));
                 case BODY_MASS_INCREASE_AVERAGE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseBigDecimal()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseBigDecimal()));
                 case ONTOGENETIC_STAGE_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case INTERMOULT_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case PREMOULT_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case POSTMOULT_PERIOD_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case VARIATION_WITHIN_COHORTS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new CustomDecimalFormat()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new CustomDecimalFormat()));
                 case MOULTING_SUTURE_LOCATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case CEPHALIC_SUTURE_LOCATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case POST_CEPHALIC_SUTURE_LOCATION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case RESULTING_NAMED_MOULTING_CONFIGURATIONS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new StrReplace("'", "\\\\'", new ParseStringSet(LIST_SEPARATOR))));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new StrReplace("'", "\\\\'", new ParseStringSet(LIST_SEPARATOR))));
                 case EGRESS_DIRECTION_DURING_MOULTING_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseEnumSet(EgressDirection.class, LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseEnumSet(EgressDirection.class, LIST_SEPARATOR)));
                 case POSITION_EXUVIAE_FOUND_IN_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseEnumSet(ExuviaePosition.class, LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseEnumSet(ExuviaePosition.class, LIST_SEPARATOR)));
                 case MOULTING_PHASE_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(MoultingPhase.class)))));
                 case MOULTING_VARIABILITY_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(MoultingVariability.class)))));
                 case CALCIFICATION_EVENT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(Calcification.class)))));
                 case HEAVY_METAL_REINFORCEMENT_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseEnumSet(HeavyMetalReinforcement.class, LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseEnumSet(HeavyMetalReinforcement.class, LIST_SEPARATOR)));
                 case OTHER_BEHAVIOURS_ASSOCIATED_WITH_MOULTING_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case EXUVIAE_CONSUMPTION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(ExuviaeConsumption.class)))));
                 case REABSORPTION_COL_NAME
-                        -> new FmtCustomNull(new Optional(new FmtStrLowerCase(
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new FmtStrLowerCase(
                         new IsElementOf(getObjects(Reabsorption.class)))));
                 case FOSSIL_EXUVIAE_QUALITY_COL_NAME
-                        -> new FmtCustomNull(new Optional(new ParseStringSet(LIST_SEPARATOR)));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new ParseStringSet(LIST_SEPARATOR)));
                 case EVIDENCE_CODE_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(ECO_ID_REGEXP))));
+                        -> new FmtCustomNull(EMPTY_VALUES, new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(ECO_ID_REGEXP))));
                 case CONFIDENCE_COL_NAME
-                        -> new FmtCustomNull(new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(CIO_ID_REGEXP))));
+                        -> new FmtCustomNull(EMPTY_VALUES, new StrNotNullOrEmpty(new ParseFirstElement(" ", new StrRegEx(CIO_ID_REGEXP))));
                 case GENERAL_COMMENTS_COL_NAME
-                        -> new FmtCustomNull(new Optional(new Trim()));
+                        -> new FmtCustomNull(EMPTY_VALUES, new Optional(new Trim()));
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonAnnotationBean");
             };
         }
@@ -773,19 +777,22 @@ public class TaxonAnnotationParser {
     
     public static class FmtCustomNull extends CellProcessorAdaptor {
         
+        private Set<String> emptyValues;
+        
         public FmtCustomNull() {
             super();
         }
         
-        public FmtCustomNull(CellProcessor next) {
+        public FmtCustomNull(Collection<String> emptyValues, CellProcessor next) {
             // this constructor allows other processors to be chained after this processor
             super(next);
+            this.emptyValues = Collections.unmodifiableSet(emptyValues == null ? new HashSet<>(): new HashSet<>(emptyValues));
         }
         
         public Object execute(Object value, CsvContext context) {
     
             String stringValue = String.valueOf(value);
-            if (value == null || stringValue.equals("NA") || stringValue.equals("?")) {
+            if (value == null || emptyValues.stream().anyMatch(stringValue::equals)) {
                 return next.execute(null, context);
             }
     

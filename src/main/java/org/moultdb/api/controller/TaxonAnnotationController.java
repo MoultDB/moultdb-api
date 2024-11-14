@@ -84,8 +84,7 @@ public class TaxonAnnotationController {
     }
     
     @PostMapping("/import-file")
-    public
-    ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
+    public ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
                                                                 @RequestParam MultipartFile mappingFile) {
         Integer integer;
         try {
@@ -96,5 +95,14 @@ public class TaxonAnnotationController {
         Map<String, Object> resp = new HashMap<>();
         resp.put("count", integer);
         return generateValidResponse("Taxon annotations imported",resp);
+    }
+    
+    @GetMapping("/last-updated")
+    public ResponseEntity<Map<String, Object>> getLastTaxonAnnotation() {
+        List<TaxonAnnotation> lastTaxonAnnotations = taxonAnnotationService.getLastUpdatedTaxonAnnotations(1);
+        if (lastTaxonAnnotations.isEmpty()) {
+            return generateValidResponse(null);
+        }
+        return generateValidResponse(lastTaxonAnnotations.get(0));
     }
 }
