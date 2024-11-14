@@ -418,7 +418,7 @@ public class TaxonAnnotationParser {
             }
             CIOStatementTO cioTO = cioTosByIds.get(bean.getConfidence());
             if (cioTO == null) {
-                
+                throw new IllegalArgumentException("CIO term not found: " + bean.getEvidenceCode());
             }
             TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(taxonAnnotNextId, taxonTO, bean.getTaxon(),
                     bean.getDeterminedBy(), sampleSetTO.getId(), bean.getAnnotSpecimenCount(), conditionTO,
