@@ -13,7 +13,7 @@ import java.util.Set;
 class TaxonParserTest {
     
     private final static Logger logger = LogManager.getLogger(TaxonParserTest.class.getName());
-    private static final String TAXA_CSV = "/fake-taxa-short.csv";
+    private static final String TAXA_CSV = "/fake-taxonomy.csv";
     
     @Test
     public void test() {

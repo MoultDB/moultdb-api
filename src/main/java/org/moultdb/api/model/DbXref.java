@@ -12,55 +12,25 @@ import static org.moultdb.api.model.DataSource.X_REF_TAG;
  * @author Valentine Rech de Laval
  * @since 2021-11-01
  */
-public class DbXref {
+public record DbXref(String accession, String name, DataSource dataSource, Boolean main) {
     
-    protected static final Comparator<DbXref> DBXREF_COMPARATOR = Comparator.comparing(DbXref::isMain, Comparator.nullsFirst(Comparator.reverseOrder()))
-            .thenComparing(xref -> xref.getDataSource().getName(), Comparator.nullsFirst(Comparator.reverseOrder()))
-            .thenComparing(DbXref::getAccession, Comparator.nullsFirst(Comparator.naturalOrder()));
+    protected static final Comparator<DbXref> DBXREF_COMPARATOR =
+            Comparator.comparing(DbXref::main, Comparator.nullsFirst(Comparator.reverseOrder()))
+                    .thenComparing(xref -> xref.dataSource().getDisplayOrder(), Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(DbXref::accession, Comparator.nullsFirst(Comparator.naturalOrder()));
     
-    private final String accession;
-    
-    private final String name;
-    
-    private final DataSource dataSource;
-    
-    private final Boolean main;
-    
-    public DbXref(String accession, String name, DataSource dataSource, Boolean main) {
-        this.accession = accession;
-        this.name = name;
-        this.dataSource = dataSource;
-        this.main = main;
-    }
-    
-    public String getAccession() {
-        return accession;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public DataSource getDataSource() {
-        return dataSource;
-    }
-    
-    public String getXrefURL() {
-        if (StringUtils.isBlank(this.getAccession())) {
+    public String xrefURL() {
+        if (StringUtils.isBlank(this.accession())) {
             return null;
         }
-        String xRefUrl = this.getDataSource().getXrefURL();
+        String xRefUrl = this.dataSource().getXrefURL();
         if (StringUtils.isBlank(xRefUrl)) {
             return null;
         }
         if (xRefUrl.contains(X_REF_TAG)) {
-            xRefUrl = xRefUrl.replace(X_REF_TAG, this.getAccession());
+            xRefUrl = xRefUrl.replace(X_REF_TAG, this.accession());
         }
         return xRefUrl;
-    }
-    
-    public Boolean isMain() {
-        return main;
     }
     
     @Override

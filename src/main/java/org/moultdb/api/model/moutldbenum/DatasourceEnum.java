@@ -8,6 +8,7 @@ public enum DatasourceEnum implements MoutldbEnum {
     
     NCBI("NCBI Taxonomy"),
     GBIF("GBIF Backbone Taxonomy"),
+    INATURALIST("iNaturalist"),
     GENBANK("GenBank");
     
     private final String stringRepresentation;
