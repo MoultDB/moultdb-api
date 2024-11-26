@@ -40,7 +40,7 @@ public class ServiceUtils {
         }
         return new DataSource(dataSourceTO.getName(), dataSourceTO.getShortName(), dataSourceTO.getDescription(),
                 dataSourceTO.getBaseURL(), dataSourceTO.getXrefURL(), dataSourceTO.getLastImportDate(),
-                dataSourceTO.getReleaseVersion());
+                dataSourceTO.getReleaseVersion(), dataSourceTO.getDisplayOrder() != null ? dataSourceTO.getDisplayOrder() : 255);
     }
     
     public static ECOTerm mapFromTO(ECOTermTO ecoTermTO) {

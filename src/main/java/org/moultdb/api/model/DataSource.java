@@ -19,9 +19,10 @@ public class DataSource {
     private final String xrefURL;
     private final Date lastImportDate;
     private final String releaseVersion;
+    private final Integer displayOrder;
     
     public DataSource(String name, String shortName, String description, String baseURL, String xrefURL,
-                      Date lastImportDate, String releaseVersion)
+                      Date lastImportDate, String releaseVersion, Integer displayOrder)
             throws IllegalArgumentException {
         this.name = name;
         this.shortName = shortName;
@@ -30,6 +31,7 @@ public class DataSource {
         this.xrefURL = xrefURL;
         this.lastImportDate = lastImportDate;
         this.releaseVersion = releaseVersion;
+        this.displayOrder = displayOrder;
     }
     
     public String getName() {
@@ -60,6 +62,10 @@ public class DataSource {
         return releaseVersion;
     }
     
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,6 +89,7 @@ public class DataSource {
                 .add("xrefURL='" + xrefURL + "'")
                 .add("lastImportDate=" + lastImportDate)
                 .add("releaseVersion='" + releaseVersion + "'")
+                .add("displayOrder=" + displayOrder)
                 .toString();
     }
 }
