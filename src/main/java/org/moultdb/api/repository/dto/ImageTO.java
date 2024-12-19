@@ -14,17 +14,24 @@ public class ImageTO extends EntityTO<Integer> {
     
     private final String fileName;
     
+    private final String url;
+    
     private final String description;
     
-    public ImageTO(Integer id, String fileName, String description)
+    public ImageTO(Integer id, String fileName, String url, String description)
             throws IllegalArgumentException {
         super(id);
         this.fileName = fileName;
+        this.url = url;
         this.description = description;
     }
     
     public String getFileName() {
         return fileName;
+    }
+    
+    public String getUrl() {
+        return url;
     }
     
     public String getDescription() {
@@ -36,6 +43,7 @@ public class ImageTO extends EntityTO<Integer> {
         return new StringJoiner(", ", ImageTO.class.getSimpleName() + "[", "]")
                 .add("id='" + getId() + "'")
                 .add("fileName='" + fileName + "'")
+                .add("url='" + url + "'")
                 .add("description='" + description + "'")
                 .toString();
     }

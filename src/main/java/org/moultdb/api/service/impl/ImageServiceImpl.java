@@ -27,8 +27,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.moultdb.api.service.ServiceUtils.getImageUrl;
-
 /**
  * @author Valentine Rech de Laval
  * @since 2023-05-31
@@ -138,7 +136,7 @@ public class ImageServiceImpl implements ImageService {
         
         Integer imageLastId = imageDAO.getLastId();
         Integer imageNextId = imageLastId == null ? 1 : imageLastId + 1;
-        ImageTO imageTO = new ImageTO(imageNextId, fileName, null);
+        ImageTO imageTO = new ImageTO(imageNextId, fileName, null, null);
         imageDAO.insert(imageTO);
 
         UserTO userTO = userDAO.findByEmail(email);
@@ -155,7 +153,7 @@ public class ImageServiceImpl implements ImageService {
         TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(null, taxonTO, taxonName, userTO.getOrcidId(),
                 sampleSetTO.getId(), specimenCount, conditionTO, String.valueOf(ageInDays), null, null, imageTO,
                 null, null, null, versionNextId);
-        taxonAnnotationDAO.insertImageTaxonAnnotation(taxonAnnotationTO);
+        taxonAnnotationDAO.insertTaxonAnnotation(taxonAnnotationTO);
     }
     
     @Override
@@ -238,15 +236,9 @@ public class ImageServiceImpl implements ImageService {
     private List<ImageInfo> getImageInfos(List<TaxonAnnotationTO> taxonAnnotTOs) {
         return taxonAnnotTOs.stream()
                 .filter(ta -> ta.getImageTO() != null)
-                .map(ta -> getImageInfo(ta.getTaxonTO().getScientificName(), ta.getImageTO().getFileName()))
-                .sorted(Comparator.comparing(ImageInfo::getName))
+                .map(ta ->  new ImageInfo(ta.getImageTO().getFileName(), ta.getTaxonTO().getScientificName()))
+                .sorted(Comparator.comparing(ImageInfo::getDescription))
                 .toList();
-    }
-    
-    private ImageInfo getImageInfo(String scientificName, String filename) {
-        String id = filename.substring(0, filename.lastIndexOf('.'));
-        String url = getImageUrl(filename);
-        return new ImageInfo(id, scientificName, url);
     }
 
     @Override

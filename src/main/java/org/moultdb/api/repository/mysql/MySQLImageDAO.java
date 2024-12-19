@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Valentine Rech de Laval
@@ -39,23 +40,6 @@ public class MySQLImageDAO implements ImageDAO {
     }
     
     @Override
-    public int insert(ImageTO imageTO) {
-        String insertStmt = "INSERT INTO image (id, file_name, description) " +
-                "VALUES (:id, :fileName, :description) ";
-        List<MapSqlParameterSource> params = new ArrayList<>();
-        MapSqlParameterSource source = new MapSqlParameterSource();
-        source.addValue("id", imageTO.getId());
-        source.addValue("fileName", imageTO.getFileName());
-        source.addValue("description", imageTO.getDescription());
-        params.add(source);
-        
-        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum()+ " updated row(s) in 'image' table");
-        
-        return ints[0];
-    }
-    
-    @Override
     public Integer getLastId() {
         String sql = "SELECT id FROM image ORDER BY id DESC LIMIT 1";
         try {
@@ -66,10 +50,38 @@ public class MySQLImageDAO implements ImageDAO {
         }
     }
     
+    @Override
+    public int insert(ImageTO imageTO) {
+        return batchUpdate(Set.of(imageTO));
+    }
+    
+    @Override
+    public int batchUpdate(Set<ImageTO> imagesTOs) {
+        
+        String insertStmt = "INSERT INTO image (id, file_name, url, description) " +
+                "VALUES (:id, :fileName, :url, :description) ";
+        
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (ImageTO imageTO : imagesTOs) {
+            MapSqlParameterSource source = new MapSqlParameterSource();
+            source.addValue("id", imageTO.getId());
+            source.addValue("fileName", imageTO.getFileName());
+            source.addValue("url", imageTO.getUrl());
+            source.addValue("description", imageTO.getDescription());
+            params.add(source);
+        }
+        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        int count = Arrays.stream(ints).sum();
+        
+        logger.info("{} updated row(s) in 'image' table", count);
+        
+        return count;
+    }
+    
     private static class ImageRowMapper implements RowMapper<ImageTO> {
         @Override
         public ImageTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new ImageTO(rs.getInt("id"), rs.getString("file_name"), rs.getString("description"));
+            return new ImageTO(rs.getInt("id"), rs.getString("file_name"), rs.getString("url"), rs.getString("description"));
         }
     }
 }

@@ -25,15 +25,6 @@ public class ServiceUtils {
         API_URL = apiUrl;
     }
     
-    public static String getImageUrl(String filename) {
-        String url = API_URL;
-        if (!API_URL.endsWith("/")) {
-            url = url + "/";
-        }
-        url = url + "image/" + filename;
-        return url;
-    }
-    
     public static DataSource mapFromTO(DataSourceTO dataSourceTO) {
         if (dataSourceTO == null) {
             return null;
@@ -91,8 +82,7 @@ public class ServiceUtils {
         if (imageTO == null) {
             return null;
         }
-        return new ImageInfo(imageTO.getFileName().substring(0, imageTO.getFileName().indexOf(".")),
-                taxonAnnotationTO.getAuthorSpeciesName(), getImageUrl(imageTO.getFileName()));
+        return new ImageInfo(imageTO.getUrl(), taxonAnnotationTO.getTaxonTO().getScientificName());
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {

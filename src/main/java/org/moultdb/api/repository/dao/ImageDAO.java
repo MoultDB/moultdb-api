@@ -4,6 +4,7 @@ import org.moultdb.api.repository.dto.ConditionTO;
 import org.moultdb.api.repository.dto.ImageTO;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Valentine Rech de Laval
@@ -13,7 +14,9 @@ public interface ImageDAO extends DAO<ConditionTO> {
     
     List<ImageTO> findAll();
     
+    Integer getLastId();
+    
     int insert(ImageTO imageTO);
     
-    Integer getLastId();
+    int batchUpdate(Set<ImageTO> imagesTOs);
 }

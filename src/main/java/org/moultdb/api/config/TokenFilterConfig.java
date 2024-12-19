@@ -27,6 +27,7 @@ public class TokenFilterConfig {
             "/pathways/import-cv-file",
             "/pathways/import-data-file",
             "/taxon-annotations/import-file",
+            "/taxon-annotations/import-inat-metadata",
             "/taxon-annotations/delete",
             "/taxa/import-file",
             "/users/forgot-password",

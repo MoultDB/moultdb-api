@@ -66,7 +66,7 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
     }
     
-    //FIXME change postmapping to deletemapping
+    //FIXME change postmapping to deletemapping - add it in allowed methods in WebConfig
     @PostMapping("/delete")
     public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
         String email = getParam(json, "email");
@@ -85,10 +85,23 @@ public class TaxonAnnotationController {
     
     @PostMapping("/import-file")
     public ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
-                                                                @RequestParam MultipartFile mappingFile) {
+                                                                       @RequestParam MultipartFile mappingFile) {
         Integer integer;
         try {
             integer = taxonAnnotationService.importTaxonAnnotations(dataFile, mappingFile);
+        } catch (Exception e) {
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("count", integer);
+        return generateValidResponse("Taxon annotations imported",resp);
+    }
+    
+    @GetMapping("/import-inat-metadata")
+    public ResponseEntity <Map<String, Object>> insertINaturalistAnnotations() {
+        Integer integer;
+        try {
+            integer = taxonAnnotationService.importINaturalistAnnotations();
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

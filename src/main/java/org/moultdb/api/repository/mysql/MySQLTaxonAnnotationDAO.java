@@ -103,39 +103,17 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public int insertImageTaxonAnnotation(TaxonAnnotationTO taxonAnnotationTO) {
-        if (StringUtils.isNotBlank(taxonAnnotationTO.getAuthorAnatEntity()) ||
-                StringUtils.isNotBlank(taxonAnnotationTO.getAuthorDevStage())) {
-            throw new UnsupportedOperationException("New fields not supported");
-        }
-        String sql = "INSERT INTO taxon_annotation (taxon_path, author_species_name, " +
-                "sample_set_id, condition_id, image_id, version_id) " +
-                "VALUES (:taxonPath, :authorSpeciesName, " +
-                ":sampleSetId, :conditionId, :imageId, :versionId)";
-    
-        List<MapSqlParameterSource> params = new ArrayList<>();
-        MapSqlParameterSource source = new MapSqlParameterSource();
-        source.addValue("taxonPath", taxonAnnotationTO.getTaxonTO().getPath());
-        source.addValue("authorSpeciesName", taxonAnnotationTO.getAuthorSpeciesName());
-        source.addValue("sampleSetId", taxonAnnotationTO.getSampleSetId());
-        source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
-        source.addValue("imageId", taxonAnnotationTO.getImageTO().getId());
-        source.addValue("versionId", taxonAnnotationTO.getVersionId());
-        params.add(source);
-    
-        int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table");
-    
-        return ints[0];
+    public int insertTaxonAnnotation(TaxonAnnotationTO taxonAnnotationTO) {
+        return batchUpdate(Set.of(taxonAnnotationTO));
     }
     
     @Override
-    public int[] batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
+    public int batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
         String sql = "INSERT INTO taxon_annotation (taxon_path, author_species_name, determined_by,  " +
                 "sample_set_id, condition_id, author_dev_stage, author_anat_entity, article_id, " +
-                "moulting_characters_id, eco_id, cio_id, version_id) " +
+                "moulting_characters_id, image_id, eco_id, cio_id, version_id) " +
                 "VALUES (:taxonPath, :authorSpeciesName, :determinedBy, :sampleSetId, " +
-                ":conditionId, :authorDevStage, :authorAnatEntity, :articleId, :moultingCharactersId, " +
+                ":conditionId, :authorDevStage, :authorAnatEntity, :articleId, :moultingCharactersId, :imageId, " +
                 ":ecoId, :cioId, :versionId)";
         
         List<MapSqlParameterSource> params = new ArrayList<>();
@@ -148,8 +126,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             source.addValue("conditionId", taxonAnnotationTO.getConditionTO().getId());
             source.addValue("authorDevStage", taxonAnnotationTO.getAuthorDevStage());
             source.addValue("authorAnatEntity", taxonAnnotationTO.getAuthorAnatEntity());
-            source.addValue("articleId", taxonAnnotationTO.getArticleTO().getId());
+            source.addValue("articleId", taxonAnnotationTO.getArticleTO() == null ? null : taxonAnnotationTO.getArticleTO().getId());
             source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
+            source.addValue("imageId", taxonAnnotationTO.getImageTO() == null ? null : taxonAnnotationTO.getImageTO().getId());
             source.addValue("ecoId", taxonAnnotationTO.getEcoTermTO() == null? null: taxonAnnotationTO.getEcoTermTO().getId());
             source.addValue("cioId", taxonAnnotationTO.getCioStatementTO() == null? null: taxonAnnotationTO.getCioStatementTO().getId());
             source.addValue("versionId", taxonAnnotationTO.getVersionId());
@@ -157,9 +136,10 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         }
         
         int[] ints = template.batchUpdate(sql, params.toArray(MapSqlParameterSource[]::new));
-        logger.debug(Arrays.stream(ints).sum() + " updated row(s) in 'taxon_annotation' table");
+        int count = Arrays.stream(ints).sum();
+        logger.info("{} updated row(s) in 'taxon_annotation' table", count);
         
-        return ints;
+        return count;
     }
     
     @Override
@@ -239,7 +219,8 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 
                 ImageTO imageTO = null;
                 if (DAO.getInteger(rs, "ta.image_id") != null) {
-                    imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.description"));
+                    imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.url"),
+                            rs.getString("i.description"));
                 }
                 
                 ECOTermTO ecoTO = null;

@@ -6,25 +6,29 @@ import java.util.StringJoiner;
  * @author Valentine Rech de Laval
  * @since 2023-05-31
  */
-public class ImageInfo extends NamedEntity<String> {
+// TODO check whether an x-ref would be a better option than a simple url
+public class ImageInfo extends Entity<String> {
     
-    private final String url;
+    private final String description;
     
-    public ImageInfo(String id, String name, String url) {
-        super(id, name);
-        this.url = url;
+    public ImageInfo(String url, String description) {
+        super(url);
+        this.description = description;
     }
     
     public String getUrl() {
-        return this.url;
+        return this.getId();
+    }
+    
+    public String getDescription() {
+        return description;
     }
     
     @Override
     public String toString() {
         return new StringJoiner(", ", ImageInfo.class.getSimpleName() + "[", "]")
-                .add("id='" + getId() + "'")
-                .add("name='" + getName() + "'")
-                .add("url='" + url + "'")
+                .add("url='" + getUrl() + "'")
+                .add("description='" + getDescription() + "'")
                 .toString();
     }
 }

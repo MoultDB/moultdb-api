@@ -29,4 +29,6 @@ public interface TaxonAnnotationService {
     public Integer importTaxonAnnotations(MultipartFile dataFile, MultipartFile mappingFile) throws IOException;
     
     public void deleteTaxonAnnotationsByImageFilename(String imageFilename);
+    
+    public Integer importINaturalistAnnotations();
 }
