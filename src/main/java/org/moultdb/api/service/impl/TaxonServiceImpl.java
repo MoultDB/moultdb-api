@@ -151,7 +151,7 @@ public class TaxonServiceImpl implements TaxonService {
             logger.error("INaturalist IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(inatIds));
         }
         if (hasDuplicatedIDs) {
-            throw new MoultDBException("There are duplicated in the input file");
+            throw new MoultDBException("There are duplicates in the input file");
         }
         
         // Divide set in several sets to avoid memory errors

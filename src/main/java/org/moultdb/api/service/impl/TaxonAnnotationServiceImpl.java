@@ -248,7 +248,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     // FIXME fix user
                     UserTO userTO = userDAO.findById(3);
                     if (userTO == null) {
-                        throw new AuthenticationException("User not found");
+                        throw new IllegalArgumentException("User not found");
                     }
                     
                     TaxonTO taxonTO = taxonDAO.findByAccession(obs.taxon().id(),

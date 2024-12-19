@@ -107,6 +107,9 @@ public class TaxonParser {
         
         Set<TaxonTO> taxonTOs = new HashSet<>();
         for (TaxonBean bean: taxonBeans) {
+            if (taxonTOs.size() % 10 == 0) {
+                logger.debug("{} taxon beans converted into a TaxonTO", taxonTOs.size());
+            }
             String scientificName = cleanName(bean.getNcbiName());
             if (scientificName == null) {
                 scientificName = cleanName(bean.getGbifName());
@@ -117,7 +120,7 @@ public class TaxonParser {
             
             TaxonTO taxonTO = taxonDAO.findByScientificName(scientificName);
             if (taxonTO != null) {
-                logger.debug("Taxon scientific name already exits: " + scientificName);
+                logger.debug("Taxon scientific name already exits: {}", scientificName);
                 continue;
             }
             
