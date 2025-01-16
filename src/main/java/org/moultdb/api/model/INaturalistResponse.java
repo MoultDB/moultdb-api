@@ -2,7 +2,9 @@ package org.moultdb.api.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Valentine Rech de Laval
@@ -11,20 +13,29 @@ import java.util.List;
 public record INaturalistResponse(Integer total_results, Integer page, Integer per_page,
                                   List<INaturalistObservation> results) {
     
-    public final static List<String> OPEN_LICENSES = List.of("cc0", "cc-by", "cc-by-nc");
-    
-    public record INaturalistObservation(Integer id, INaturalistTaxon taxon, String species_guess,
+    public record INaturalistObservation(Integer id, INaturalistUser user, INaturalistTaxon taxon, String species_guess,
                                          List<INaturalistOfv> ofvs,
-                                         List<INaturalistProjectObservation> project_observations,
-                                         List<INaturalistObservationPhoto> observation_photos) {}
+                                         List<INaturalistObservationPhoto> observation_photos,
+                                         List<INaturalistIdentification> identifications,
+                                         Date observed_on) {}
     
     public record INaturalistTaxon(String id, String place_guess) {}
     
-    public record INaturalistProjectObservation(INaturalistProject project, INaturalistUser user) {}
+    public record INaturalistIdentification(INaturalistTaxon taxon, INaturalistUser user, Date created_at) {}
     
-    public record INaturalistProject(Integer id) {}
-    
-    public record INaturalistUser(String login, String name, String orcid) {}
+    public record INaturalistUser(String login, String name, String orcid) {
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            INaturalistUser that = (INaturalistUser) o;
+            return Objects.equals(login, that.login);
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(login);
+        }
+    }
     
     public record INaturalistOfv(String name, String value, INaturalistUser user) {}
     

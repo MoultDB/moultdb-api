@@ -16,10 +16,7 @@ import org.moultdb.api.service.TokenService;
 import org.moultdb.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -28,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.model.MoultDBUser.generateRandomPassword;
 import static org.moultdb.api.service.impl.TokenServiceImpl.getLongTokenValidity;
 import static org.moultdb.api.service.impl.TokenServiceImpl.getShortTokenValidity;
 
@@ -56,28 +54,40 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public void saveUser(MoultDBUser user) {
+        if (StringUtils.isBlank(user.getFullName()) || StringUtils.isBlank(user.getEmail())
+                || StringUtils.isBlank(user.getPassword())) {
+            throw new IllegalArgumentException("Name, e-mail and/or password is empty");
+        }
         saveUser(user, Role.ROLE_USER.getStringRepresentation());
     }
     
     @Override
     public void saveAdmin(MoultDBUser user) {
+        if (StringUtils.isBlank(user.getFullName()) || StringUtils.isBlank(user.getEmail())
+                || StringUtils.isBlank(user.getPassword())) {
+            throw new IllegalArgumentException("Name, e-mail and/or password is empty");
+        }
         String authorities = user.getAuthorities().stream()
                            .map(GrantedAuthority::getAuthority)
                            .collect(Collectors.joining(ROLE_SEPARATOR));
         saveUser(user, authorities);
     }
     
+    @Override
+    public void saveExternalUser(MoultDBUser user) {
+        saveUser(user, Role.ROLE_EXTERNAL.getStringRepresentation());
+    }
+    
     private void saveUser(MoultDBUser user, String roles) {
         if (user == null) {
             throw new IllegalArgumentException("User is empty");
         }
-        if (StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getName())
-                || StringUtils.isBlank(user.getPassword())) {
-            throw new IllegalArgumentException("E-mail, name or password is empty");
+        if (StringUtils.isBlank(user.getUsername())) {
+            throw new IllegalArgumentException("Username is empty");
         }
     
         try {
-            userDAO.insertUser(new UserTO(null, user.getName(), user.getEmail(), user.getPassword(),
+            userDAO.insertUser(new UserTO(null, user.getUsername(), user.getFullName(), user.getEmail(), user.getPassword(),
                     roles, user.getOrcidId(), false));
         } catch (Exception e) {
             Matcher m = Pattern.compile("Duplicate entry '(.*)' for key 'user\\.u_(.*)'")
@@ -199,7 +209,7 @@ public class UserServiceImpl implements UserService {
         
         return MoultDBUser.builder()
                           .username(userTO.getEmail())
-                          .password(userTO.getPassword())
+                          .password(StringUtils.isNotBlank(userTO.getPassword()) ? userTO.getPassword() : generateRandomPassword())
                           .roles(getRoles(userTO))
                           .build();
     }

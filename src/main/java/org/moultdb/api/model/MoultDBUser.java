@@ -20,22 +20,39 @@ public class MoultDBUser extends User {
     @Serial
     private static final long serialVersionUID = -5845388570221521795L;
     
-    private final String name;
+    private static final String ALL_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]";
+    
+    private final String fullName;
+    private final String email;
     private final Boolean verified;
 
     private final String orcidId;
 
-    public MoultDBUser(String email, String name, String password, String orcidId)
+    public MoultDBUser(String username, String fullName, String email, String password, String orcidId)
             throws IllegalArgumentException {
-        this(email, name, password, orcidId, Collections.singleton(Role.ROLE_USER), false);
+        this(username, fullName, email, password, orcidId, Collections.singleton(Role.ROLE_USER), false);
     }
     
-    public MoultDBUser(String email, String name, String password, String orcidId,
+    public MoultDBUser(String username, String fullName, String email, String password, String orcidId,
                        Collection<Role> authorities, Boolean verified) throws IllegalArgumentException {
-        super(email, password, authorities);
-        this.name = name;
+        super(username, password, authorities);
+        this.fullName = fullName;
+        this.email = email;
         this.orcidId = orcidId;
         this.verified = verified;
+    }
+    
+    //FIXME check if the method is used correctly
+    public static String generateRandomPassword() {
+        // Generate random length between 8 and 12
+        int length = (int) (Math.random() * 5) + 8;
+        
+        // Generate random password
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            password.append(ALL_CHARS.charAt((int) (Math.random() * ALL_CHARS.length())));
+        }
+        return password.toString();
     }
     
     @JsonIgnore
@@ -82,11 +99,11 @@ public class MoultDBUser extends User {
     
     @JsonIgnore
     public String getEmail() {
-        return getUsername();
+        return email;
     }
     
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
     
     public String getOrcidId() {
@@ -102,8 +119,9 @@ public class MoultDBUser extends User {
     public String toString() {
         return new StringJoiner(", ", MoultDBUser.class.getSimpleName() + "[", "]")
                 .add(super.toString())
+                .add("username='" + getUsername() + "'")
+                .add("name='" + getFullName() + "'")
                 .add("email='" + getEmail() + "'")
-                .add("name='" + getName() + "'")
                 .add("password='" + (StringUtils.isNotEmpty(getPassword()) ? "[PROTECTED]" : null) + "'")
                 .add("orcidId='" + getOrcidId() + "'")
                 .add("authorities='" + getAuthorities() + "'")

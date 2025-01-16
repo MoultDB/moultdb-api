@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.model.MoultDBUser.generateRandomPassword;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2021-10-27
@@ -231,8 +233,12 @@ public class ServiceUtils {
                           .map(Role::valueOf)
                           .collect(Collectors.toSet());
         }
-        return new MoultDBUser(userTO.getEmail(), userTO.getName(), userTO.getPassword(), userTO.getOrcidId(),
-                roles, userTO.isVerified());
+        String pwd = userTO.getPassword();
+        if (StringUtils.isBlank(userTO.getPassword())) {
+            pwd = generateRandomPassword();
+        }
+        return new MoultDBUser(userTO.getUsername(), userTO.getFullName(), userTO.getEmail(),
+                pwd, userTO.getOrcidId(), roles, userTO.isVerified());
     }
     
     public static Genome mapFromTO(GenomeTO genomeTO) {

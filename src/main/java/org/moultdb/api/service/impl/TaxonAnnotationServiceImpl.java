@@ -1,5 +1,6 @@
 package org.moultdb.api.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.AuthenticationException;
@@ -8,6 +9,7 @@ import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.INaturalistResponse;
 import org.moultdb.api.model.TaxonAnnotation;
 import org.moultdb.api.model.moutldbenum.DatasourceEnum;
+import org.moultdb.api.model.moutldbenum.Role;
 import org.moultdb.api.repository.dao.*;
 import org.moultdb.api.repository.dto.*;
 import org.moultdb.api.service.ServiceUtils;
@@ -69,8 +71,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public List<TaxonAnnotation> getUserTaxonAnnotations(String email) {
-        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByUser(email, null);
+    public List<TaxonAnnotation> getUserTaxonAnnotations(String username) {
+        List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByUsername(username, null);
         return getTaxonAnnotations(taxonAnnotationTOs);
     }
     
@@ -198,6 +200,11 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             Integer versionNextId = versionLastId == null ? 1 : versionLastId + 1;
             Integer sampleSetLastId = sampleSetDAO.getLastId();
             Integer sampleSetNextId = sampleSetLastId == null ? 1 : sampleSetLastId + 1;
+            Integer userLastId = userDAO.getLastId();
+            Integer userNextId = userLastId == null ? 1 : userLastId + 1;
+            
+            Map<String, UserTO> userTOs = userDAO.findAll().stream()
+                    .collect(Collectors.toMap(UserTO::getUsername, Function.identity()));
             
             ECOTermTO ecoTO = ecoTermDAO.findById("ECO:0000322"); // imported manually asserted information used in automatic assertion
             if (ecoTO == null) {
@@ -228,10 +235,30 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                 allResults.addAll(inatResp.results());
                 for (INaturalistResponse.INaturalistObservation obs : inatResp.results()) {
                     
-                    // FIXME fix user
-                    UserTO userTO = userDAO.findById(3);
-                    if (userTO == null) {
-                        throw new IllegalArgumentException("User not found");
+                    // FIXME check management of user id => maybe remove id and use username as unique identifier
+                    UserTO creatorUserTO = getUserTO(obs.user(), userTOs, userNextId);
+                    if (Objects.equals(creatorUserTO.getId(), userNextId)) {
+                        userNextId++;
+                    }
+                    // Get all curators
+                    List<INaturalistResponse.INaturalistUser> curators = obs.ofvs().stream()
+                            .map(INaturalistResponse.INaturalistOfv::user).toList();
+                    if (curators.isEmpty()) throw new IllegalArgumentException("No curator found");
+
+                    // Get most frequent curator, if equality, keep one randomly
+                    List<INaturalistResponse.INaturalistUser> bestCurators = curators.stream()
+                            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                            .entrySet()
+                            .stream()
+                            .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                            .map(Map.Entry::getKey).toList();
+                    if (bestCurators.size() > 1) {
+                        logger.warn("Multiple curators for observation {}: {}", obs.id(),
+                                curators.stream().map(INaturalistResponse.INaturalistUser::login).toList());
+                    }
+                    UserTO lastUpdateUserTO = getUserTO(bestCurators.get(0), userTOs, userNextId);
+                    if (Objects.equals(lastUpdateUserTO.getId(), userNextId)) {
+                        userNextId++;
                     }
                     
                     TaxonTO taxonTO = taxonDAO.findByAccession(obs.taxon().id(),
@@ -303,8 +330,20 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     
                     MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(mcNextId, generalComment);
                     
-                    Timestamp current = new Timestamp(new Date().getTime());
-                    VersionTO versionTO = new VersionTO(versionNextId, userTO, current, userTO, current, 1);
+                    INaturalistResponse.INaturalistUser firstTaxonIdentificator = obs.identifications().stream()
+                            .sorted(Comparator.comparing(INaturalistResponse.INaturalistIdentification::created_at))
+                            .filter(id -> id.taxon() != null && id.taxon().id().equals(obs.taxon().id()))
+                            .map(INaturalistResponse.INaturalistIdentification::user)
+                            .limit(1)
+                            .toList().get(0);
+                    String determinedBy = StringUtils.isNotBlank(firstTaxonIdentificator.orcid()) ?
+                            getOrcidId(firstTaxonIdentificator) : firstTaxonIdentificator.login();
+                    logger.debug("determinedBy: {}", determinedBy);
+                    
+                    Timestamp creationTimestamp = new Timestamp(obs.observed_on().getTime());
+                    Timestamp currentTimestamp = new Timestamp(new Date().getTime());
+                    VersionTO versionTO = new VersionTO(versionNextId, creatorUserTO, creationTimestamp,
+                            lastUpdateUserTO, currentTimestamp, 1);
                     
                     ObservationTO observationTO = new ObservationTO(obs.id(), INAT_OBSERVATION_URL + obs.id(),
                             taxonTO.getScientificName());
@@ -313,7 +352,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                             null,                   // Integer id
                             taxonTO,                // TaxonTO taxonTO
                             taxonName,              // String authorSpeciesName
-                            userTO.getOrcidId(),    // String determinedBy
+                            determinedBy,           // String determinedBy
                             sampleSetTO.getId(),    // Integer sampleSetId
                             null,                   // String specimenCount
                             conditionTO,            // ConditionTO conditionTO
@@ -344,6 +383,10 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     throw new RuntimeException(e);
                 }
             }
+            Set<UserTO> newUsers = userTOs.values().stream()
+                    .filter(u -> u.getId() > userLastId)
+                    .collect(Collectors.toSet());
+            userDAO.batchUpdate(newUsers);
             moultingCharactersDAO.batchUpdate(mcTOs);
             sampleSetDAO.batchUpdate(sampleSetTOs);
             conditionDAO.batchUpdate(conditionTOs);
@@ -358,5 +401,27 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
         }
         
         return 0;
+    }
+    
+    private UserTO getUserTO(INaturalistResponse.INaturalistUser iNatUser, Map<String, UserTO> userTOs, int userNextId) {
+        UserTO userTO = userTOs.get(iNatUser.login());
+        if (userTO == null) {
+            userTO = userDAO.findByUsername(iNatUser.login());
+        }
+        if (userTO == null) {
+            // Get the string after the last '/' of iNatUser.orcid(). Ex: https://orcid.org/0000-0003-2722-6854
+            // TODO It would be better to check pattern of orcid
+            String orcid = getOrcidId(iNatUser);
+            userTO = new UserTO(userNextId, iNatUser.login(), iNatUser.name(),
+                    Role.ROLE_EXTERNAL.getStringRepresentation(), orcid);
+        }
+        userTOs.put(iNatUser.login(), userTO);
+        return userTO;
+    }
+    
+    private static String getOrcidId(INaturalistResponse.INaturalistUser iNatUser) {
+        String orcid = iNatUser.orcid() == null ?
+                null : iNatUser.orcid().substring(iNatUser.orcid().lastIndexOf('/') + 1);
+        return orcid;
     }
 }

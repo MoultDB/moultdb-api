@@ -36,14 +36,15 @@ public class UserController {
     
     @PostMapping("/registration")
     public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
-        MoultDBUser user = new MoultDBUser(json.get("email"), json.get("name"), json.get("password"), json.get("orcidId"));
+        MoultDBUser user = new MoultDBUser(json.get("username"), json.get("full_name"), json.get("email"),
+                json.get("password"), json.get("orcid_id"));
         try {
             userService.saveUser(user);
             userService.askEmailValidation(user.getEmail(), "/user/email-validation");
         } catch (Exception e) {
             return generateErrorResponse(e);
         }
-        return generateValidResponse("New user " + user.getEmail() + " created.\n" +
+        return generateValidResponse("New user " + user.getUsername() + " created.\n" +
                 "We have sent an e-mail validation request.\n" +
                 "Please check your e-mail inbox for a message from us that contains instructions " +
                 "on how to validate your e-mail address.\n" +
@@ -63,7 +64,7 @@ public class UserController {
         }
         Map<String, Object> userResp = new HashMap<>();
         userResp.put("email", user.getEmail());
-        userResp.put("name", user.getName());
+        userResp.put("name", user.getFullName());
         userResp.put("authorities", user.getAuthorities());
         userResp.put("orcidId", user.getOrcidId());
         userResp.put("token", tokenService.generateMiddleExpirationToken(user.getEmail(),
@@ -125,10 +126,10 @@ public class UserController {
     }
     
     @GetMapping("/check-token")
-    public ResponseEntity<?> checkToken(@RequestParam String email, @RequestParam String token) {
+    public ResponseEntity<?> checkToken(@RequestParam String username, @RequestParam String token) {
         boolean isValid = false;
         try {
-            isValid = tokenService.validateToken(email, token);
+            isValid = tokenService.validateToken(username, token);
         } catch (Exception e) {
             return generateErrorResponse(e);
         }

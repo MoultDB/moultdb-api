@@ -2,6 +2,7 @@ package org.moultdb.api.service;
 
 import org.moultdb.api.exception.UserNotFoundException;
 import org.moultdb.api.model.MoultDBUser;
+import org.moultdb.api.model.moutldbenum.Role;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
@@ -13,6 +14,8 @@ public interface UserService extends UserDetailsService {
     public void saveUser(MoultDBUser user);
     
     public void saveAdmin(MoultDBUser user);
+    
+    public void saveExternalUser(MoultDBUser user);
     
     public boolean updateUserPassword(String email, String password);
     

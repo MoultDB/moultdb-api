@@ -71,10 +71,10 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public List<TaxonAnnotationTO> findByUser(String email, Integer limit) {
+    public List<TaxonAnnotationTO> findByUsername(String username, Integer limit) {
         String limitSql = limit != null ? " LIMIT " + limit : "";
-        return template.query(SELECT_STATEMENT + "WHERE uc.email = :email ORDER BY v.creation_date DESC " + limitSql,
-                new MapSqlParameterSource().addValue("email", email), new TaxonAnnotationResultSetExtractor());
+        return template.query(SELECT_STATEMENT + "WHERE uc.username = :username ORDER BY v.creation_date DESC " + limitSql,
+                new MapSqlParameterSource().addValue("username", username), new TaxonAnnotationResultSetExtractor());
     }
     
     @Override
