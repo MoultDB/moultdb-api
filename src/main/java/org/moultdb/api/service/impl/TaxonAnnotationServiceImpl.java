@@ -3,7 +3,6 @@ package org.moultdb.api.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.moultdb.api.exception.AuthenticationException;
 import org.moultdb.api.exception.ImportException;
 import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.model.INaturalistResponse;
@@ -36,7 +35,9 @@ import java.util.stream.Collectors;
 public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     
     @Value("${inaturalist.url.api.observations}")
-    private String INAT_API_URL;
+    private String INAT_API_PROJECT_CALL_URL;
+    @Value("${inaturalist.url.observation}")
+    private String INAT_OBSERVATION_URL;
     
     private final static Logger logger = LogManager.getLogger(TaxonAnnotationServiceImpl.class.getName());
     
@@ -170,7 +171,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
         WebClient client = WebClient.create();
         
         Mono<INaturalistResponse> initialResponse = client.get()
-                .uri(INAT_API_URL + "&per_page=0")
+                .uri(INAT_API_PROJECT_CALL_URL + "&per_page=0")
                 .retrieve()
                 .onStatus(httpStatus -> !httpStatus.is2xxSuccessful(), clientResponse
                         -> Mono.error(new MoultDBException("Initial request to INaturalist API failed")))
@@ -217,9 +218,13 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             
             Set<INaturalistResponse.INaturalistObservation> allResults = new HashSet<>();
             for (int i = 1; i < pageCount; i++) {
-                String url = INAT_API_URL + "&per_page=2&page=" + i;
+                String url = INAT_API_PROJECT_CALL_URL + "&per_page=2&page=" + i;
                 logger.debug("iNaturalist API call URL ({}/{}): {}", i, pageCount, url);
-                
+//                if (i == 4) {
+//                    // FIXME remove this break
+//                    logger.debug("Temporary break for testing");
+//                    break;
+//                }
                 Mono<INaturalistResponse> response = client.get()
                         .uri(url)
                         .retrieve()
@@ -267,7 +272,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                         logger.error("Unknown iNaturalist taxon ID: {}", obs.taxon().id());
                         continue;
                     }
-                    String taxonName = obs.species_guess();
                     
                     String sex = null;
                     Integer ageInDays = null;
@@ -278,12 +282,16 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     String generalComment = null;
                     
                     for (INaturalistResponse.INaturalistOfv ofv : obs.ofvs()) {
-                        switch (ofv.name()) {
-                            case "Sex (if known)" -> sex = ofv.value();
+                        if (ofv.name() == null || ofv.value() == null) {
+                            continue;
+                        }
+                        String ofvName = ofv.name().startsWith("Sex") ? "Sex" : ofv.name();
+                        switch (ofvName) {
+                            case "Sex" -> sex = ofv.value().toLowerCase();
                             case "Age (in days)" -> ageInDays = Integer.parseInt(ofv.value());
                             case "Fossil" -> isFossil = Boolean.parseBoolean(ofv.value());
                             case "Moult?" -> moult = ofv.value();
-                            case "Moulting Stage" -> providedMoultingStep = ofv.value();
+                            case "Moulting Stage" -> providedMoultingStep = ofv.value().toLowerCase();
                             case "Additional notes of interest" -> generalComment = ofv.value();
                             case "Captive/cultivated" -> {
                                 if ("yes".equalsIgnoreCase(ofv.value())) {
@@ -351,7 +359,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(
                             null,                   // Integer id
                             taxonTO,                // TaxonTO taxonTO
-                            taxonName,              // String authorSpeciesName
+                            null,                   // String authorSpeciesName
                             determinedBy,           // String determinedBy
                             sampleSetTO.getId(),    // Integer sampleSetId
                             null,                   // String specimenCount
@@ -361,8 +369,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                             null,                   // ArticleTO articleTO
                             observationTO,          // ObservationTO observationTO
                             mcNextId,               // Integer moultingCharactersId
-                            null,                   // ECOTermTO ecoTermTO
-                            null,                   // CIOStatementTO cioStatementTO
+                            ecoTO,                  // ECOTermTO ecoTermTO
+                            cioTO,                  // CIOStatementTO cioStatementTO
                             versionNextId);         // Integer version
                     
                     observationTOs.add(observationTO);

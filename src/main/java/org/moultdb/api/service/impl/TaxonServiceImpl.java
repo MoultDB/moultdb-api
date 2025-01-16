@@ -216,7 +216,7 @@ public class TaxonServiceImpl implements TaxonService {
     private TaxonTO convertToDto(Taxon taxon) {
         Set<DbXrefTO> dbXrefTOs = taxon.getDbXrefs().stream()
                                        .map(xref -> {
-                                           DataSourceTO dataSourceTO = dataSourceDAO.findByName(xref.dataSource().getName());
+                                           DataSourceTO dataSourceTO = dataSourceDAO.findByName(xref.dataSource().name());
                                            return new DbXrefTO(null, xref.accession(), xref.name(), dataSourceTO);
                                        })
                                        .collect(Collectors.toSet());

@@ -7,7 +7,7 @@ package org.moultdb.api.model.moutldbenum;
 public enum MoultingStep implements MoutldbEnum {
     
     PRE_MOULT("pre-moult"),
-    MOULTING("'moulting'"),
+    MOULTING("moulting"),
     INTER_MOULT("inter-moult"),
     POST_MOULT("post-moult");
     

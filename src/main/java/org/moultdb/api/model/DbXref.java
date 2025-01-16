@@ -6,29 +6,29 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-import static org.moultdb.api.model.DataSource.X_REF_TAG;
-
 /**
  * @author Valentine Rech de Laval
  * @since 2021-11-01
  */
 public record DbXref(String accession, String name, DataSource dataSource, Boolean main) {
     
+    public final static String X_REF_ACC_TAG = "[xref_acc]";
+    
     protected static final Comparator<DbXref> DBXREF_COMPARATOR =
             Comparator.comparing(DbXref::main, Comparator.nullsFirst(Comparator.reverseOrder()))
-                    .thenComparing(xref -> xref.dataSource().getDisplayOrder(), Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(xref -> xref.dataSource().displayOrder(), Comparator.nullsLast(Comparator.naturalOrder()))
                     .thenComparing(DbXref::accession, Comparator.nullsFirst(Comparator.naturalOrder()));
     
     public String xrefURL() {
         if (StringUtils.isBlank(this.accession())) {
             return null;
         }
-        String xRefUrl = this.dataSource().getXrefURL();
+        String xRefUrl = this.dataSource().xrefURL();
         if (StringUtils.isBlank(xRefUrl)) {
             return null;
         }
-        if (xRefUrl.contains(X_REF_TAG)) {
-            xRefUrl = xRefUrl.replace(X_REF_TAG, this.accession());
+        if (xRefUrl.contains(X_REF_ACC_TAG)) {
+            xRefUrl = xRefUrl.replace(X_REF_ACC_TAG, this.accession());
         }
         return xRefUrl;
     }
