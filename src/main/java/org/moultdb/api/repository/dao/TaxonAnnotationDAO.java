@@ -21,13 +21,9 @@ public interface TaxonAnnotationDAO extends DAO<TaxonAnnotationTO> {
     
     List<TaxonAnnotationTO> findByTaxonPath(String taxonPath);
 
-    TaxonAnnotationTO findByImageFilename(String imageFilename);
-    
     Integer getLastId();
     
     int insertTaxonAnnotation(TaxonAnnotationTO taxonAnnotationTO);
     
     int batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs);
-    
-    void deleteByImageFilename(String imageFilename);
 }

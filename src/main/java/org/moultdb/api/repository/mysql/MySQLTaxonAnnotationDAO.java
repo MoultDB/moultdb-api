@@ -29,7 +29,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     NamedParameterJdbcTemplate template;
     
     private static final String SELECT_STATEMENT = "SELECT ta.*, t.*, tdx.*, dx1.*, ds1.*, c.*, ds.*, ae.*, a.*, dx2.*, ds2.*, " +
-            " i.*, eco.*, cio.*, v.*, uc.*, um.* " +
+            " o.*, eco.*, cio.*, v.*, uc.*, um.* " +
             "FROM taxon_annotation ta " +
             "LEFT JOIN taxon t ON t.path = ta.taxon_path " +
             "LEFT JOIN taxon_db_xref tdx ON t.path = tdx.taxon_path " +
@@ -42,7 +42,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             "LEFT JOIN article_db_xref adx ON a.id = adx.article_id " +
             "LEFT JOIN db_xref dx2 ON adx.db_xref_id = dx2.id " +
             "LEFT JOIN data_source ds2 ON dx2.data_source_id = ds2.id " +
-            "LEFT JOIN image i ON i.id = ta.image_id " +
+            "LEFT JOIN observation o ON o.id = ta.observation_id " +
             "LEFT JOIN eco ON eco.id = ta.eco_id " +
             "LEFT JOIN cio ON cio.id = ta.cio_id " +
             "LEFT JOIN version v ON ta.version_id = v.id " +
@@ -84,14 +84,6 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     }
     
     @Override
-    public TaxonAnnotationTO findByImageFilename(String imageFilename) {
-        String sql = SELECT_STATEMENT + "WHERE i.file_name LIKE :imageFilename ";
-        return TransfertObject.getOneTO(template.query(sql,
-                new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"),
-                new TaxonAnnotationResultSetExtractor()));
-    }
-    
-    @Override
     public Integer getLastId() {
         String sql = "SELECT id FROM taxon_annotation ORDER BY id DESC LIMIT 1";
         try {
@@ -111,9 +103,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     public int batchUpdate(Set<TaxonAnnotationTO> taxonAnnotationTOs) {
         String sql = "INSERT INTO taxon_annotation (taxon_path, author_species_name, determined_by,  " +
                 "sample_set_id, condition_id, author_dev_stage, author_anat_entity, article_id, " +
-                "moulting_characters_id, image_id, eco_id, cio_id, version_id) " +
+                "moulting_characters_id, observation_id, eco_id, cio_id, version_id) " +
                 "VALUES (:taxonPath, :authorSpeciesName, :determinedBy, :sampleSetId, " +
-                ":conditionId, :authorDevStage, :authorAnatEntity, :articleId, :moultingCharactersId, :imageId, " +
+                ":conditionId, :authorDevStage, :authorAnatEntity, :articleId, :moultingCharactersId, :observationId, " +
                 ":ecoId, :cioId, :versionId)";
         
         List<MapSqlParameterSource> params = new ArrayList<>();
@@ -128,7 +120,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
             source.addValue("authorAnatEntity", taxonAnnotationTO.getAuthorAnatEntity());
             source.addValue("articleId", taxonAnnotationTO.getArticleTO() == null ? null : taxonAnnotationTO.getArticleTO().getId());
             source.addValue("moultingCharactersId", taxonAnnotationTO.getMoultingCharactersId());
-            source.addValue("imageId", taxonAnnotationTO.getImageTO() == null ? null : taxonAnnotationTO.getImageTO().getId());
+            source.addValue("observationId", taxonAnnotationTO.getObservationTO() == null ? null : taxonAnnotationTO.getObservationTO().getId());
             source.addValue("ecoId", taxonAnnotationTO.getEcoTermTO() == null? null: taxonAnnotationTO.getEcoTermTO().getId());
             source.addValue("cioId", taxonAnnotationTO.getCioStatementTO() == null? null: taxonAnnotationTO.getCioStatementTO().getId());
             source.addValue("versionId", taxonAnnotationTO.getVersionId());
@@ -140,15 +132,6 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         logger.info("{} updated row(s) in 'taxon_annotation' table", count);
         
         return count;
-    }
-    
-    @Override
-    public void deleteByImageFilename(String imageFilename) {
-        String sql = "DELETE ta, i " +
-                "FROM taxon_annotation ta " +
-                "LEFT JOIN image i ON i.id = ta.image_id " +
-                "WHERE i.file_name LIKE :imageFilename ";
-        template.update(sql, new MapSqlParameterSource().addValue("imageFilename", imageFilename + "%"));
     }
     
     private static class TaxonAnnotationResultSetExtractor implements ResultSetExtractor<List<TaxonAnnotationTO>> {
@@ -217,10 +200,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                             rs.getString("a.title"), rs.getString("a.authors"), articleDbXrefTOs);
                 }
                 
-                ImageTO imageTO = null;
-                if (DAO.getInteger(rs, "ta.image_id") != null) {
-                    imageTO = new ImageTO(rs.getInt("i.id"), rs.getString("i.file_name"), rs.getString("i.url"),
-                            rs.getString("i.description"));
+                ObservationTO observationTO = null;
+                if (DAO.getInteger(rs, "ta.observation_id") != null) {
+                    observationTO = new ObservationTO(rs.getInt("o.id"), rs.getString("o.url"), rs.getString("o.description"));
                 }
                 
                 ECOTermTO ecoTO = null;
@@ -236,7 +218,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 taxonAnnotationTOs.put(id, new TaxonAnnotationTO(rs.getInt("ta.id"), taxonTO, rs.getString("ta.author_species_name"),
                         rs.getString("ta.determined_by"), rs.getInt("ta.sample_set_id"), rs.getString("ta.specimen_count"),
                         conditionTO, rs.getString("ta.author_dev_stage"), rs.getString("ta.author_anat_entity"),
-                        articleTO, imageTO, DAO.getInteger(rs, "ta.moulting_characters_id"),
+                        articleTO, observationTO, DAO.getInteger(rs, "ta.moulting_characters_id"),
                         ecoTO, cioTO, rs.getInt("ta.version_id")));
             }
             return new ArrayList<>(taxonAnnotationTOs.values());

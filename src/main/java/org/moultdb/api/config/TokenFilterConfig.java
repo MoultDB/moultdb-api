@@ -22,7 +22,6 @@ public class TokenFilterConfig {
             "/genes/import-file",
             "/genomes/import-file",
             "/geological-ages/create",
-            "/image/import",
             "/orthogroups/import-file",
             "/pathways/import-cv-file",
             "/pathways/import-data-file",
@@ -39,7 +38,6 @@ public class TokenFilterConfig {
     protected final static String[] SECURED_USER_URL = {
             // FIXME enable following filters and remove email/token from controllers
 //            "/user/reset-password",
-//            "/image/import"
     };
     
     

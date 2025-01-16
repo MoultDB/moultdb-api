@@ -36,13 +36,8 @@ public class TaxonAnnotationController {
     }
     
     @GetMapping("/user-specific")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam String email) {
-        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(email));
-    }
-    
-    @GetMapping("/{imageFilename}")
-    public ResponseEntity<Map<String, TaxonAnnotation>> getTaxonAnnotationByImageId(@PathVariable String imageFilename) {
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam String username) {
+        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(username));
     }
     
     @GetMapping("/species")
@@ -64,23 +59,6 @@ public class TaxonAnnotationController {
         }
         assert (datasource != null);
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
-    }
-    
-    //FIXME change postmapping to deletemapping - add it in allowed methods in WebConfig
-    @PostMapping("/delete")
-    public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
-        String email = getParam(json, "email");
-        String token = getParam(json, "token");
-        if (!tokenService.validateToken(email, token)) {
-            return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
-        }
-        String imageFilename = getParam(json, "imageFilename");
-        taxonAnnotationService.deleteTaxonAnnotationsByImageFilename(imageFilename);
-        return generateValidResponse("Image " + imageFilename + "deleted");
-    }
-    
-    private static String getParam(Map<String, String> json, String paramKey) {
-        return json == null ? null : json.get(paramKey);
     }
     
     @PostMapping("/import-file")

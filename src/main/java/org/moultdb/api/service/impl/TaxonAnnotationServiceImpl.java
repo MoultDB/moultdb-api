@@ -48,7 +48,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     @Autowired DevStageDAO devStageDAO;
     @Autowired ECOTermDAO ecoTermDAO;
     @Autowired GeologicalAgeDAO geologicalAgeDAO;
-    @Autowired ImageDAO imageDAO;
+    @Autowired ObservationDAO observationDAO;
     @Autowired MoultingCharactersDAO moultingCharactersDAO;
     @Autowired SampleSetDAO sampleSetDAO;
     @Autowired TaxonDAO taxonDAO;
@@ -72,16 +72,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     public List<TaxonAnnotation> getUserTaxonAnnotations(String email) {
         List<TaxonAnnotationTO> taxonAnnotationTOs = taxonAnnotationDAO.findByUser(email, null);
         return getTaxonAnnotations(taxonAnnotationTOs);
-    }
-    
-    @Override
-    public TaxonAnnotation getTaxonAnnotationsByImageFilename(String imageFilename) {
-        TaxonAnnotationTO taxonAnnotationTO = taxonAnnotationDAO.findByImageFilename(imageFilename);
-        List<TaxonAnnotation> taxonAnnotations = getTaxonAnnotations(Collections.singletonList(taxonAnnotationTO));
-        if (taxonAnnotations.isEmpty()) {
-            return null;
-        }
-        return taxonAnnotations.get(0);
     }
     
     @Override
@@ -173,11 +163,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     }
     
     @Override
-    public void deleteTaxonAnnotationsByImageFilename(String imageFilename) {
-        taxonAnnotationDAO.deleteByImageFilename(imageFilename);
-    }
-    
-    @Override
     public Integer importINaturalistAnnotations() {
         
         WebClient client = WebClient.create();
@@ -201,7 +186,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             Set<MoultingCharactersTO> mcTOs = new HashSet<>();
             Set<SampleSetTO> sampleSetTOs = new HashSet<>();
             Set<ConditionTO> conditionTOs = new HashSet<>();
-            Set<ImageTO> imageTOs = new HashSet<>();
+            Set<ObservationTO> observationTOs = new HashSet<>();
             Set<TaxonAnnotationTO> taxonAnnotationTOs = new HashSet<>();
             Set<VersionTO> versionTOs = new HashSet<>();
             
@@ -211,8 +196,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             Integer mcNextId = lastId == null ? 1 : lastId + 1;
             Integer versionLastId = versionDAO.getLastId();
             Integer versionNextId = versionLastId == null ? 1 : versionLastId + 1;
-            Integer imageLastId = imageDAO.getLastId();
-            Integer imageNextId = imageLastId == null ? 1 : imageLastId + 1;
             Integer sampleSetLastId = sampleSetDAO.getLastId();
             Integer sampleSetNextId = sampleSetLastId == null ? 1 : sampleSetLastId + 1;
             
@@ -323,9 +306,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     Timestamp current = new Timestamp(new Date().getTime());
                     VersionTO versionTO = new VersionTO(versionNextId, userTO, current, userTO, current, 1);
                     
-                    // TODO It's not really the url of the photo that's saved in ImageTO => to be improved 
-                    String obsUrl = "https://www.inaturalist.org/observations/" + obs.id();
-                    ImageTO imageTO = new ImageTO(imageNextId, null, obsUrl, taxonTO.getScientificName());
+                    ObservationTO observationTO = new ObservationTO(obs.id(), INAT_OBSERVATION_URL + obs.id(),
+                            taxonTO.getScientificName());
                     
                     TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(
                             null,                   // Integer id
@@ -338,13 +320,13 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                             ageInDays == null ? null : ageInDays + " day(s)",  //String authorDevStage
                             null,                   // String authorAnatEntity
                             null,                   // ArticleTO articleTO
-                            imageTO,                // ImageTO imageTO
+                            observationTO,          // ObservationTO observationTO
                             mcNextId,               // Integer moultingCharactersId
                             null,                   // ECOTermTO ecoTermTO
                             null,                   // CIOStatementTO cioStatementTO
                             versionNextId);         // Integer version
                     
-                    imageTOs.add(imageTO);
+                    observationTOs.add(observationTO);
                     conditionTOs.add(conditionTO);
                     mcTOs.add(moultingCharactersTO);
                     versionTOs.add(versionTO);
@@ -353,7 +335,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     conditionNextId++;
                     mcNextId++;
                     versionNextId++;
-                    imageNextId++;
                     sampleSetNextId++;
                 }
                 // We need to avoid making too many calls per minute, see https://api.inaturalist.org/v1/ 
@@ -367,7 +348,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             sampleSetDAO.batchUpdate(sampleSetTOs);
             conditionDAO.batchUpdate(conditionTOs);
             versionDAO.batchUpdate(versionTOs);
-            imageDAO.batchUpdate(imageTOs);
+            observationDAO.batchUpdate(observationTOs);
             taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
             
             logger.debug("iNaturalist observation count: {} - TaxonAnnotationTO count: {}",

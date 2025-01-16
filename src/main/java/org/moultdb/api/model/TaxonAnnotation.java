@@ -17,14 +17,14 @@ public class TaxonAnnotation {
     private final String authorAnatEntity;
     private final MoultingCharacters moultingCharacters;
     private final Article article;
-    private final ImageInfo imageInfo;
+    private final Observation observation;
     private final ECOTerm ecoTerm;
     private final CIOStatement cioStatement;
     private final Version version;
     
     public TaxonAnnotation(Taxon taxon, String authorSpeciesName, String determinedBy, SampleSet sampleSet,
                            Condition condition, String authorDevStage, String authorAnatEntity,
-                           MoultingCharacters moultingCharacters, Article article, ImageInfo imageInfo,
+                           MoultingCharacters moultingCharacters, Article article, Observation observation,
                            ECOTerm ecoTerm, CIOStatement cioStatement, Version version) {
         this.taxon = taxon;
         this.authorSpeciesName = authorSpeciesName;
@@ -35,7 +35,7 @@ public class TaxonAnnotation {
         this.authorAnatEntity = authorAnatEntity;
         this.moultingCharacters = moultingCharacters;
         this.article = article;
-        this.imageInfo = imageInfo;
+        this.observation = observation;
         this.ecoTerm = ecoTerm;
         this.cioStatement = cioStatement;
         this.version = version;
@@ -77,8 +77,8 @@ public class TaxonAnnotation {
         return article;
     }
     
-    public ImageInfo getImageInfo() {
-        return imageInfo;
+    public Observation getObservation() {
+        return observation;
     }
     
     public ECOTerm getEcoTerm() {
@@ -109,7 +109,7 @@ public class TaxonAnnotation {
                 && Objects.equals(authorAnatEntity, that.authorAnatEntity)
                 && Objects.equals(moultingCharacters, that.moultingCharacters)
                 && Objects.equals(article, that.article)
-                && Objects.equals(imageInfo, that.imageInfo)
+                && Objects.equals(observation, that.observation)
                 && Objects.equals(ecoTerm, that.ecoTerm)
                 && Objects.equals(cioStatement, that.cioStatement)
                 && Objects.equals(version, that.version);
@@ -118,6 +118,6 @@ public class TaxonAnnotation {
     @Override
     public int hashCode() {
         return Objects.hash(taxon, authorSpeciesName, determinedBy, sampleSet, condition,
-                authorDevStage, authorAnatEntity, article, imageInfo, ecoTerm, cioStatement, version);
+                authorDevStage, authorAnatEntity, article, observation, ecoTerm, cioStatement, version);
     }
 }

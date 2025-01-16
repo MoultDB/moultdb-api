@@ -72,17 +72,17 @@ public class ServiceUtils {
                 taxonAnnotationTO.getAuthorAnatEntity(),
                 mapFromTO(moultingCharactersTO),
                 article,
-                mapFromTO(taxonAnnotationTO.getImageTO(), taxonAnnotationTO),
+                mapFromTO(taxonAnnotationTO.getObservationTO(), taxonAnnotationTO),
                 mapFromTO(taxonAnnotationTO.getEcoTermTO()),
                 mapFromTO(taxonAnnotationTO.getCioStatementTO()),
                 taxonAnnotVersion);
     }
     
-    private static ImageInfo mapFromTO(ImageTO imageTO, TaxonAnnotationTO taxonAnnotationTO) {
-        if (imageTO == null) {
+    private static Observation mapFromTO(ObservationTO observationTO, TaxonAnnotationTO taxonAnnotationTO) {
+        if (observationTO == null) {
             return null;
         }
-        return new ImageInfo(imageTO.getUrl(), taxonAnnotationTO.getTaxonTO().getScientificName());
+        return new Observation(observationTO.getId(), observationTO.getUrl(), taxonAnnotationTO.getTaxonTO().getScientificName());
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {

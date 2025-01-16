@@ -7,17 +7,19 @@ import java.util.StringJoiner;
  * @since 2023-05-31
  */
 // TODO check whether an x-ref would be a better option than a simple url
-public class ImageInfo extends Entity<String> {
+public class Observation extends Entity<Integer> {
     
+    private final String url;
     private final String description;
     
-    public ImageInfo(String url, String description) {
-        super(url);
+    public Observation(Integer id, String url, String description) {
+        super(id);
+        this.url = url;
         this.description = description;
     }
     
     public String getUrl() {
-        return this.getId();
+        return url;
     }
     
     public String getDescription() {
@@ -26,9 +28,10 @@ public class ImageInfo extends Entity<String> {
     
     @Override
     public String toString() {
-        return new StringJoiner(", ", ImageInfo.class.getSimpleName() + "[", "]")
-                .add("url='" + getUrl() + "'")
-                .add("description='" + getDescription() + "'")
+        return new StringJoiner(", ", Observation.class.getSimpleName() + "[", "]")
+                .add("id=" + getId())
+                .add("url='" + url + "'")
+                .add("description='" + description + "'")
                 .toString();
     }
 }

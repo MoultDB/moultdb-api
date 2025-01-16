@@ -65,7 +65,7 @@ public class TokenFilter extends GenericFilterBean {
         request.setAttribute("user", servletRequest.getParameter("id"));
         
         // Store the token in TokenHolder
-        UserHolder.setEmail(claims.getSubject());
+        UserHolder.setUsername(claims.getSubject());
         
         if(!hasAuthorizedRole(request, claims, SECURED_ADMIN_URL, Role.ROLE_ADMIN) 
             || !hasAuthorizedRole(request, claims, SECURED_USER_URL, Role.ROLE_USER)) {
@@ -80,7 +80,7 @@ public class TokenFilter extends GenericFilterBean {
             filterChain.doFilter(request, response);
         } finally {
             // Clean the token once the request has been processed
-            UserHolder.clearEmail();
+            UserHolder.clearUsername();
         }
     }
     

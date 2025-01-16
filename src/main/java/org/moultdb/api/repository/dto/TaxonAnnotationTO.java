@@ -21,22 +21,15 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
     private final String authorDevStage;
     private final String authorAnatEntity;
     private final ArticleTO articleTO;
-    private final ImageTO imageTO;
+    private final ObservationTO observationTO;
     private final ECOTermTO ecoTermTO;
     private final CIOStatementTO cioStatementTO;
     private final String determinedBy;
     private final Integer versionId;
     
-    public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String authorSpeciesName,
-                             Integer sampleSetId, String specimenCount, ConditionTO conditionTO, ImageTO imageTO,
-                             String determinedBy, Integer versionId, String authorDevStage, String authorAnatEntity) {
-        this(id, taxonTO, authorSpeciesName, determinedBy, sampleSetId, specimenCount, conditionTO,
-                authorAnatEntity, authorDevStage, null, imageTO, null, null, null, versionId);
-    }
-    
     public TaxonAnnotationTO(Integer id, TaxonTO taxonTO, String authorSpeciesName, String determinedBy,
                              Integer sampleSetId, String specimenCount, ConditionTO conditionTO, String authorDevStage,
-                             String authorAnatEntity, ArticleTO articleTO, ImageTO imageTO, Integer moultingCharactersId,
+                             String authorAnatEntity, ArticleTO articleTO, ObservationTO observationTO, Integer moultingCharactersId,
                              ECOTermTO ecoTermTO, CIOStatementTO cioStatementTO, Integer versionId) {
         super(id);
         this.taxonTO = taxonTO;
@@ -48,7 +41,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         this.specimenCount = specimenCount;
         this.conditionTO = conditionTO;
         this.articleTO = articleTO;
-        this.imageTO = imageTO;
+        this.observationTO = observationTO;
         this.ecoTermTO = ecoTermTO;
         this.cioStatementTO = cioStatementTO;
         this.determinedBy = determinedBy;
@@ -91,8 +84,8 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
         return articleTO;
     }
     
-    public ImageTO getImageTO() {
-        return imageTO;
+    public ObservationTO getObservationTO() {
+        return observationTO;
     }
     
     public ECOTermTO getEcoTermTO() {
@@ -124,7 +117,7 @@ public class TaxonAnnotationTO extends EntityTO<Integer> {
                 .add("authorDevStage='" + authorDevStage + "'")
                 .add("authorAnatEntity='" + authorAnatEntity + "'")
                 .add("articleTO=" + articleTO)
-                .add("imageTO=" + imageTO)
+                .add("observationTO=" + observationTO)
                 .add("ecoTermTO=" + ecoTermTO)
                 .add("cioStatementTO=" + cioStatementTO)
                 .add("determinedBy='" + determinedBy + "'")
