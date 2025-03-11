@@ -269,7 +269,7 @@ public class ServiceUtils {
                 geneTO.getProteinLength(), domains, mapFromTO(geneTO.getPathwayTO()), mapFromTO(geneTO.getOrthogroupTO()));
     }
     
-    private static Orthogroup mapFromTO(OrthogroupTO orthogroupTO) {
+    public static Orthogroup mapFromTO(OrthogroupTO orthogroupTO) {
         if (orthogroupTO == null) {
             return null;
         }

@@ -1,5 +1,6 @@
 package org.moultdb.api.controller;
 
+import org.moultdb.api.model.Orthogroup;
 import org.moultdb.api.service.OrthogroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,5 +32,10 @@ public class OrthogroupController {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return generateValidResponse("Orthogroups imported/updated");
+    }
+    
+    @GetMapping("/{groupId}")
+    public ResponseEntity<Map<String, Orthogroup>> getById(@PathVariable String groupId) {
+        return generateValidResponse(orthogroupService.getOrthogroupById(groupId));
     }
 }
