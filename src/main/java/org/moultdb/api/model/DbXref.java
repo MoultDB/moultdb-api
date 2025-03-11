@@ -1,5 +1,6 @@
 package org.moultdb.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
@@ -19,6 +20,7 @@ public record DbXref(String accession, String name, DataSource dataSource, Boole
                     .thenComparing(xref -> xref.dataSource().displayOrder(), Comparator.nullsLast(Comparator.naturalOrder()))
                     .thenComparing(DbXref::accession, Comparator.nullsFirst(Comparator.naturalOrder()));
     
+    @JsonProperty("xrefURL")
     public String xrefURL() {
         if (StringUtils.isBlank(this.accession())) {
             return null;
