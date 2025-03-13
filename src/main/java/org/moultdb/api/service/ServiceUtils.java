@@ -288,6 +288,6 @@ public class ServiceUtils {
             return null;
         }
         return new Pathway(pathwayTO.getId(), pathwayTO.getName(), pathwayTO.getDescription(),
-                mapFromTO(pathwayTO.getArticleTO()));
+                mapFromTO(pathwayTO.getArticleTO()), pathwayTO.getFigureIds());
     }
 }

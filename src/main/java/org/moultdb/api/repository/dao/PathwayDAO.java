@@ -19,5 +19,5 @@ public interface PathwayDAO extends DAO<PathwayTO> {
     
     void insert(PathwayTO pathwayTO);
     
-    void batchUpdate(Set<PathwayTO> pathwayTOs);
+    int batchUpdate(Set<PathwayTO> pathwayTOs);
 }
