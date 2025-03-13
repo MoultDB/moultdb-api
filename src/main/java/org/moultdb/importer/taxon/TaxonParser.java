@@ -107,7 +107,7 @@ public class TaxonParser {
         
         Set<TaxonTO> taxonTOs = new HashSet<>();
         for (TaxonBean bean: taxonBeans) {
-            if (taxonTOs.size() % 10 == 0) {
+            if (taxonTOs.size() % 1000 == 0) {
                 logger.debug("{} taxon beans converted into a TaxonTO", taxonTOs.size());
             }
             String scientificName = cleanName(bean.getNcbiName());
@@ -135,6 +135,13 @@ public class TaxonParser {
             
             List<String> synonymGbifIds = extractListValues(bean.getSynonymGbifIds());
             List<String> synonymGbifNames = extractListValues(bean.getSynonymGbifNames());
+            
+            if (synonymGbifIds.size() != synonymGbifNames.size()) {
+                throw new IllegalArgumentException("The GBIF synonym ID count [" + synonymGbifIds.size() 
+                        + "] does not match the GBIF name count [" + synonymGbifNames.size() + "] for "
+                        + bean.getGbifName() + " - " + bean.getGbifId());
+            }
+            
             for (int i = 0; i < synonymGbifIds.size(); i++) {
                 dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, gbifTO, cleanId(synonymGbifIds.get(i)),
                         cleanSynonym(synonymGbifNames.get(i)), bean.getPath(), false, dbXrefTOs, taxonToDbXrefTOs);
