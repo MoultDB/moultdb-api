@@ -3,6 +3,7 @@ package org.moultdb.api.repository.mysql;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dto.ArticleTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
@@ -64,6 +65,19 @@ public class MySQLArticleDAO implements ArticleDAO {
         }
         return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE citation = :citation",
                 new MapSqlParameterSource().addValue("citation", citation), new ArticleResultSetExtractor()));
+    }
+    
+    @Override
+    public ArticleTO findByDbXref(String accession, Integer dataSourceId) {
+        if (StringUtils.isBlank(accession) || dataSourceId == null) {
+            throw new IllegalArgumentException("An accession [" + accession
+                    + "] and/or dataSource [" + dataSourceId + "] can not be null");
+        }
+        
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + 
+                        "WHERE x.accession = :accession AND x.data_source_id = :data_source_id",
+                new MapSqlParameterSource().addValue("accession", accession).addValue("data_source_id", dataSourceId),
+                new ArticleResultSetExtractor()));
     }
     
     @Override

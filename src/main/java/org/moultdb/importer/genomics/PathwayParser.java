@@ -258,7 +258,8 @@ public class PathwayParser {
     private Set<PathwayTO> getPathwayTOs(Set<PathwayCvBean> pathwayCvBeans, ArticleDAO articleDAO) {
         Set<PathwayTO> pathwayTOs = new HashSet<>();
         for (PathwayCvBean pathwayCvBean: pathwayCvBeans) {
-            ArticleTO articleTO = articleDAO.findByCitation(pathwayCvBean.getReference());
+            // FIXME replace 2 with the dataSourceId found in db
+            ArticleTO articleTO = articleDAO.findByDbXref(pathwayCvBean.getReference(), 2);
             pathwayTOs.add(new PathwayTO(pathwayCvBean.getId(), pathwayCvBean.getName(),
                     pathwayCvBean.getDescription(), articleTO, pathwayCvBean.getFigureIds()));
         }
