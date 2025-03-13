@@ -1,8 +1,8 @@
-pathway	identifier	reference	description
-moult_neurostimuli	MP001	https://doi.org/10.32942/X2DS4S	
-ecdysteroid_pathway	MP002	https://doi.org/10.32942/X2DS4S	
-sesquiterpenoid_pathway	MP003	https://doi.org/10.32942/X2DS4S	
-early_genes	MP004	https://doi.org/10.32942/X2DS4S	
-ecdysis_neuromotor	MP005	https://doi.org/10.32942/X2DS4S	
-fate_genes	MP006	https://doi.org/10.32942/X2DS4S	
-late_genes	MP007	https://doi.org/10.32942/X2DS4S	
+pathway	identifier	reference	description	figures
+moult_neurostimuli	MP001	10.1111/brv.13123		2
+ecdysteroid_pathway	MP002	10.1111/brv.13123		2,4,6
+sesquiterpenoid_pathway	MP003	10.1111/brv.13123		3
+early_genes	MP004	10.1111/brv.13123		4
+ecdysis_neuromotor	MP005	10.1111/brv.13123		6
+fate_genes	MP006	10.1111/brv.13123		4
+late_genes	MP007	10.1111/brv.13123		5

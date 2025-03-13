@@ -45,7 +45,7 @@ public class Taxon extends NamedEntity<String> {
     
     public String getAccession() {
         if (!getDbXrefs().isEmpty()) {
-            return dbXrefs.get(0).getDataSource().getShortName() + "/" + dbXrefs.get(0).getAccession();
+            return dbXrefs.get(0).dataSource().shortName() + "/" + dbXrefs.get(0).accession();
         }
         return null;
     }

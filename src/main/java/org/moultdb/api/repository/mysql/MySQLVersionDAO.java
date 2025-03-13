@@ -101,14 +101,14 @@ public class MySQLVersionDAO implements VersionDAO {
         public VersionTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new VersionTO(rs.getInt("id"),
                     new UserTO(rs.getInt("creation_user_id"),
-                            rs.getString("u1.username"), rs.getString("u1.email"),
+                            rs.getString("u1.username"), rs.getString("u1.full_name"), rs.getString("u1.email"),
                             rs.getString("u1.pwd"), rs.getString("u1.roles"),
-                            rs.getString("u1.orcidId"), rs.getBoolean("u1.verified")),
+                            rs.getString("u1.orcid_id"), rs.getBoolean("u1.verified")),
                     rs.getTimestamp("creation_date"),
                     new UserTO(rs.getInt("last_update_user_id"),
-                            rs.getString("u2.username"), rs.getString("u2.email"),
+                            rs.getString("u2.username"), rs.getString("u2.full_name"), rs.getString("u2.email"),
                             rs.getString("u2.pwd"), rs.getString("u2.roles"),
-                            rs.getString("u2.orcidId"), rs.getBoolean("u2.verified")),
+                            rs.getString("u2.orcid_id"), rs.getBoolean("u2.verified")),
                     rs.getTimestamp("last_update_date"), rs.getInt("version_number"));
         }
     }

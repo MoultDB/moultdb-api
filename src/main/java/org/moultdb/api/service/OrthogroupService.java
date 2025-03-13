@@ -1,5 +1,6 @@
 package org.moultdb.api.service;
 
+import org.moultdb.api.model.Orthogroup;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -9,4 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface OrthogroupService {
     
     void importOrthogroups(MultipartFile orthogroupFile, MultipartFile pathwayFile);
+    
+    public Orthogroup getOrthogroupById(String orthogroupId);
 }

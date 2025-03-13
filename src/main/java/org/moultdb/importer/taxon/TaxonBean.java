@@ -15,8 +15,10 @@ public class TaxonBean {
     private String path;
     private String ncbiId;
     private String gbifId;
+    private String inatId;
     private String ncbiName;
     private String gbifName;
+    private String inatName;
     private String synonymGbifIds;
     private String synonymGbifNames;
     private String synonymNcbiNames;
@@ -56,6 +58,14 @@ public class TaxonBean {
         this.gbifId = gbifId;
     }
     
+    public String getInatId() {
+        return inatId;
+    }
+    
+    public void setInatId(String inatId) {
+        this.inatId = inatId;
+    }
+    
     public String getNcbiName() {
         return ncbiName;
     }
@@ -70,6 +80,14 @@ public class TaxonBean {
     
     public void setGbifName(String gbifName) {
         this.gbifName = gbifName;
+    }
+    
+    public String getInatName() {
+        return inatName;
+    }
+    
+    public void setInatName(String inatName) {
+        this.inatName = inatName;
     }
     
     public String getSynonymGbifIds() {
@@ -109,8 +127,10 @@ public class TaxonBean {
                 && Objects.equals(path, taxonBean.path)
                 && Objects.equals(ncbiId, taxonBean.ncbiId)
                 && Objects.equals(gbifId, taxonBean.gbifId)
+                && Objects.equals(inatId, taxonBean.inatId)
                 && Objects.equals(ncbiName, taxonBean.ncbiName)
                 && Objects.equals(gbifName, taxonBean.gbifName)
+                && Objects.equals(inatName, taxonBean.inatName)
                 && Objects.equals(synonymGbifIds, taxonBean.synonymGbifIds)
                 && Objects.equals(synonymGbifNames, taxonBean.synonymGbifNames)
                 && Objects.equals(synonymNcbiNames, taxonBean.synonymNcbiNames);
@@ -118,7 +138,8 @@ public class TaxonBean {
     
     @Override
     public int hashCode() {
-        return Objects.hash(id, path, ncbiId, gbifId, ncbiName, gbifName, synonymGbifIds, synonymGbifNames, synonymNcbiNames);
+        return Objects.hash(id, path, ncbiId, gbifId, inatId, ncbiName, gbifName, inatName,
+                synonymGbifIds, synonymGbifNames, synonymNcbiNames);
     }
     
     @Override
@@ -128,8 +149,10 @@ public class TaxonBean {
                 .add("path='" + path + "'")
                 .add("ncbiId='" + ncbiId + "'")
                 .add("gbifId='" + gbifId + "'")
+                .add("gbifId='" + inatId + "'")
                 .add("ncbiName='" + ncbiName + "'")
                 .add("gbifName='" + gbifName + "'")
+                .add("gbifName='" + inatName + "'")
                 .add("synonymGbifIds='" + synonymGbifIds + "'")
                 .add("synonymGbifNames='" + synonymGbifNames + "'")
                 .add("synonymNcbiNames='" + synonymNcbiNames + "'")

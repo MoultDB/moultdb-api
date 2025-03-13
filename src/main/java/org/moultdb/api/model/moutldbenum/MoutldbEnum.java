@@ -1,5 +1,7 @@
 package org.moultdb.api.model.moutldbenum;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
  */
 public interface MoutldbEnum {
     
+    @JsonValue
     public String getStringRepresentation();
     
     /**

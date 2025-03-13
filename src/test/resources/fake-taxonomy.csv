@@ -1,0 +1,16 @@
+id,path,ncbi_taxon_id,gbif_taxon_id,inat_taxon_id,ncbi_canonical_name,gbif_canonical_name,inat_canonical_name,ncbi_synonyms_names,gbif_synonyms_ids,gbif_synonyms_names
+1,1,6656,54,47120,Arthropoda,Arthropoda,Arthropoda,Arthropods,,
+768,1.1.2.1,7540,360,49556,Chilopoda,Chilopoda,Chilopoda,Centipede; Centipedes,,
+854,1.2.2.6,41356,756,47824,Solifugae,Solifugae,Solifugae,Camel spiders; Solpugida; Solpugids; Sun spiders; Wind scorpions,11039601,Solpugida
+12,1.11,,4666708,,,Anomalocarididae,,,3255688; 9505495,Anomalocaridae; Anomalocardidae
+2,1.1,197563,,,Mandibulata,,,Mandibulates,,
+46,1.45,,8564034,,,Fuxianhuiidae,,,,
+581,1.45.1,,4806131,,,Fuxianhuia,,,,
+1508,1.45.1.1,,8634653,,,Fuxianhuia protensa,,,,
+4,1.3,89902,,,unclassified Arthropoda,,,,,
+24095,1.2.3.1.1.2.1,6850,1010610,48302,Limulus polyphemus,Limulus polyphemus,Limulus polyphemus,Monoculus polyphemus; Atlantic horseshoe crab,7825640; 7987722; 10215309; 7515790; 7673166; 8336975; 8345684,Monoculus polyphemus; Limulus occidentalis; Limulus americanus; Limulus cyclops; Xiphosura polyphemus; Limulus albus; Limulus sowerbii
+24095,1.2.3.1.1.2.1.1,-1,-1,1000099,,,Limulus polyphemus sub,,,
+17595,1.1.2.1.1.1.2,60154,1251,67662,Geophilomorpha,Geophilomorpha,Geophilomorpha,Geophilida,,
+27517,1.1.2.1.1.1.2.13,792470,,,unclassified Geophilomorpha,,,,,
+494901,1.96.2.1.3.2.23.3.1.110.6.3.6.87.1,1923959,6461394,,Trinorchestia longiramus,Trinorchestia longiramus,,,,
+1698116,1.96.2.2.3.57.1.1.2.1.323.2.2.2.2.4.4.11,468258,4327,49525,Scutelleridae,Scutelleridae,Scutelleridae,,,Shield back bugs; Shield-backed bugs

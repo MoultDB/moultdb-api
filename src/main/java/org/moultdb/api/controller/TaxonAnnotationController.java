@@ -36,13 +36,8 @@ public class TaxonAnnotationController {
     }
     
     @GetMapping("/user-specific")
-    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam String email) {
-        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(email));
-    }
-    
-    @GetMapping("/{imageFilename}")
-    public ResponseEntity<Map<String, TaxonAnnotation>> getTaxonAnnotationByImageId(@PathVariable String imageFilename) {
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByImageFilename(imageFilename));
+    public ResponseEntity<Map<String, List<TaxonAnnotation>>> getUserTaxonAnnotations(@RequestParam String username) {
+        return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(username));
     }
     
     @GetMapping("/species")
@@ -66,29 +61,25 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
     }
     
-    //FIXME change postmapping to deletemapping
-    @PostMapping("/delete")
-    public ResponseEntity<?> postUser(@RequestBody Map<String, String> json) {
-        String email = getParam(json, "email");
-        String token = getParam(json, "token");
-        if (!tokenService.validateToken(email, token)) {
-            return generateErrorResponse("Your token is not valid.", HttpStatus.UNAUTHORIZED);
-        }
-        String imageFilename = getParam(json, "imageFilename");
-        taxonAnnotationService.deleteTaxonAnnotationsByImageFilename(imageFilename);
-        return generateValidResponse("Image " + imageFilename + "deleted");
-    }
-    
-    private static String getParam(Map<String, String> json, String paramKey) {
-        return json == null ? null : json.get(paramKey);
-    }
-    
     @PostMapping("/import-file")
     public ResponseEntity <Map<String, Object>> insertTaxonAnnotations(@RequestParam MultipartFile dataFile,
-                                                                @RequestParam MultipartFile mappingFile) {
+                                                                       @RequestParam MultipartFile mappingFile) {
         Integer integer;
         try {
             integer = taxonAnnotationService.importTaxonAnnotations(dataFile, mappingFile);
+        } catch (Exception e) {
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("count", integer);
+        return generateValidResponse("Taxon annotations imported",resp);
+    }
+    
+    @GetMapping("/import-inat-metadata")
+    public ResponseEntity <Map<String, Object>> insertINaturalistAnnotations() {
+        Integer integer;
+        try {
+            integer = taxonAnnotationService.importINaturalistAnnotations();
         } catch (Exception e) {
             return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

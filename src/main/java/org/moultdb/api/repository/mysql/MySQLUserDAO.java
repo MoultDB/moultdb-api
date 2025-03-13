@@ -8,6 +8,7 @@ import org.moultdb.api.repository.dao.UserDAO;
 import org.moultdb.api.repository.dto.TransfertObject;
 import org.moultdb.api.repository.dto.UserTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -29,6 +30,9 @@ import java.util.Set;
  */
 @Repository
 public class MySQLUserDAO implements UserDAO {
+    
+    
+    @Autowired private PasswordEncoder passwordEncoder;
     
     private final static Logger logger = LogManager.getLogger(MySQLUserDAO.class.getName());
     
@@ -85,33 +89,59 @@ public class MySQLUserDAO implements UserDAO {
         if (StringUtils.isBlank(orcidId)) {
             throw new IllegalArgumentException("Orcid ID is empty");
         }
-        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE orcidId = (:orcidId)",
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE orcid_id = (:orcidId)",
                 new MapSqlParameterSource().addValue("orcidId", orcidId), new UserRowMapper()));
     }
     
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Override
+    public UserTO findByUsername(String username) {
+        if (StringUtils.isBlank(username)) {
+            throw new IllegalArgumentException("Username is empty");
+        }
+        return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE username = (:username)",
+                new MapSqlParameterSource().addValue("username", username), new UserRowMapper()));
+    }
+    
+    @Override
+    public Integer getLastId() {
+        String sql = "SELECT id FROM user ORDER BY id DESC LIMIT 1";
+        try {
+            return template.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            logger.debug("No record found in 'user' table");
+            return 0;
+        }
+    }
     
     @Override
     public int[] insertUser(UserTO userTO) {
+        return batchUpdate(Collections.singleton(userTO));
+    }
     
-        String userSql = "INSERT INTO user(email, username, pwd, roles, orcidId, verified) " +
-                "VALUES (:email, :name, :password, :roles, :orcidId, :verified)";
-    
-        List<MapSqlParameterSource> params = new ArrayList<>();
-        MapSqlParameterSource userSource = new MapSqlParameterSource();
-        userSource.addValue("email", userTO.getEmail());
-        userSource.addValue("name", userTO.getName());
-        userSource.addValue("password", passwordEncoder.encode(userTO.getPassword()));
-        userSource.addValue("roles", userTO.getRoles());
-        userSource.addValue("orcidId", userTO.getOrcidId());
-        userSource.addValue("verified", userTO.isVerified() == null? "0": userTO.isVerified());
-        params.add(userSource);
+    @Override
+    public int[] batchUpdate(Set<UserTO> userTOs) {
         
-        int[] ints = template.batchUpdate(userSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table");
+        String insertStmt = "INSERT INTO user(username, full_name, email, pwd, roles, orcid_id, verified) " +
+                "VALUES (:username, :fullName, :email, :password, :roles, :orcidId, :verified)" +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE full_name = new.full_name, email = new.email, orcid_id = new.orcid_id";
+        
+        List<MapSqlParameterSource> params = new ArrayList<>();
+        for (UserTO userTO : userTOs) {
+            MapSqlParameterSource userSource = new MapSqlParameterSource();
+            userSource.addValue("username", userTO.getUsername());
+            userSource.addValue("fullName", userTO.getName());
+            userSource.addValue("email", userTO.getEmail());
+            userSource.addValue("password", StringUtils.isBlank(userTO.getPassword()) ?
+                    null : passwordEncoder.encode(userTO.getPassword()));
+            userSource.addValue("roles", userTO.getRoles());
+            userSource.addValue("orcidId", userTO.getOrcidId());
+            userSource.addValue("verified", userTO.isVerified() == null? "0": userTO.isVerified());
+            params.add(userSource);
+        }
+        int[] ints = template.batchUpdate(insertStmt, params.toArray(MapSqlParameterSource[]::new));
+        logResult(ints);
         return ints;
-    
     }
     
     @Override
@@ -127,7 +157,7 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
     
         int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table");
+        logResult(ints);
         return ints;
     }
     
@@ -143,17 +173,21 @@ public class MySQLUserDAO implements UserDAO {
         params.add(userSource);
     
         int[] ints = template.batchUpdate(taxonSql, params.toArray(MapSqlParameterSource[]::new));
-        logger.info(Arrays.stream(ints).sum() + " updated row(s) in 'user' table");
+        logResult(ints);
         return ints;
+    }
+    
+    private static void logResult(int[] ints) {
+        logger.info("{} updated row(s) in 'user' table", Arrays.stream(ints).sum());
     }
     
     private static class UserRowMapper implements RowMapper<UserTO> {
         @Override
         public UserTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new UserTO(rs.getInt("id"),
-                    rs.getString("username"), rs.getString("email"),
+                    rs.getString("username"), rs.getString("full_name"), rs.getString("email"),
                     rs.getString("pwd"), rs.getString("roles"),
-                    rs.getString("orcidId"), rs.getBoolean("verified"));
+                    rs.getString("orcid_id"), rs.getBoolean("verified"));
         }
     }
 }

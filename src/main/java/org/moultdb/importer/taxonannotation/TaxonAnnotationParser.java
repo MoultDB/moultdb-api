@@ -434,8 +434,7 @@ public class TaxonAnnotationParser {
         articleToDbXrefDAO.batchUpdate(articleToDbXrefTOs);
         conditionDAO.batchUpdate(conditionTOs);
         versionDAO.batchUpdate(versionTOs);
-        int[] ints = taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
-        return Arrays.stream(ints).sum();
+        return taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
     }
     
     private static Integer getNextId(Integer lastId) {

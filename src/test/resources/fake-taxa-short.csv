@@ -1,8 +1,0 @@
-id,path,ncbi_taxon_id,gbif_taxon_id,ncbi_canonical_name,gbif_canonical_name,gbif_synonyms_ids,gbif_synonyms_names,ncbi_synonyms_names
-1,1 ,6656,54,Arthropoda,Arthropoda,,,arthropods; arthropods
-533,1.1.2.1 ,7540,360,Chilopoda,Chilopoda,,,centipede; centipedes; centipedes
-590,1.2.2.4 ,41356,756,Solifugae,Solifugae,11039601,solpugida,camel spiders; solpugida; solpugids; sun spiders; sun spiders; wind scorpions
-12,1.11 ,-1,4666708,,Anomalocarididae,3255688; 9505495,anomalocaridae; anomalocardidae,
-2,1.1 ,197563,-1,Mandibulata,-1,,,mandibulates
-1509,1.45.1.1 ,-1,8634653,-1,Fuxianhuia protensa,,,
-4,1.3 ,89902,-1,unclassified Arthropoda,-1,,,

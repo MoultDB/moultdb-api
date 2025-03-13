@@ -20,10 +20,16 @@ public interface UserDAO extends DAO<UserTO> {
     UserTO findByEmailAndPassword(String email, String password);
     
     UserTO findByEmail(String email);
-
+    
     UserTO findByOrcidId(String orcidId);
     
+    UserTO findByUsername(String username);
+    
+    Integer getLastId();
+    
     int[] insertUser(UserTO userTO);
+    
+    int[] batchUpdate(Set<UserTO> userTOs);
     
     int[] updateUserPassword(String email, String password);
     

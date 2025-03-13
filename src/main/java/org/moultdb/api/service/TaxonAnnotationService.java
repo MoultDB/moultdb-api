@@ -18,8 +18,6 @@ public interface TaxonAnnotationService {
     
     public List<TaxonAnnotation> getUserTaxonAnnotations(String username);
     
-    public TaxonAnnotation getTaxonAnnotationsByImageFilename(String imageId);
-    
     public List<TaxonAnnotation> getTaxonAnnotationsByTaxonPath(String taxonPath);
         
     public List<TaxonAnnotation> getTaxonAnnotationsByTaxonName(String taxonName);
@@ -28,5 +26,5 @@ public interface TaxonAnnotationService {
     
     public Integer importTaxonAnnotations(MultipartFile dataFile, MultipartFile mappingFile) throws IOException;
     
-    public void deleteTaxonAnnotationsByImageFilename(String imageFilename);
+    public Integer importINaturalistAnnotations();
 }

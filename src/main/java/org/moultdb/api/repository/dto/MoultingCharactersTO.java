@@ -52,6 +52,13 @@ public class MoultingCharactersTO extends EntityTO<Integer> {
     private final Set<String> fossilExuviaeQualities;
     private final String generalComments;
     
+    public MoultingCharactersTO(Integer id, String generalComments)
+            throws IllegalArgumentException {
+        this(id, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                generalComments);
+    }
+
     public MoultingCharactersTO(Integer id, String lifeHistoryStyle, Set<String> lifeModes,
                                 String juvenileMoultCount, String majorMorphologicalTransitionCount,
                                 Boolean hasTerminalAdultStage, Integer observedMoultStageCount,

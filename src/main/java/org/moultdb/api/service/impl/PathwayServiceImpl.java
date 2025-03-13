@@ -55,7 +55,6 @@ public class PathwayServiceImpl implements PathwayService {
         
         logger.info("Start pathways import...");
         
-        int count;
         PathwayParser parser = new PathwayParser();
         try {
             logger.info("Parse pathway file " + originalFilename + "...");

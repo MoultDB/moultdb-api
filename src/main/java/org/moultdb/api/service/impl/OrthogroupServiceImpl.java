@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
+import org.moultdb.api.model.Orthogroup;
 import org.moultdb.api.repository.dao.GeneDAO;
 import org.moultdb.api.repository.dao.OrthogroupDAO;
 import org.moultdb.api.repository.dto.GeneTO;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
+
+import static org.moultdb.api.service.ServiceUtils.mapFromTO;
 
 /**
  * @author Valentine Rech de Laval
@@ -57,5 +60,10 @@ public class OrthogroupServiceImpl implements OrthogroupService {
                     "Error: " + e.getMessage());
         }
         logger.info("End orthogroup data import");
+    }
+    
+    @Override
+    public Orthogroup getOrthogroupById(String orthogroupId) {
+        return mapFromTO(orthogroupDAO.findById(orthogroupId));
     }
 }

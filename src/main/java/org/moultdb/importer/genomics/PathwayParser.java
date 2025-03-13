@@ -2,20 +2,26 @@ package org.moultdb.importer.genomics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.moultdb.api.model.moutldbenum.DatasourceEnum;
+import org.moultdb.api.model.moutldbenum.MoutldbEnum;
 import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dao.GeneDAO;
 import org.moultdb.api.repository.dao.PathwayDAO;
 import org.moultdb.api.repository.dto.*;
+import org.moultdb.importer.taxonannotation.TaxonAnnotationParser;
 import org.springframework.web.multipart.MultipartFile;
+import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.Trim;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.cellprocessor.ift.StringCellProcessor;
 import org.supercsv.exception.SuperCsvException;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.io.ICsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
+import org.supercsv.util.CsvContext;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -37,6 +43,7 @@ public class PathwayParser {
     private final static Logger logger = LogManager.getLogger(PathwayParser.class.getName());
     
     private final static CsvPreference TSV_COMMENTED = new CsvPreference.Builder(CsvPreference.TAB_PREFERENCE).build();
+    private final static String LIST_SEPARATOR = ",";
     
     private final static String ORTHOGROUP_ID_COL_NAME = "cluster_id";
     private final static String PROTEIN_ID_COL_NAME = "protein_id";
@@ -48,8 +55,7 @@ public class PathwayParser {
     private final static String PATHWAY_NAME_COL_NAME = "pathway";
     private final static String REFERENCE_COL_NAME = "reference";
     private final static String DESCRIPTION_COL_NAME = "description";
-    
-    
+    private final static String FIGURE_COL_NAME = "figures";
     
     public static void main(String[] args) {
         logger.traceEntry(Arrays.toString(args));
@@ -98,7 +104,6 @@ public class PathwayParser {
             throw new UncheckedIOException("Can not read file " + fileName, e);
         }
     }
-    
     
     private Set<PathwayBean> getPathwayBeans(ICsvBeanReader pathwayReader) throws IOException {
         Set<PathwayBean> pathwayBeans = new HashSet<>();
@@ -165,6 +170,7 @@ public class PathwayParser {
                 case PATHWAY_NAME_COL_NAME -> "name";
                 case REFERENCE_COL_NAME -> "reference";
                 case DESCRIPTION_COL_NAME -> "description";
+                case FIGURE_COL_NAME -> "figureIds";
                 default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for PathwayCvBean");
             };
         }
@@ -200,10 +206,37 @@ public class PathwayParser {
                 case PATHWAY_NAME_COL_NAME -> new StrNotNullOrEmpty(new Trim());
                 case REFERENCE_COL_NAME -> new StrNotNullOrEmpty(new Trim());
                 case DESCRIPTION_COL_NAME -> new Optional(new Trim());
+                case FIGURE_COL_NAME -> new Optional(new ParseIntSet(LIST_SEPARATOR));
                 default -> throw new IllegalArgumentException("Unrecognized header: '" + header[i] + "' for PathwayCvBean");
             };
         }
         return processors;
+    }
+    
+    public static class ParseIntSet extends CellProcessorAdaptor implements StringCellProcessor {
+        
+        private final String separator;
+        
+        public <T extends Enum<T> & MoutldbEnum> ParseIntSet(final String separator) {
+            super();
+            this.separator = separator;
+        }
+        
+        public <T extends Enum<T> & MoutldbEnum> ParseIntSet(final String separator, final CellProcessor next) {
+            // this constructor allows other processors to be chained after this processor
+            super(next);
+            this.separator = separator;
+        }
+        
+        public Object execute(Object value, CsvContext context) {
+            
+            // Throws an Exception if the input is null
+            validateInputNotNull(value, context);
+            
+            return Arrays.stream(String.valueOf(value).split(this.separator))
+                    .map(s -> Integer.valueOf(s.trim()))
+                    .collect(Collectors.toSet());
+        }
     }
     
     public Set<PathwayTO> getPathwayTOs(MultipartFile pathwayCvFile, ArticleDAO articleDAO) {
@@ -225,9 +258,10 @@ public class PathwayParser {
     private Set<PathwayTO> getPathwayTOs(Set<PathwayCvBean> pathwayCvBeans, ArticleDAO articleDAO) {
         Set<PathwayTO> pathwayTOs = new HashSet<>();
         for (PathwayCvBean pathwayCvBean: pathwayCvBeans) {
-            ArticleTO articleTO = articleDAO.findByCitation(pathwayCvBean.getReference());
+            // FIXME replace 2 with the dataSourceId found in db
+            ArticleTO articleTO = articleDAO.findByDbXref(pathwayCvBean.getReference(), 2);
             pathwayTOs.add(new PathwayTO(pathwayCvBean.getId(), pathwayCvBean.getName(),
-                    pathwayCvBean.getDescription(), articleTO));
+                    pathwayCvBean.getDescription(), articleTO, pathwayCvBean.getFigureIds()));
         }
         return pathwayTOs;
     }

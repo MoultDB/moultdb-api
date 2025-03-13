@@ -7,15 +7,15 @@ package org.moultdb.api.config;
 public class UserHolder {
     private static final ThreadLocal<String> tokenThreadLocal = new ThreadLocal<>();
     
-    public static void setEmail(String token) {
+    public static void setUsername(String token) {
         tokenThreadLocal.set(token);
     }
     
-    public static String getEmail() {
+    public static String getUsername() {
         return tokenThreadLocal.get();
     }
     
-    public static void clearEmail() {
+    public static void clearUsername() {
         tokenThreadLocal.remove();
     }
 }

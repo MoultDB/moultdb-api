@@ -115,6 +115,10 @@ public class TaxonServiceImpl implements TaxonService {
                 .filter(b -> b.getSynonymGbifIds() != null)
                 .map(b -> List.of(b.getSynonymGbifIds().split(", ")))
                 .flatMap(List::stream).toList();
+        List<String> inatIds = taxonBeans.stream()
+                .map(TaxonBean::getInatId)
+                .filter(Objects::nonNull)
+                .toList();
 
         boolean hasDuplicatedIDs = false;
         HashSet<String> uniqNcbiIds = new HashSet<>(ncbiIds);
@@ -141,8 +145,13 @@ public class TaxonServiceImpl implements TaxonService {
             logger.error("All GBIF IDs (main + synonyms) are not uniq: " +
                     listDuplicateUsingFilterAndSetAdd(list));
         }
+        HashSet<String> uniqInatIds = new HashSet<>(inatIds);
+        if (inatIds.size() != uniqInatIds.size()) {
+            hasDuplicatedIDs = true;
+            logger.error("INaturalist IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(inatIds));
+        }
         if (hasDuplicatedIDs) {
-            throw new MoultDBException("There are duplicated in the input file");
+            throw new MoultDBException("There are duplicates in the input file");
         }
         
         // Divide set in several sets to avoid memory errors
@@ -207,8 +216,8 @@ public class TaxonServiceImpl implements TaxonService {
     private TaxonTO convertToDto(Taxon taxon) {
         Set<DbXrefTO> dbXrefTOs = taxon.getDbXrefs().stream()
                                        .map(xref -> {
-                                           DataSourceTO dataSourceTO = dataSourceDAO.findByName(xref.getDataSource().getName());
-                                           return new DbXrefTO(null, xref.getAccession(), xref.getName(), dataSourceTO);
+                                           DataSourceTO dataSourceTO = dataSourceDAO.findByName(xref.dataSource().name());
+                                           return new DbXrefTO(null, xref.accession(), xref.name(), dataSourceTO);
                                        })
                                        .collect(Collectors.toSet());
         

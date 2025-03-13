@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.model.MoultDBUser.generateRandomPassword;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2021-10-27
@@ -25,22 +27,13 @@ public class ServiceUtils {
         API_URL = apiUrl;
     }
     
-    public static String getImageUrl(String filename) {
-        String url = API_URL;
-        if (!API_URL.endsWith("/")) {
-            url = url + "/";
-        }
-        url = url + "image/" + filename;
-        return url;
-    }
-    
     public static DataSource mapFromTO(DataSourceTO dataSourceTO) {
         if (dataSourceTO == null) {
             return null;
         }
         return new DataSource(dataSourceTO.getName(), dataSourceTO.getShortName(), dataSourceTO.getDescription(),
                 dataSourceTO.getBaseURL(), dataSourceTO.getXrefURL(), dataSourceTO.getLastImportDate(),
-                dataSourceTO.getReleaseVersion());
+                dataSourceTO.getReleaseVersion(), dataSourceTO.getDisplayOrder() != null ? dataSourceTO.getDisplayOrder() : 255);
     }
     
     public static ECOTerm mapFromTO(ECOTermTO ecoTermTO) {
@@ -81,18 +74,17 @@ public class ServiceUtils {
                 taxonAnnotationTO.getAuthorAnatEntity(),
                 mapFromTO(moultingCharactersTO),
                 article,
-                mapFromTO(taxonAnnotationTO.getImageTO(), taxonAnnotationTO),
+                mapFromTO(taxonAnnotationTO.getObservationTO(), taxonAnnotationTO),
                 mapFromTO(taxonAnnotationTO.getEcoTermTO()),
                 mapFromTO(taxonAnnotationTO.getCioStatementTO()),
                 taxonAnnotVersion);
     }
     
-    private static ImageInfo mapFromTO(ImageTO imageTO, TaxonAnnotationTO taxonAnnotationTO) {
-        if (imageTO == null) {
+    private static Observation mapFromTO(ObservationTO observationTO, TaxonAnnotationTO taxonAnnotationTO) {
+        if (observationTO == null) {
             return null;
         }
-        return new ImageInfo(imageTO.getFileName().substring(0, imageTO.getFileName().indexOf(".")),
-                taxonAnnotationTO.getAuthorSpeciesName(), getImageUrl(imageTO.getFileName()));
+        return new Observation(observationTO.getId(), observationTO.getUrl(), taxonAnnotationTO.getTaxonTO().getScientificName());
     }
     
     public static SampleSet mapFromTO(SampleSetTO sampleSetTO) {
@@ -241,8 +233,12 @@ public class ServiceUtils {
                           .map(Role::valueOf)
                           .collect(Collectors.toSet());
         }
-        return new MoultDBUser(userTO.getEmail(), userTO.getName(), userTO.getPassword(), userTO.getOrcidId(),
-                roles, userTO.isVerified());
+        String pwd = userTO.getPassword();
+        if (StringUtils.isBlank(userTO.getPassword())) {
+            pwd = generateRandomPassword();
+        }
+        return new MoultDBUser(userTO.getUsername(), userTO.getFullName(), userTO.getEmail(),
+                pwd, userTO.getOrcidId(), roles, userTO.isVerified());
     }
     
     public static Genome mapFromTO(GenomeTO genomeTO) {
@@ -273,7 +269,7 @@ public class ServiceUtils {
                 geneTO.getProteinLength(), domains, mapFromTO(geneTO.getPathwayTO()), mapFromTO(geneTO.getOrthogroupTO()));
     }
     
-    private static Orthogroup mapFromTO(OrthogroupTO orthogroupTO) {
+    public static Orthogroup mapFromTO(OrthogroupTO orthogroupTO) {
         if (orthogroupTO == null) {
             return null;
         }
@@ -292,6 +288,6 @@ public class ServiceUtils {
             return null;
         }
         return new Pathway(pathwayTO.getId(), pathwayTO.getName(), pathwayTO.getDescription(),
-                mapFromTO(pathwayTO.getArticleTO()));
+                mapFromTO(pathwayTO.getArticleTO()), pathwayTO.getFigureIds());
     }
 }

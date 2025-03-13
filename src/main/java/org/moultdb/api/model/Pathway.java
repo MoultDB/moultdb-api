@@ -10,13 +10,21 @@ public class Pathway extends NamedEntity<String> {
     
     private final Article article;
     
-    public Pathway(String id, String name, String description, Article article) throws IllegalArgumentException {
+    private final Set<Integer> figureIds;
+    
+    public Pathway(String id, String name, String description, Article article, Set<Integer> figureIds)
+            throws IllegalArgumentException {
         super(id, name, description);
         this.article = article;
+        this.figureIds = figureIds;
     }
     
     public Article getArticle() {
         return article;
+    }
+    
+    public Set<Integer> getFigureIds() {
+        return figureIds;
     }
     
     @Override
@@ -26,6 +34,7 @@ public class Pathway extends NamedEntity<String> {
                 .add("name='" + getName() + "'")
                 .add("description='" + getDescription() + "'")
                 .add("article=" + article)
+                .add("figureIds=" + figureIds)
                 .toString();
     }
 }

@@ -49,8 +49,10 @@ public class TaxonParser {
     private final static String PATH_COL_NAME = "path";
     private final static String NCBI_ID_COL_NAME = "ncbi_taxon_id";
     private final static String GBIF_ID_COL_NAME = "gbif_taxon_id";
+    private final static String INAT_ID_COL_NAME = "inat_taxon_id";
     private final static String NCBI_NAME_COL_NAME = "ncbi_canonical_name";
     private final static String GBIF_NAME_COL_NAME = "gbif_canonical_name";
+    private final static String INAT_NAME_COL_NAME = "inat_canonical_name";
     private final static String SYNONYM_GBIF_IDS_COL_NAME = "gbif_synonyms_ids";
     private final static String SYNONYM_GBIF_NAMES_COL_NAME = "gbif_synonyms_names";
     private final static String SYNONYM_NCBI_NAMES_COL_NAME = "ncbi_synonyms_names";
@@ -98,20 +100,27 @@ public class TaxonParser {
         
         DataSourceTO ncbiTO = dataSourceDAO.findByName(DatasourceEnum.NCBI.getStringRepresentation());
         DataSourceTO gbifTO = dataSourceDAO.findByName(DatasourceEnum.GBIF.getStringRepresentation());
+        DataSourceTO inatTO = dataSourceDAO.findByName(DatasourceEnum.INATURALIST.getStringRepresentation());
         if (ncbiTO == null || gbifTO == null) {
             throw new IllegalArgumentException("Unknown data source(s)");
         }
         
         Set<TaxonTO> taxonTOs = new HashSet<>();
         for (TaxonBean bean: taxonBeans) {
+            if (taxonTOs.size() % 1000 == 0) {
+                logger.debug("{} taxon beans converted into a TaxonTO", taxonTOs.size());
+            }
             String scientificName = cleanName(bean.getNcbiName());
             if (scientificName == null) {
                 scientificName = cleanName(bean.getGbifName());
             }
+            if (scientificName == null) {
+                scientificName = cleanName(bean.getInatName());
+            }
             
             TaxonTO taxonTO = taxonDAO.findByScientificName(scientificName);
             if (taxonTO != null) {
-                logger.debug("Taxon scientific name already exits: " + scientificName);
+                logger.debug("Taxon scientific name already exits: {}", scientificName);
                 continue;
             }
             
@@ -121,9 +130,18 @@ public class TaxonParser {
                     bean.getPath(), true, dbXrefTOs, taxonToDbXrefTOs);
             dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, gbifTO, cleanId(bean.getGbifId()), cleanName(bean.getGbifName()),
                     bean.getPath(), true, dbXrefTOs, taxonToDbXrefTOs);
+            dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, inatTO, cleanId(bean.getInatId()), cleanName(bean.getInatName()),
+                    bean.getPath(), true, dbXrefTOs, taxonToDbXrefTOs);
             
             List<String> synonymGbifIds = extractListValues(bean.getSynonymGbifIds());
             List<String> synonymGbifNames = extractListValues(bean.getSynonymGbifNames());
+            
+            if (synonymGbifIds.size() != synonymGbifNames.size()) {
+                throw new IllegalArgumentException("The GBIF synonym ID count [" + synonymGbifIds.size() 
+                        + "] does not match the GBIF name count [" + synonymGbifNames.size() + "] for "
+                        + bean.getGbifName() + " - " + bean.getGbifId());
+            }
+            
             for (int i = 0; i < synonymGbifIds.size(); i++) {
                 dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, gbifTO, cleanId(synonymGbifIds.get(i)),
                         cleanSynonym(synonymGbifNames.get(i)), bean.getPath(), false, dbXrefTOs, taxonToDbXrefTOs);
@@ -234,9 +252,9 @@ public class TaxonParser {
                         -> new ParseInt();
                 case PATH_COL_NAME
                         -> new StrNotNullOrEmpty(new Trim());
-                case NCBI_NAME_COL_NAME, GBIF_NAME_COL_NAME, 
+                case NCBI_NAME_COL_NAME, GBIF_NAME_COL_NAME, INAT_NAME_COL_NAME, 
                         SYNONYM_GBIF_IDS_COL_NAME, SYNONYM_GBIF_NAMES_COL_NAME, SYNONYM_NCBI_NAMES_COL_NAME,
-                        NCBI_ID_COL_NAME, GBIF_ID_COL_NAME
+                        NCBI_ID_COL_NAME, GBIF_ID_COL_NAME, INAT_ID_COL_NAME
                         -> new NegativeIsEmptyOptional(new Trim());
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonBean");
             };
@@ -252,8 +270,10 @@ public class TaxonParser {
                 case PATH_COL_NAME -> "path";
                 case NCBI_ID_COL_NAME -> "ncbiId";
                 case GBIF_ID_COL_NAME -> "gbifId";
+                case INAT_ID_COL_NAME -> "inatId";
                 case NCBI_NAME_COL_NAME -> "ncbiName";
                 case GBIF_NAME_COL_NAME -> "gbifName";
+                case INAT_NAME_COL_NAME -> "inatName";
                 case SYNONYM_GBIF_IDS_COL_NAME -> "synonymGbifIds";
                 case SYNONYM_GBIF_NAMES_COL_NAME -> "synonymGbifNames";
                 case SYNONYM_NCBI_NAMES_COL_NAME -> "synonymNcbiNames";

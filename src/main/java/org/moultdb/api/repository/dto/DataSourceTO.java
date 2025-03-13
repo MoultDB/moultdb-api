@@ -18,9 +18,10 @@ public class DataSourceTO extends NamedEntityTO<Integer> {
     private final String xrefURL;
     private final Date lastImportDate;
     private final String releaseVersion;
+    private final Integer displayOrder;
     
     public DataSourceTO(Integer id, String name, String description, String shortName, String baseURL,
-                        String xrefURL, Date lastImportDate, String releaseVersion)
+                        String xrefURL, Date lastImportDate, String releaseVersion, Integer displayOrder)
             throws IllegalArgumentException {
         super(id, name, description);
         this.shortName = shortName;
@@ -28,6 +29,7 @@ public class DataSourceTO extends NamedEntityTO<Integer> {
         this.xrefURL = xrefURL;
         this.lastImportDate = lastImportDate;
         this.releaseVersion = releaseVersion;
+        this.displayOrder = displayOrder;
     }
     
     public String getShortName() {
@@ -50,6 +52,10 @@ public class DataSourceTO extends NamedEntityTO<Integer> {
         return releaseVersion;
     }
     
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+    
     @Override
     public String toString() {
         return new StringJoiner(", ", DataSourceTO.class.getSimpleName() + "[", "]")
@@ -61,6 +67,7 @@ public class DataSourceTO extends NamedEntityTO<Integer> {
                 .add("xrefURL='" + xrefURL + "'")
                 .add("lastImportDate=" + lastImportDate)
                 .add("releaseVersion='" + releaseVersion + "'")
+                .add("displayOrder=" + displayOrder)
                 .toString();
     }
 }

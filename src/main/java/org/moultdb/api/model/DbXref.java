@@ -1,66 +1,38 @@
 package org.moultdb.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-import static org.moultdb.api.model.DataSource.X_REF_TAG;
-
 /**
  * @author Valentine Rech de Laval
  * @since 2021-11-01
  */
-public class DbXref {
+public record DbXref(String accession, String name, DataSource dataSource, Boolean main) {
     
-    protected static final Comparator<DbXref> DBXREF_COMPARATOR = Comparator.comparing(DbXref::isMain, Comparator.nullsFirst(Comparator.reverseOrder()))
-            .thenComparing(xref -> xref.getDataSource().getName(), Comparator.nullsFirst(Comparator.reverseOrder()))
-            .thenComparing(DbXref::getAccession, Comparator.nullsFirst(Comparator.naturalOrder()));
+    public final static String X_REF_ACC_TAG = "[xref_acc]";
     
-    private final String accession;
+    protected static final Comparator<DbXref> DBXREF_COMPARATOR =
+            Comparator.comparing(DbXref::main, Comparator.nullsFirst(Comparator.reverseOrder()))
+                    .thenComparing(xref -> xref.dataSource().displayOrder(), Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(DbXref::accession, Comparator.nullsFirst(Comparator.naturalOrder()));
     
-    private final String name;
-    
-    private final DataSource dataSource;
-    
-    private final Boolean main;
-    
-    public DbXref(String accession, String name, DataSource dataSource, Boolean main) {
-        this.accession = accession;
-        this.name = name;
-        this.dataSource = dataSource;
-        this.main = main;
-    }
-    
-    public String getAccession() {
-        return accession;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public DataSource getDataSource() {
-        return dataSource;
-    }
-    
-    public String getXrefURL() {
-        if (StringUtils.isBlank(this.getAccession())) {
+    @JsonProperty("xrefURL")
+    public String xrefURL() {
+        if (StringUtils.isBlank(this.accession())) {
             return null;
         }
-        String xRefUrl = this.getDataSource().getXrefURL();
+        String xRefUrl = this.dataSource().xrefURL();
         if (StringUtils.isBlank(xRefUrl)) {
             return null;
         }
-        if (xRefUrl.contains(X_REF_TAG)) {
-            xRefUrl = xRefUrl.replace(X_REF_TAG, this.getAccession());
+        if (xRefUrl.contains(X_REF_ACC_TAG)) {
+            xRefUrl = xRefUrl.replace(X_REF_ACC_TAG, this.accession());
         }
         return xRefUrl;
-    }
-    
-    public Boolean isMain() {
-        return main;
     }
     
     @Override

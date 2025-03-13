@@ -1,7 +1,7 @@
 package org.moultdb.api.repository.dto;
 
 import java.io.Serial;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * @author Valentine Rech de Laval
@@ -14,13 +14,22 @@ public class PathwayTO extends NamedEntityTO<String> {
     
     private final ArticleTO articleTO;
     
-    public PathwayTO(String id, String name, String description, ArticleTO articleTO) throws IllegalArgumentException {
+    private final Set<Integer> figureIds;
+    
+    public PathwayTO(String id, String name, String description, ArticleTO articleTO, Collection<Integer> figureIds)
+            throws IllegalArgumentException {
         super(id, name, description);
         this.articleTO = articleTO;
+        this.figureIds = Collections.unmodifiableSet(figureIds == null ?
+                new HashSet<>(): new HashSet<>(figureIds));
     }
     
     public ArticleTO getArticleTO() {
         return articleTO;
+    }
+    
+    public Set<Integer> getFigureIds() {
+        return figureIds;
     }
     
     @Override
@@ -30,6 +39,7 @@ public class PathwayTO extends NamedEntityTO<String> {
                 .add("name='" + getName() + "'")
                 .add("description='" + getDescription() + "'")
                 .add("articleTO=" + articleTO)
+                .add("figureIds=" + figureIds)
                 .toString();
     }
 }

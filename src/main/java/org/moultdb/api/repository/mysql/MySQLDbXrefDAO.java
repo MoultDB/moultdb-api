@@ -142,7 +142,8 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
                     new DataSourceTO(rs.getInt(datasourceAlias + ".id"), rs.getString(datasourceAlias + ".name"),
                             rs.getString(datasourceAlias + ".description"), rs.getString(datasourceAlias + ".short_name"),
                             rs.getString(datasourceAlias + ".base_url"), rs.getString(datasourceAlias + ".xref_url"),
-                            rs.getDate(datasourceAlias + ".last_import_date"), rs.getString(datasourceAlias + ".release_version")));
+                            rs.getDate(datasourceAlias + ".last_import_date"), rs.getString(datasourceAlias + ".release_version"),
+                            rs.getInt(datasourceAlias + ".display_order")));
         }
     }
 }
