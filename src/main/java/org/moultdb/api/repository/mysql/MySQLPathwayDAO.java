@@ -45,6 +45,28 @@ public class MySQLPathwayDAO implements PathwayDAO {
     }
     
     @Override
+    public Map<PathwayTO, OrthogroupTO> findPathwayOrthogroups() {
+        String sql = "SELECT DISTINCT p.*, og.* " +
+                "FROM pathway p " +
+                "INNER JOIN gene g ON g.pathway_id = p.id " +
+                "INNER JOIN orthogroup og on og.id = g.orthogroup_id ";
+        
+        // TODO: remove this warning when the issue is fixed
+        logger.warn("When retrieving pathways with orthogroups, the pathways do not include articles or figure IDs.");
+        
+        return template.query(sql, rs -> {
+            Map<PathwayTO, OrthogroupTO> pathwayMap = new HashMap<>();
+            
+            while (rs.next()) {
+                PathwayTO pathwayTO = new PathwayTO(rs.getString("p.id"), rs.getString("p.name"), rs.getString("p.description"), null, null);
+                OrthogroupTO orthogroupTO = new OrthogroupTO(rs.getInt("og.id"), rs.getString("og.name"));
+                pathwayMap.put(pathwayTO, orthogroupTO);
+            }
+            return pathwayMap;
+        });
+    }
+    
+    @Override
     public PathwayTO findById(String id) {
         return TransfertObject.getOneTO(template.query(SELECT_STATEMENT + "WHERE LOWER(p.id) = LOWER(:id)",
                 new MapSqlParameterSource().addValue("id", id), new PathwayResultSetExtractor()));
