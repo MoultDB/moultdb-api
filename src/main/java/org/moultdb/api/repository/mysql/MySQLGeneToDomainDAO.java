@@ -81,7 +81,7 @@ public class MySQLGeneToDomainDAO implements GeneToDomainDAO {
         }
     }
     
-    protected static class GeneToDomainRowMapper implements RowMapper<GeneToDomainTO> {
+    private static class GeneToDomainRowMapper implements RowMapper<GeneToDomainTO> {
         @Override
         public GeneToDomainTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             DomainTO domainTO = new MySQLDomainDAO.DomainRowMapper().mapRow(rs, rs.getRow());

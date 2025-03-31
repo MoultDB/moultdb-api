@@ -146,9 +146,9 @@ public class MySQLPathwayDAO implements PathwayDAO {
                         articleTO = pathwayTO.getArticleTO();
                     }
                     // Build DbXrefs
-                    DbXrefTO articleDbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx", "ds");
                     Set<DbXrefTO> articleDbXrefTOs = articleTO == null? new HashSet<>() : new HashSet<>(articleTO.getDbXrefTOs());
-                    if (articleDbXrefTO != null && articleDbXrefTO.getAccession() != null) {
+                    DbXrefTO articleDbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx", "ds");
+                    if (articleDbXrefTO != null) {
                         articleDbXrefTOs.add(articleDbXrefTO);
                     }
                     articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),

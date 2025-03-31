@@ -63,7 +63,7 @@ public class MySQLReleaseDAO implements ReleaseDAO {
         return template.update("INSERT INTO release_version(date, name) VALUES (now(), :name)", map);
     }
     
-    public static class ReleaseVersionRowMapper implements RowMapper<ReleaseVersion> {
+    private static class ReleaseVersionRowMapper implements RowMapper<ReleaseVersion> {
         @Override
         public ReleaseVersion mapRow(ResultSet rs, int i) throws SQLException {
             return new ReleaseVersion(rs.getString("name"), rs.getObject("date", LocalDateTime.class).toLocalDate());

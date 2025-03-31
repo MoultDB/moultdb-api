@@ -47,10 +47,13 @@ public class MySQLDataSourceDAO implements DataSourceDAO {
     protected static class DataSourceRowMapper implements RowMapper<DataSourceTO> {
         @Override
         public DataSourceTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
+            if (rs.getString("ds.id") != null) {
+                return new DataSourceTO(rs.getInt("ds.id"), rs.getString("ds.name"), rs.getString("ds.description"),
                     rs.getString("ds.short_name"), rs.getString("ds.base_url"), rs.getString("ds.xref_url"),
                     rs.getDate("ds.last_import_date"), rs.getString("ds.release_version"),
                     rs.getInt("ds.display_order"));
+            }
+            return null;
         }
     }
 }

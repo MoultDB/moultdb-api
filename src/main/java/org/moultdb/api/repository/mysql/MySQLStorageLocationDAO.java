@@ -69,7 +69,10 @@ public class MySQLStorageLocationDAO implements StorageLocationDAO {
     protected static class StorageLocationRowMapper implements RowMapper<StorageLocationTO> {
         @Override
         public StorageLocationTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new StorageLocationTO(rs.getInt("id"), rs.getString("name"));
+            if (rs.getInt("id") != 0) {
+                return new StorageLocationTO(rs.getInt("id"), rs.getString("name"));
+            }
+            return null;
         }
     }
 }

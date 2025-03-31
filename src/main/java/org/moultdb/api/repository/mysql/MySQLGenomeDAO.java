@@ -137,19 +137,15 @@ public class MySQLGenomeDAO implements GenomeDAO {
                 }
                 
                 // Build DbXrefs
+                Set<DbXrefTO> dbXrefTOs = taxonTO == null? new HashSet<>() : new HashSet<>(taxonTO.getDbXrefTOs());
                 DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow());
-                Set<DbXrefTO> dbXrefTOs = taxonTO == null? null : new HashSet<>(taxonTO.getDbXrefTOs());
-                if (dbXrefTOs == null) {
-                    dbXrefTOs = new HashSet<>();
+                if (dbXrefTO != null) {
+                    dbXrefTOs.add(dbXrefTO);
                 }
-                dbXrefTOs.add(dbXrefTO);
                 
                 TaxonToDbXrefTO taxonToDbXrefTO = new TaxonToDbXrefTO(rs.getString("tx.taxon_path"),
                         rs.getInt("tx.db_xref_id"), rs.getBoolean("tx.main"));
-                Set<TaxonToDbXrefTO> taxonToDbXrefTOs = taxonTO == null ? null: new HashSet<>(taxonTO.getTaxonToDbXrefTOs());
-                if (taxonToDbXrefTOs == null) {
-                    taxonToDbXrefTOs = new HashSet<>();
-                }
+                Set<TaxonToDbXrefTO> taxonToDbXrefTOs = taxonTO == null ? new HashSet<>(): new HashSet<>(taxonTO.getTaxonToDbXrefTOs());
                 taxonToDbXrefTOs.add(taxonToDbXrefTO);
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object

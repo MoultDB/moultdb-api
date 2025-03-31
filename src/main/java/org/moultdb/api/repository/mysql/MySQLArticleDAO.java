@@ -3,7 +3,6 @@ package org.moultdb.api.repository.mysql;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dto.ArticleTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
@@ -125,9 +124,9 @@ public class MySQLArticleDAO implements ArticleDAO {
                 ArticleTO articleTO = articles.get(articleId);
                 
                 // Build DbXrefs
-                DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow());
                 Set<DbXrefTO> dbXrefTOs = articleTO == null ? new HashSet<>(): new HashSet<>(articleTO.getDbXrefTOs());
-                if (dbXrefTO != null && dbXrefTO.getAccession() != null) {
+                DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow());
+                if (dbXrefTO != null) {
                     dbXrefTOs.add(dbXrefTO);
                 }
                 
