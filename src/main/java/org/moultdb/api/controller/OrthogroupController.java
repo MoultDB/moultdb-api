@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.moultdb.api.controller.ResponseHandler.generateErrorResponse;
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
@@ -37,5 +38,10 @@ public class OrthogroupController {
     @GetMapping("/{groupId}")
     public ResponseEntity<Map<String, Orthogroup>> getById(@PathVariable String groupId) {
         return generateValidResponse(orthogroupService.getOrthogroupById(groupId));
+    }
+    
+    @GetMapping("/moulting")
+    public ResponseEntity<Map<String, Set<Orthogroup>>> getMoultingOrthogroups() {
+        return generateValidResponse(orthogroupService.getMoultingOrthogroups());
     }
 }

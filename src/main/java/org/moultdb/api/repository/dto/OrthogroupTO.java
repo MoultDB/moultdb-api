@@ -14,8 +14,4 @@ public class OrthogroupTO extends NamedEntityTO<Integer> {
     public OrthogroupTO(Integer id, String name) throws IllegalArgumentException {
         super(id, name, null);
     }
-    
-    public OrthogroupTO(Integer id, String name, String description) throws IllegalArgumentException {
-        super(id, name, description);
-    }
 }

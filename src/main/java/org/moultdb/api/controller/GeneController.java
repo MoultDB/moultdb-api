@@ -78,7 +78,7 @@ public class GeneController {
         return generateValidResponse(gene);
     }
     
-    // TODO group by ID (and not by formatted object) and send also in the answer corresponding objects
+    // TODO group by ID (and not by formatted object) and send also in the answer corresponding objects or update PathwayOrthogroup to add genes
     private Map<String, Map<String, Map<String, Set<Gene>>>> getGeneData(List<Gene> genes) {
         return genes.stream().collect(Collectors.groupingBy(gene -> getFormattedKey(gene.getPathway()),
                 Collectors.groupingBy(gene -> getCleanedTaxon(gene.getTaxon()),

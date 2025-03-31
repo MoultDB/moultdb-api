@@ -12,11 +12,11 @@ public class Pathway extends NamedEntity<String> {
     
     private final Set<Integer> figureIds;
     
-    public Pathway(String id, String name, String description, Article article, Set<Integer> figureIds)
+    public Pathway(String id, String name, String description, Article article, Collection<Integer> figureIds)
             throws IllegalArgumentException {
         super(id, name, description);
         this.article = article;
-        this.figureIds = figureIds;
+        this.figureIds = Collections.unmodifiableSet(figureIds == null ? new HashSet<>(): new HashSet<>(figureIds));
     }
     
     public Article getArticle() {

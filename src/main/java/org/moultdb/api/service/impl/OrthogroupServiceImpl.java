@@ -10,12 +10,14 @@ import org.moultdb.api.repository.dao.OrthogroupDAO;
 import org.moultdb.api.repository.dto.GeneTO;
 import org.moultdb.api.repository.dto.OrthogroupTO;
 import org.moultdb.api.service.OrthogroupService;
+import org.moultdb.api.service.ServiceUtils;
 import org.moultdb.importer.genomics.OrthogroupParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.moultdb.api.service.ServiceUtils.mapFromTO;
 
@@ -65,5 +67,12 @@ public class OrthogroupServiceImpl implements OrthogroupService {
     @Override
     public Orthogroup getOrthogroupById(String orthogroupId) {
         return mapFromTO(orthogroupDAO.findById(orthogroupId));
+    }
+    
+    @Override
+    public Set<Orthogroup> getMoultingOrthogroups() {
+        return orthogroupDAO.getMoultingOrthogroups().stream()
+                .map(ServiceUtils::mapFromTO)
+                .collect(Collectors.toSet());
     }
 }

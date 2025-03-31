@@ -55,6 +55,11 @@ public class MySQLOrthogroupDAO implements OrthogroupDAO {
     }
     
     @Override
+    public List<OrthogroupTO> getMoultingOrthogroups() {
+        return template.query(SELECT_STATEMENT + "WHERE og.name IS NOT NULL ", new OrthogroupRowMapper());
+    }
+    
+    @Override
     public void batchUpdate(Set<OrthogroupTO> orthogroupTOs) {
         String insertStmt = "INSERT INTO orthogroup (id, name) " +
                 "VALUES (:id, :name) " +
@@ -76,7 +81,7 @@ public class MySQLOrthogroupDAO implements OrthogroupDAO {
         @Override
         public OrthogroupTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             if (rs.getString("og.id") != null) {
-                return new OrthogroupTO(rs.getInt("og.id"), rs.getString("og.name"), null);
+                return new OrthogroupTO(rs.getInt("og.id"), rs.getString("og.name"));
             }
             return null;
         }

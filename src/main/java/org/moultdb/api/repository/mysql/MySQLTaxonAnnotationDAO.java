@@ -150,12 +150,11 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 
                 // Build DbXrefs
                 // FIXME do some refactoring
+                Set<DbXrefTO> dbXrefTOs = taxonTO == null? new HashSet<>() : new HashSet<>(taxonTO.getDbXrefTOs());
                 DbXrefTO dbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx1", "ds1");
-                Set<DbXrefTO> dbXrefTOs = taxonTO == null? null : new HashSet<>(taxonTO.getDbXrefTOs());
-                if (dbXrefTOs == null) {
-                    dbXrefTOs = new HashSet<>();
+                if (dbXrefTO != null) {
+                    dbXrefTOs.add(dbXrefTO);
                 }
-                dbXrefTOs.add(dbXrefTO);
                 
                 TaxonToDbXrefTO taxonToDbXrefTO = new TaxonToDbXrefTO(rs.getString("tdx.taxon_path"),
                         rs.getInt("tdx.db_xref_id"), rs.getBoolean("tdx.main"));
@@ -191,9 +190,9 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                         articleTO = taxonAnnotationTO.getArticleTO();
                     }
                     // Build DbXrefs
-                    DbXrefTO articleDbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx2", "ds2");
                     Set<DbXrefTO> articleDbXrefTOs = articleTO == null? new HashSet<>() : new HashSet<>(articleTO.getDbXrefTOs());
-                    if (articleDbXrefTO != null && articleDbXrefTO.getAccession() != null) {
+                    DbXrefTO articleDbXrefTO = new MySQLDbXrefDAO.DbXrefRowMapper().mapRow(rs, rs.getRow(), "dx2", "ds2");
+                    if (articleDbXrefTO != null) {
                         articleDbXrefTOs.add(articleDbXrefTO);
                     }
                     articleTO = new ArticleTO(rs.getInt("a.id"), rs.getString("a.citation"),

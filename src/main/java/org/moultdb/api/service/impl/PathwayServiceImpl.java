@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.ImportException;
+import org.moultdb.api.model.Orthogroup;
 import org.moultdb.api.model.Pathway;
 import org.moultdb.api.repository.dao.ArticleDAO;
 import org.moultdb.api.repository.dao.GeneDAO;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,11 @@ public class PathwayServiceImpl implements PathwayService {
     @Override
     public List<Pathway> getAllPathways() {
         return getPathways(pathwayDAO.findAll());
+    }
+    
+    @Override
+    public Map<Pathway, Set<Orthogroup>> getAllPathwaysWithOrthogroups() {
+        return mapFromTO(pathwayDAO.findPathwayOrthogroups());
     }
     
     @Override

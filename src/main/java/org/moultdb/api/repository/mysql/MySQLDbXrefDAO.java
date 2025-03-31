@@ -137,13 +137,16 @@ public class MySQLDbXrefDAO implements DbXrefDAO {
         }
         
         public DbXrefTO mapRow(ResultSet rs, int rowNum, String dbXrefAlias, String datasourceAlias) throws SQLException {
-            return new DbXrefTO(rs.getInt(dbXrefAlias + ".id"), rs.getString(dbXrefAlias + ".accession"),
+            if (rs.getInt(dbXrefAlias + ".id") != 0) {
+                return new DbXrefTO(rs.getInt(dbXrefAlias + ".id"), rs.getString(dbXrefAlias + ".accession"),
                     rs.getString(dbXrefAlias + ".name"),
                     new DataSourceTO(rs.getInt(datasourceAlias + ".id"), rs.getString(datasourceAlias + ".name"),
                             rs.getString(datasourceAlias + ".description"), rs.getString(datasourceAlias + ".short_name"),
                             rs.getString(datasourceAlias + ".base_url"), rs.getString(datasourceAlias + ".xref_url"),
                             rs.getDate(datasourceAlias + ".last_import_date"), rs.getString(datasourceAlias + ".release_version"),
                             rs.getInt(datasourceAlias + ".display_order")));
+            }
+            return null;
         }
     }
 }

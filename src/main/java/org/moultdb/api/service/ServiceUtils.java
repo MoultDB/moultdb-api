@@ -290,4 +290,16 @@ public class ServiceUtils {
         return new Pathway(pathwayTO.getId(), pathwayTO.getName(), pathwayTO.getDescription(),
                 mapFromTO(pathwayTO.getArticleTO()), pathwayTO.getFigureIds());
     }
+    
+    public static Map<Pathway, Set<Orthogroup>> mapFromTO(Map<PathwayTO, OrthogroupTO> inputMap) {
+        Map<Pathway, Set<Orthogroup>> resultMap = new HashMap<>();
+        
+        for (Map.Entry<PathwayTO, OrthogroupTO> entry : inputMap.entrySet()) {
+            Pathway pathway = mapFromTO(entry.getKey());
+            Orthogroup orthogroup = mapFromTO(entry.getValue());
+            resultMap.computeIfAbsent(pathway, k -> new HashSet<>()).add(orthogroup);
+        }
+        
+        return resultMap;
+    }
 }
