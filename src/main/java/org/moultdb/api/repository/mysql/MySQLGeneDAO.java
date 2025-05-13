@@ -145,7 +145,7 @@ public class MySQLGeneDAO implements GeneDAO {
     }
     
     @Override
-    public void batchUpdate(Set<GeneTO> geneTOs) {
+    public int batchUpdate(Set<GeneTO> geneTOs) {
         String geneSql = "INSERT INTO gene (id, gene_id, gene_name, locus_tag, genome_acc, " +
                 "orthogroup_id, transcript_id, transcript_url_suffix, protein_id, protein_description, protein_length, " +
                 "data_source_id, pathway_id) " +
@@ -179,12 +179,14 @@ public class MySQLGeneDAO implements GeneDAO {
             geneParams.add(source);
         }
         
+        int[] ints;
         try {
-            template.batchUpdate(geneSql, geneParams.toArray(MapSqlParameterSource[]::new));
+            ints = template.batchUpdate(geneSql, geneParams.toArray(MapSqlParameterSource[]::new));
             logger.debug("'gene' table updated");
         } catch (Exception e) {
             throw new MoultDBException("Insertion of gene(s) failed: " + e.getMessage());
         }
+        return Arrays.stream(ints).sum();
     }
     
     @Override

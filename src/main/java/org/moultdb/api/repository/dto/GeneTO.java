@@ -62,6 +62,8 @@ public class GeneTO extends EntityTO<Integer> {
         return genomeAcc;
     }
     
+    // Note: taxonPath is a String representation of a taxon path.
+    // It is not stored in the 'gene' table but is populated when data is retrieved from the database.
     public String getTaxonPath() {
         return taxonPath;
     }

@@ -1,13 +1,9 @@
 package org.moultdb.importer;
 
-import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.moultdb.importer.genomics.OrthogroupBean;
 import org.moultdb.importer.genomics.OrthogroupParser;
-
-import java.util.Set;
 
 class OrthogroupParserTest {
     
@@ -16,11 +12,9 @@ class OrthogroupParserTest {
     
     @Test
     public void test() {
-        Gson gson = new Gson();
-        OrthogroupParser parser = new OrthogroupParser();
-        
         String file = this.getClass().getResource(ORTHOGROUPS_TSV).getFile();
-        Set<OrthogroupBean> orthogroupBeans = parser.getOrthogroupBeans(file);
-        logger.debug(gson.toJson(orthogroupBeans));
+        
+        OrthogroupParser parser = new OrthogroupParser();
+        parser.getOrthogroupBeans(file);
     }
 }
