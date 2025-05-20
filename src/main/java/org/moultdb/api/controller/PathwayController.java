@@ -33,7 +33,7 @@ public class PathwayController {
         try {
             pathwayService.importPathways(pathwayCvFile);
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         return generateValidResponse("Pathways imported/updated");
     }
@@ -43,7 +43,7 @@ public class PathwayController {
         try {
             pathwayService.importPathwayData(geneToPathwayFile);
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         return generateValidResponse("Pathways imported/updated");
     }

@@ -61,7 +61,7 @@ public class TaxonController {
         try {
             integer = taxonService.insertTaxa(file);
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         Map<String, Object> resp = new HashMap<>();
         resp.put("count", integer);
