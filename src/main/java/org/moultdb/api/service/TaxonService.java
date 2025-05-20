@@ -14,11 +14,13 @@ public interface TaxonService {
     
     public Taxon getTaxonByScientificName(String scientificName);
     
+    public Taxon getTaxonByPath(String path);
+    
     public Taxon getTaxonByDbXref(String datasource, String accession);
     
     public List<Taxon> getTaxonLineage(String taxonPath);
     
-    public List<Taxon> getTaxonChildren(String taxonPath);
+    public List<Taxon> getTaxonDirectChildren(String taxonPath);
     
     public void insertTaxon(Taxon taxon);
     

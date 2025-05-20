@@ -27,7 +27,7 @@ public interface TaxonDAO extends DAO<TaxonTO> {
     
     List<TaxonTO> findLineageByPath(String taxonPath);
     
-    List<TaxonTO> findChildrenByPath(String taxonPath);
+    List<TaxonTO> findDirectChildrenByPath(String taxonPath);
     
     void insert(TaxonTO taxon);
     

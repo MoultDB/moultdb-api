@@ -55,6 +55,15 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     @Override
+    public Taxon getTaxonByPath(String path) {
+        TaxonTO taxonTO = taxonDAO.findByPath(path);
+        if (taxonTO != null) {
+            return getTaxons(Collections.singletonList(taxonTO)).get(0);
+        }
+        return null;
+    }
+    
+    @Override
     public Taxon getTaxonByDbXref(String datasource, String accession) {
         DatasourceEnum datasourceEnum = DatasourceEnum.valueOfByStringRepresentation(datasource);
         TaxonTO taxonTO = taxonDAO.findByAccession(accession, datasourceEnum.getStringRepresentation());
@@ -70,8 +79,8 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     @Override
-    public List<Taxon> getTaxonChildren(String taxonPath) {
-        return getTaxons(taxonDAO.findChildrenByPath(taxonPath));
+    public List<Taxon> getTaxonDirectChildren(String taxonPath) {
+        return getTaxons(taxonDAO.findDirectChildrenByPath(taxonPath));
     }
     
     private List<Taxon> getTaxons(List<TaxonTO> taxonTOs) {

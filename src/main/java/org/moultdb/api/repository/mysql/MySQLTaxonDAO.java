@@ -116,12 +116,15 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
-    public List<TaxonTO> findChildrenByPath(String taxonPath) {
-        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT + "WHERE path like CONCAT(:taxonPath, '.%') ",
+    public List<TaxonTO> findDirectChildrenByPath(String taxonPath) {
+        List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT +
+                        "WHERE path LIKE CONCAT(:taxonPath, '.%') " +
+                        "  AND path NOT LIKE  CONCAT(:taxonPath, '.%.%') ",
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath), new TaxonResultSetExtractor());
-        // TaxonResultSetExtractor doesn't keep the order so the sort should be done after 
+        // TaxonResultSetExtractor does not keep the order, so sorting should be done afterward.
+        // This ensures that the order remains the same between two identical queries.
         if (taxonTOs != null) {
-            taxonTOs.sort(Comparator.comparing(TaxonTO::getPath));
+            taxonTOs.sort(Comparator.comparing(TaxonTO::getScientificName));
         }
         return taxonTOs;
     }
