@@ -59,7 +59,6 @@ public class TaxonController {
         List<Taxon> children = taxonService.getTaxonDirectChildren(taxonPath);
         return generateValidResponse(new TaxonChildren(taxon, children));
     }
-    }
     
     @PostMapping(value = "/import-file")
     public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam MultipartFile file) {

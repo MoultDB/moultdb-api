@@ -199,9 +199,6 @@ public class TaxonServiceImpl implements TaxonService {
         return sum;
     }
     
-        
-    }
-    
     private static String getExecutionTime(long startPoint, long endPoint) {
         long executionTimeInMs = endPoint - startPoint;
 
