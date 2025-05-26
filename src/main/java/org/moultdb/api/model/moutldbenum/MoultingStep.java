@@ -9,7 +9,8 @@ public enum MoultingStep implements MoutldbEnum {
     PRE_MOULT("pre-moult"),
     MOULTING("moulting"),
     INTER_MOULT("inter-moult"),
-    POST_MOULT("post-moult");
+    POST_MOULT("post-moult"),
+    MULTIPLE("multiple");
     
     private final String stringRepresentation;
     
