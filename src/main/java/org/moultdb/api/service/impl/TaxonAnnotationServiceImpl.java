@@ -268,11 +268,21 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                         userNextId++;
                     }
                     
+                    String authorSpeciesName = null;
                     TaxonTO taxonTO = taxonDAO.findByAccession(obs.taxon().id(),
                             DatasourceEnum.INATURALIST.getStringRepresentation().toLowerCase());
                     if (taxonTO == null) {
-                        logger.error("Unknown iNaturalist taxon ID: {}", obs.taxon().id());
-                        continue;
+                        taxonTO = taxonDAO.findByAccession(obs.taxon().parent_id(),
+                                DatasourceEnum.INATURALIST.getStringRepresentation().toLowerCase());
+                        if (taxonTO != null) {
+                            authorSpeciesName = obs.taxon().name();
+                            logger.warn("iNaturalist taxon ID ({}) not found, but parent taxon ID ({}) was found",
+                                    obs.taxon().id(), obs.taxon().parent_id());
+                        } else {
+                            logger.error("Unknown iNaturalist taxon ID ({}) and parent taxon ID ({})",
+                                    obs.taxon().id(), obs.taxon().parent_id());
+                            continue;
+                        }
                     }
                     
                     String sex = null;
@@ -366,7 +376,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(
                             null,                   // Integer id
                             taxonTO,                // TaxonTO taxonTO
-                            null,                   // String authorSpeciesName
+                            authorSpeciesName,      // String authorSpeciesName
                             determinedBy,           // String determinedBy
                             sampleSetTO.getId(),    // Integer sampleSetId
                             null,                   // String specimenCount
