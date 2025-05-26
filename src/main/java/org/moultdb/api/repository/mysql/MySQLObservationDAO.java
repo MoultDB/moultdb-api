@@ -47,7 +47,9 @@ public class MySQLObservationDAO implements ObservationDAO {
     public int batchUpdate(Set<ObservationTO> observationTOs) {
         
         String insertStmt = "INSERT INTO observation (id, url, description) " +
-                "VALUES (:id, :url, :description) ";
+                "VALUES (:id, :url, :description) " +
+                "AS new " +
+                "ON DUPLICATE KEY UPDATE url = new.url, description = new.description ";
         
         List<MapSqlParameterSource> params = new ArrayList<>();
         for (ObservationTO observationTO : observationTOs) {

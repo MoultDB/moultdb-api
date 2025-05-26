@@ -232,7 +232,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                         .retrieve()
                         .onStatus(httpStatus -> !httpStatus.is2xxSuccessful(), clientResponse
                                 -> Mono.error(new MoultDBException("Request to INaturalist API failed: " + url)))
-                        .bodyToMono(INaturalistResponse.class);
+                        .bodyToMono(INaturalistResponse.class)
+                        .retry(3);
                 INaturalistResponse inatResp = response.block();
                 
                 if (inatResp == null) {
@@ -357,7 +358,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     
                     String determinedBy;
                     if (firstTaxonIdentificator.isEmpty()) {
-                        logger.error("No taxon identifier found for observation {}", obs.id());
+                        logger.warn("No taxon identifier found for observation {}", obs.id());
                         continue;
                     } else {
                         INaturalistResponse.INaturalistUser identificator = firstTaxonIdentificator.get(0);
@@ -401,7 +402,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     versionNextId++;
                     sampleSetNextId++;
                 }
-                // We need to avoid making too many calls per minute, see https://api.inaturalist.org/v1/ 
+                // We need to avoid making too many calls per minute, see https://api.inaturalist.org/v1/:
+                // 1-second delay to respect iNaturalist's recommended limit of 60 requests/min
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -417,6 +419,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             conditionDAO.batchUpdate(conditionTOs);
             versionDAO.batchUpdate(versionTOs);
             observationDAO.batchUpdate(observationTOs);
+            taxonAnnotationDAO.deleteINatAnnotations(); // delete all previous iNat annotations
             taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
             
             logger.debug("iNaturalist observation count: {} - TaxonAnnotationTO count: {}",

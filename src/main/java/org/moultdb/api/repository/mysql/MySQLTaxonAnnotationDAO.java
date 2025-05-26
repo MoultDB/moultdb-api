@@ -134,6 +134,12 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
         return count;
     }
     
+    @Override
+    public void deleteINatAnnotations() {
+        String sql = "DELETE FROM taxon_annotation WHERE observation_id IS NOT NULL ";
+        template.update(sql, Collections.emptyMap());
+    }
+    
     private static class TaxonAnnotationResultSetExtractor implements ResultSetExtractor<List<TaxonAnnotationTO>> {
         
         @Override
