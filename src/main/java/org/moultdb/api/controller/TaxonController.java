@@ -34,7 +34,7 @@ public class TaxonController {
                     HttpStatus.BAD_REQUEST);
         }
         if (taxonPath != null) {
-            return generateValidResponse(taxonService.getTaxonByPath(scientificName));
+            return generateValidResponse(taxonService.getTaxonByPath(taxonPath));
         } else if (scientificName != null) {
             return generateValidResponse(taxonService.getTaxonByScientificName(scientificName));
         } else if (datasource != null) {
