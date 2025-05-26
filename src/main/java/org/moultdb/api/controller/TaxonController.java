@@ -25,14 +25,17 @@ public class TaxonController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getTaxon(@RequestParam(required = false) String scientificName,
+                                                        @RequestParam(required = false) String taxonPath,
                                                         @RequestParam(required = false) String datasource,
                                                         @RequestParam(required = false) String accession) {
-        if (MoultdbController.hasMultipleParams(Arrays.asList(scientificName, datasource))) {
+        if (MoultdbController.hasMultipleParams(Arrays.asList(scientificName, taxonPath, datasource))) {
             return generateErrorResponse("Invalid combination of parameters: " +
                             "one parameter and one only must be specified between scientificName, taxonPath, or accession",
                     HttpStatus.BAD_REQUEST);
         }
-        if (scientificName != null) {
+        if (taxonPath != null) {
+            return generateValidResponse(taxonService.getTaxonByPath(taxonPath));
+        } else if (scientificName != null) {
             return generateValidResponse(taxonService.getTaxonByScientificName(scientificName));
         } else if (datasource != null) {
             return generateValidResponse(taxonService.getTaxonByDbXref(datasource, accession));
@@ -50,9 +53,11 @@ public class TaxonController {
         return generateValidResponse(taxonService.getTaxonLineage(taxonPath));
     }
     
-    @GetMapping("/{taxonPath}/children")
-    public ResponseEntity<Map<String, List<Taxon>>> getTaxonChildren(@PathVariable String taxonPath) {
-        return generateValidResponse(taxonService.getTaxonChildren(taxonPath));
+    @GetMapping("/{taxonPath}/direct-children")
+    public ResponseEntity<Map<String, TaxonChildren>> getTaxonChildren(@PathVariable String taxonPath) {
+        Taxon taxon = taxonService.getTaxonByPath(taxonPath);
+        List<Taxon> children = taxonService.getTaxonDirectChildren(taxonPath);
+        return generateValidResponse(new TaxonChildren(taxon, children));
     }
     
     @PostMapping(value = "/import-file")
@@ -61,10 +66,25 @@ public class TaxonController {
         try {
             integer = taxonService.insertTaxa(file);
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         Map<String, Object> resp = new HashMap<>();
         resp.put("count", integer);
-        return generateValidResponse("Taxa imported",resp);
+        return generateValidResponse("Taxa imported", resp);
+    }
+    
+    public static class TaxonChildren extends Taxon {
+        
+        private final List<Taxon> children;
+        
+        public TaxonChildren(Taxon parent, List<Taxon> children) {
+            super(parent.getPath(), parent.getScientificName(), parent.getCommonName(),
+                    parent.isExtinct(), parent.getDbXrefs());
+            this.children = children;
+        }
+        
+        public List<Taxon> getChildren() {
+            return children;
+        }
     }
 }

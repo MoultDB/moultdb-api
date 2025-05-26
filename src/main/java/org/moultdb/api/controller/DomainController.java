@@ -30,7 +30,7 @@ public class DomainController {
         try {
             domainService.updateDomains(files);
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         return generateValidResponse("Domains imported/updated");
     }

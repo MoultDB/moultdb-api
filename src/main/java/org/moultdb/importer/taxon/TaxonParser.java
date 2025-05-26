@@ -118,12 +118,6 @@ public class TaxonParser {
                 scientificName = cleanName(bean.getInatName());
             }
             
-            TaxonTO taxonTO = taxonDAO.findByScientificName(scientificName);
-            if (taxonTO != null) {
-                logger.debug("Taxon scientific name already exits: {}", scientificName);
-                continue;
-            }
-            
             Set<DbXrefTO> dbXrefTOs = new HashSet<>();
             Set<TaxonToDbXrefTO> taxonToDbXrefTOs = new HashSet<>();
             dbXrefNextId = addDbXref(dbXrefDAO, dbXrefNextId, ncbiTO, cleanId(bean.getNcbiId()), cleanName(bean.getNcbiName()),
@@ -184,11 +178,9 @@ public class TaxonParser {
         if (isMain && accession == null) {
             return dbXrefNextId;
         }
-        DbXrefTO dbXrefTO = dbXrefDAO.find(accession, name, sourceTO.getId());
-        if (dbXrefTO == null) {
-            dbXrefTO = new DbXrefTO(dbXrefNextId, accession, name, sourceTO);
-            dbXrefNextId++;
-        }
+        DbXrefTO dbXrefTO = new DbXrefTO(dbXrefNextId, accession, name, sourceTO);
+        dbXrefNextId++;
+        
         dbXrefTOs.add(dbXrefTO);
         
         taxonToDbXrefTOs.add(new TaxonToDbXrefTO(path, dbXrefTO.getId(), isMain));

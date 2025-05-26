@@ -33,7 +33,7 @@ public class GeneController {
         try {
             geneService.importGenes(files, throwException);
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         return generateValidResponse("Genes imported/updated");
     }

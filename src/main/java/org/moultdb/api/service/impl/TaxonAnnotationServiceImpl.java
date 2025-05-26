@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -38,6 +39,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     private String INAT_API_PROJECT_CALL_URL;
     @Value("${inaturalist.url.observation}")
     private String INAT_OBSERVATION_URL;
+    private final static Integer INAT_PER_PAGE_PARAM = 5;
     
     private final static Logger logger = LogManager.getLogger(TaxonAnnotationServiceImpl.class.getName());
     
@@ -168,7 +170,11 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
     @Override
     public Integer importINaturalistAnnotations() {
         
-        WebClient client = WebClient.create();
+        WebClient client = WebClient.builder()
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024)) // 2 Mo
+                        .build())
+                .build();
         
         Mono<INaturalistResponse> initialResponse = client.get()
                 .uri(INAT_API_PROJECT_CALL_URL + "&per_page=0")
@@ -181,8 +187,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
         
         if (iNaturalistResponse != null) {
             
-            int pageCount = iNaturalistResponse.total_results() / 2;
-            if (iNaturalistResponse.total_results() % 2 != 0) {
+            int pageCount = iNaturalistResponse.total_results() / INAT_PER_PAGE_PARAM;
+            if (iNaturalistResponse.total_results() % INAT_PER_PAGE_PARAM != 0) {
                 pageCount ++;
             }
             
@@ -218,19 +224,16 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             
             Set<INaturalistResponse.INaturalistObservation> allResults = new HashSet<>();
             for (int i = 1; i < pageCount; i++) {
-                String url = INAT_API_PROJECT_CALL_URL + "&per_page=2&page=" + i;
+                String url = INAT_API_PROJECT_CALL_URL + "&per_page=" + INAT_PER_PAGE_PARAM + "&page=" + i;
                 logger.debug("iNaturalist API call URL ({}/{}): {}", i, pageCount, url);
-//                if (i == 4) {
-//                    // FIXME remove this break
-//                    logger.debug("Temporary break for testing");
-//                    break;
-//                }
+                
                 Mono<INaturalistResponse> response = client.get()
                         .uri(url)
                         .retrieve()
                         .onStatus(httpStatus -> !httpStatus.is2xxSuccessful(), clientResponse
                                 -> Mono.error(new MoultDBException("Request to INaturalist API failed: " + url)))
-                        .bodyToMono(INaturalistResponse.class);
+                        .bodyToMono(INaturalistResponse.class)
+                        .retry(3);
                 INaturalistResponse inatResp = response.block();
                 
                 if (inatResp == null) {
@@ -266,18 +269,27 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                         userNextId++;
                     }
                     
+                    String authorSpeciesName = null;
                     TaxonTO taxonTO = taxonDAO.findByAccession(obs.taxon().id(),
                             DatasourceEnum.INATURALIST.getStringRepresentation().toLowerCase());
                     if (taxonTO == null) {
-                        logger.error("Unknown iNaturalist taxon ID: {}", obs.taxon().id());
-                        continue;
+                        taxonTO = taxonDAO.findByAccession(obs.taxon().parent_id(),
+                                DatasourceEnum.INATURALIST.getStringRepresentation().toLowerCase());
+                        if (taxonTO != null) {
+                            authorSpeciesName = obs.taxon().name();
+                            logger.warn("iNaturalist taxon ID ({}) not found, but parent taxon ID ({}) was found",
+                                    obs.taxon().id(), obs.taxon().parent_id());
+                        } else {
+                            logger.error("Unknown iNaturalist taxon ID ({}) and parent taxon ID ({})",
+                                    obs.taxon().id(), obs.taxon().parent_id());
+                            continue;
+                        }
                     }
                     
                     String sex = null;
                     Integer ageInDays = null;
                     Boolean isCaptive = null;
                     Boolean isFossil = null;
-                    String moult = null;
                     String providedMoultingStep = null;
                     String generalComment = null;
                     
@@ -290,7 +302,6 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                             case "Sex" -> sex = ofv.value().toLowerCase();
                             case "Age (in days)" -> ageInDays = Integer.parseInt(ofv.value());
                             case "Fossil" -> isFossil = Boolean.parseBoolean(ofv.value());
-                            case "Moult?" -> moult = ofv.value();
                             case "Moulting Stage" -> providedMoultingStep = ofv.value().toLowerCase();
                             case "Additional notes of interest" -> generalComment = ofv.value();
                             case "Captive/cultivated" -> {
@@ -338,15 +349,22 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     
                     MoultingCharactersTO moultingCharactersTO = new MoultingCharactersTO(mcNextId, generalComment);
                     
-                    INaturalistResponse.INaturalistUser firstTaxonIdentificator = obs.identifications().stream()
+                    List<INaturalistResponse.INaturalistUser> firstTaxonIdentificator = obs.identifications().stream()
                             .sorted(Comparator.comparing(INaturalistResponse.INaturalistIdentification::created_at))
                             .filter(id -> id.taxon() != null && id.taxon().id().equals(obs.taxon().id()))
                             .map(INaturalistResponse.INaturalistIdentification::user)
                             .limit(1)
-                            .toList().get(0);
-                    String determinedBy = StringUtils.isNotBlank(firstTaxonIdentificator.orcid()) ?
-                            getOrcidId(firstTaxonIdentificator) : firstTaxonIdentificator.login();
-                    logger.debug("determinedBy: {}", determinedBy);
+                            .toList();
+                    
+                    String determinedBy;
+                    if (firstTaxonIdentificator.isEmpty()) {
+                        logger.warn("No taxon identifier found for observation {}", obs.id());
+                        continue;
+                    } else {
+                        INaturalistResponse.INaturalistUser identificator = firstTaxonIdentificator.get(0);
+                        determinedBy = StringUtils.isNotBlank(identificator.orcid()) ?
+                                getOrcidId(identificator) : identificator.login();
+                    }
                     
                     Timestamp creationTimestamp = new Timestamp(obs.observed_on().getTime());
                     Timestamp currentTimestamp = new Timestamp(new Date().getTime());
@@ -359,7 +377,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     TaxonAnnotationTO taxonAnnotationTO = new TaxonAnnotationTO(
                             null,                   // Integer id
                             taxonTO,                // TaxonTO taxonTO
-                            null,                   // String authorSpeciesName
+                            authorSpeciesName,      // String authorSpeciesName
                             determinedBy,           // String determinedBy
                             sampleSetTO.getId(),    // Integer sampleSetId
                             null,                   // String specimenCount
@@ -384,7 +402,8 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
                     versionNextId++;
                     sampleSetNextId++;
                 }
-                // We need to avoid making too many calls per minute, see https://api.inaturalist.org/v1/ 
+                // We need to avoid making too many calls per minute, see https://api.inaturalist.org/v1/:
+                // 1-second delay to respect iNaturalist's recommended limit of 60 requests/min
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -400,6 +419,7 @@ public class TaxonAnnotationServiceImpl implements TaxonAnnotationService {
             conditionDAO.batchUpdate(conditionTOs);
             versionDAO.batchUpdate(versionTOs);
             observationDAO.batchUpdate(observationTOs);
+            taxonAnnotationDAO.deleteINatAnnotations(); // delete all previous iNat annotations
             taxonAnnotationDAO.batchUpdate(taxonAnnotationTOs);
             
             logger.debug("iNaturalist observation count: {} - TaxonAnnotationTO count: {}",

@@ -22,6 +22,27 @@ public class ServiceUtils {
     
     public static String API_URL;
     
+    public static <T> Set<Set<T>> splitSet(Set<T> originalSet, int subsetSize) {
+        
+        Set<Set<T>> allSubsets = new HashSet<>();
+        Set<T> currentSubset = new HashSet<>();
+        
+        for (T element : originalSet) {
+            currentSubset.add(element);
+            
+            if (currentSubset.size() == subsetSize) {
+                allSubsets.add(currentSubset);
+                currentSubset = new HashSet<>(); // Reinitialize current subset
+            }
+        }
+        
+        // Add the last subset if not complete
+        if (!currentSubset.isEmpty()) {
+            allSubsets.add(currentSubset);
+        }
+        return allSubsets;
+    }
+    
     @Value("${moultdb.url.api}")
     public void setApiUrl(String apiUrl) {
         API_URL = apiUrl;

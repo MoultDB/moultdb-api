@@ -19,7 +19,7 @@ public record INaturalistResponse(Integer total_results, Integer page, Integer p
                                          List<INaturalistIdentification> identifications,
                                          Date observed_on) {}
     
-    public record INaturalistTaxon(String id, String place_guess) {}
+    public record INaturalistTaxon(String id, String name, String place_guess, String parent_id) {}
     
     public record INaturalistIdentification(INaturalistTaxon taxon, INaturalistUser user, Date created_at) {}
     

@@ -36,7 +36,7 @@ public class ReleaseController {
         try {
             newVersion = releaseService.createNewVersion();
         } catch (Exception e) {
-            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         return generateValidResponse("New release version created: " + newVersion.name());
     }

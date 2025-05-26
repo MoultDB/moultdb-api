@@ -55,6 +55,15 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     @Override
+    public Taxon getTaxonByPath(String path) {
+        TaxonTO taxonTO = taxonDAO.findByPath(path);
+        if (taxonTO != null) {
+            return getTaxons(Collections.singletonList(taxonTO)).get(0);
+        }
+        return null;
+    }
+    
+    @Override
     public Taxon getTaxonByDbXref(String datasource, String accession) {
         DatasourceEnum datasourceEnum = DatasourceEnum.valueOfByStringRepresentation(datasource);
         TaxonTO taxonTO = taxonDAO.findByAccession(accession, datasourceEnum.getStringRepresentation());
@@ -70,8 +79,8 @@ public class TaxonServiceImpl implements TaxonService {
     }
     
     @Override
-    public List<Taxon> getTaxonChildren(String taxonPath) {
-        return getTaxons(taxonDAO.findChildrenByPath(taxonPath));
+    public List<Taxon> getTaxonDirectChildren(String taxonPath) {
+        return getTaxons(taxonDAO.findDirectChildrenByPath(taxonPath));
     }
     
     private List<Taxon> getTaxons(List<TaxonTO> taxonTOs) {
@@ -111,30 +120,39 @@ public class TaxonServiceImpl implements TaxonService {
                 .map(TaxonBean::getGbifId)
                 .filter(Objects::nonNull)
                 .toList();
-        List<String> syno = taxonBeans.stream()
+        List<String> synoIds = taxonBeans.stream()
                 .filter(b -> b.getSynonymGbifIds() != null)
                 .map(b -> List.of(b.getSynonymGbifIds().split(", ")))
+                .flatMap(List::stream).toList();
+        List<String> synoNames = taxonBeans.stream()
+                .filter(b -> b.getSynonymGbifNames() != null)
+                .map(b -> List.of(b.getSynonymGbifNames().split(", ")))
                 .flatMap(List::stream).toList();
         List<String> inatIds = taxonBeans.stream()
                 .map(TaxonBean::getInatId)
                 .filter(Objects::nonNull)
                 .toList();
 
+        if (synoIds.size() != synoNames.size()) {
+            logger.error("GBIF synonym IDs and names are not the same size: " + synoIds.size() + " vs " + synoNames.size());
+            throw new MoultDBException("Synonym IDs and names are not the same size");
+        }
+        
         boolean hasDuplicatedIDs = false;
         HashSet<String> uniqNcbiIds = new HashSet<>(ncbiIds);
         if (ncbiIds.size() != uniqNcbiIds.size()) {
             hasDuplicatedIDs = true;
-            logger.error("NCBI IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(ncbiIds));
+            logger.error("NCBI IDs are not uniq: {}", listDuplicateUsingFilterAndSetAdd(ncbiIds));
         }
         HashSet<String> uniqGbifIds = new HashSet<>(gbifIds);
         if (gbifIds.size() != uniqGbifIds.size()) {
             hasDuplicatedIDs = true;
-            logger.error("GBIF IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(gbifIds));
+            logger.error("GBIF IDs are not uniq: {}", listDuplicateUsingFilterAndSetAdd(gbifIds));
         }
-        HashSet<String> uniqSyno = new HashSet<>(syno);
-        if (syno.size() != uniqSyno.size()) {
+        HashSet<String> uniqSyno = new HashSet<>(synoIds);
+        if (synoIds.size() != uniqSyno.size()) {
             hasDuplicatedIDs = true;
-            logger.error("GBIF synonym IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(syno));
+            logger.error("GBIF synonym IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(synoIds));
         }
         HashSet<String> uniq = new HashSet<>(uniqGbifIds);
         uniq.addAll(uniqSyno);
@@ -142,65 +160,43 @@ public class TaxonServiceImpl implements TaxonService {
             hasDuplicatedIDs = true;
             List<String> list = new ArrayList<>(uniqGbifIds);
             list.addAll(uniqSyno);
-            logger.error("All GBIF IDs (main + synonyms) are not uniq: " +
-                    listDuplicateUsingFilterAndSetAdd(list));
+            logger.error("All GBIF IDs (main + synonyms) are not uniq: {}", listDuplicateUsingFilterAndSetAdd(list));
         }
         HashSet<String> uniqInatIds = new HashSet<>(inatIds);
         if (inatIds.size() != uniqInatIds.size()) {
             hasDuplicatedIDs = true;
-            logger.error("INaturalist IDs are not uniq: " + listDuplicateUsingFilterAndSetAdd(inatIds));
+            logger.error("INaturalist IDs are not uniq: {}", listDuplicateUsingFilterAndSetAdd(inatIds));
         }
         if (hasDuplicatedIDs) {
             throw new MoultDBException("There are duplicates in the input file");
         }
         
         // Divide set in several sets to avoid memory errors
-        Set<Set<TaxonBean>> taxonBeanSubsets = splitBeans(taxonBeans);
+        Set<Set<TaxonBean>> taxonBeanSubsets = ServiceUtils.splitSet(taxonBeans, TAXON_SUBSET_SIZE);
         int sum = 0;
         
         int idx = 1;
         for (Set<TaxonBean> taxonBeanSubset : taxonBeanSubsets) {
-            logger.info("# Start subset taxon import " + idx + "/" + taxonBeanSubsets.size() + "...");
-            logger.debug("# Start parsing taxon beans...");
+            logger.info("# Start subset taxon import {}/{}...", idx, taxonBeanSubsets.size());
+            logger.debug("## Start parsing taxon beans...");
             long startTimePoint1 = System.currentTimeMillis();
             Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, taxonDAO, dataSourceDAO, dbXrefDAO);
             long endTimePoint = System.currentTimeMillis();
-            logger.debug("# End parsing taxon beans. " + getExecutionTime(startTimePoint1, endTimePoint));
+            logger.debug("## End parsing taxon beans. {}", getExecutionTime(startTimePoint1, endTimePoint));
             
-            logger.debug("# Start of taxon insertion...");
+            logger.debug("## Start of taxon insertion...");
             long startTimePoint2 = System.currentTimeMillis();
             sum += taxonDAO.batchUpdate(taxonTOs);
             endTimePoint = System.currentTimeMillis();
-            logger.debug("# End of taxon insertion. " + getExecutionTime(startTimePoint2, endTimePoint));
-            logger.info("# End of subset taxon import. " + getExecutionTime(startTimePoint1, endTimePoint));
+            logger.debug("## End of taxon insertion. {}", getExecutionTime(startTimePoint2, endTimePoint));
+            logger.info("# End of subset taxon import. {}", getExecutionTime(startTimePoint1, endTimePoint));
             idx++;
         }
         long endImportTimePoint = System.currentTimeMillis();
         
-        logger.info("End taxon import." + getExecutionTime(startImportTimePoint, endImportTimePoint));
+        logger.info("End taxon import. {}", getExecutionTime(startImportTimePoint, endImportTimePoint));
         
         return sum;
-    }
-    
-    private static Set<Set<TaxonBean>> splitBeans(Set<TaxonBean> originalSet) {
-        
-        Set<Set<TaxonBean>> allSubsets = new HashSet<>();
-        Set<TaxonBean> currentSubset = new HashSet<>();
-        
-        for (TaxonBean element : originalSet) {
-            currentSubset.add(element);
-            
-            if (currentSubset.size() == TAXON_SUBSET_SIZE) {
-                allSubsets.add(currentSubset);
-                currentSubset = new HashSet<>(); // Reinitialize current subset
-            }
-        }
-        
-        // Add last subset if not complete
-        if (!currentSubset.isEmpty()) {
-            allSubsets.add(currentSubset);
-        }
-        return allSubsets;
     }
     
     private static String getExecutionTime(long startPoint, long endPoint) {

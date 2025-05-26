@@ -104,29 +104,35 @@ public class GeneServiceImpl implements GeneService {
                             .thenComparing(GeneTO::getTranscriptId, Comparator.nullsFirst(Comparator.naturalOrder()))
                             .thenComparing(GeneTO::getProteinId);
             
-            Set<GeneTO> genesToRemove = geneDAO.findAll().stream()
-                    .filter(dbGeneTO -> geneTOs.stream().noneMatch(item -> geneTOComparator.compare(dbGeneTO, item) == 0))
-                    .collect(Collectors.toSet());
-            
-            if (!genesToRemove.isEmpty()) {
-                logger.info("Delete genes that are no longer in the input file...");
-                Set<Integer> dbGeneIds = genesToRemove.stream()
-                        .map(EntityTO::getId)
-                        .collect(Collectors.toSet());
-                geneDAO.deleteByIds(dbGeneIds);
-                logger.warn("Deleted genes: " + dbGeneIds);
-            }
             logger.info("Check gene existence...");
+            if (!geneTOs.isEmpty()) {
+                GeneTO ref = geneTOs.iterator().next();
+                GenomeTO dbGenomeTO = genomeDAO.findByGenbankAcc(ref.getGenomeAcc());
+                Set<GeneTO> genesToRemove = geneDAO.findByTaxon(dbGenomeTO.getTaxonTO().getPath(), null).stream()
+                        .filter(dbGeneTO -> geneTOs.stream()
+                                .noneMatch(item -> geneTOComparator.compare(dbGeneTO, item) == 0))
+                        .collect(Collectors.toSet());
+                
+                if (!genesToRemove.isEmpty()) {
+                    logger.info("Delete genes that are no longer in the input file (same taxon)...");
+                    Set<Integer> dbGeneIds = genesToRemove.stream()
+                            .map(EntityTO::getId)
+                            .collect(Collectors.toSet());
+                    geneDAO.deleteByIds(dbGeneIds);
+                    logger.warn("Deleted {} genes of {} ({})",
+                            genesToRemove.size(), ref.getGenomeAcc(), dbGenomeTO.getTaxonTO().getPath());
+                }
+            }
             
             logger.info("Load genes in db...");
             geneDAO.batchUpdate(geneTOs);
             
         } catch (Exception e) {
+            logger.error("Error: ", e);
             throw new ImportException("Unable to import genes from " + originalGeneFilename + ". " +
                     "Error: " + e.getMessage());
-        } finally {
-            logger.info("End for file " + originalGeneFilename + ".");
         }
+        logger.info("End for file {}.", originalGeneFilename);
     }
     
     private Gene getGene(GeneTO geneTO) {

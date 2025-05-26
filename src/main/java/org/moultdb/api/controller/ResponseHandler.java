@@ -1,5 +1,7 @@
 package org.moultdb.api.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -12,14 +14,21 @@ import java.util.Map;
  */
 public class ResponseHandler {
     
+    private final static Logger logger = LogManager.getLogger(ResponseHandler.class.getName());
+    
     public static ResponseEntity<Map<String, Object>> generateErrorResponse(Exception e) {
-        return generateErrorResponse(e.getMessage(), HttpStatus.CONFLICT);
+        return generateErrorResponse(e.getMessage(), HttpStatus.CONFLICT, e);
     }
     
     public static ResponseEntity<Map<String, Object>> generateErrorResponse(String message, HttpStatus httpStatus) {
+        return generateErrorResponse(message, httpStatus, null);
+    }
+    
+    public static ResponseEntity<Map<String, Object>> generateErrorResponse(String message, HttpStatus httpStatus, Exception e) {
         Map<String, Object> response = new HashMap<>();
         response.put("error", "true");
         response.put("message", message);
+        logger.error("An error has been generated", e);
         return org.springframework.http.ResponseEntity.status(httpStatus).body(response);
     }
     
