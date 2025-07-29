@@ -1,9 +1,12 @@
 package org.moultdb.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * @author  Valentine Rech de Laval
  * @since   2024-11-05
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaxonSearchResult {
     
     private final String path;
@@ -17,6 +20,10 @@ public class TaxonSearchResult {
     private final String synonyms;
     
     private final String xrefUrl;
+    
+    public TaxonSearchResult(String accession, String scientificName) {
+        this(null, accession, scientificName, null, null, null);
+    }
     
     public TaxonSearchResult(String path, String accession, String scientificName, String commonName, String synonyms, String xrefUrl) {
         this.path = path;

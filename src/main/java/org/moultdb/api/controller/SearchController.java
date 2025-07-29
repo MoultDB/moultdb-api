@@ -49,4 +49,16 @@ public class SearchController {
         return generateValidResponse("Taxon search result for [" + q + "]",
                 searchService.taxonSearch(q, limit == null? DEFAULT_SEARCH_LIMIT : limit));
     }
+    
+    @GetMapping("/inat_search")
+    public ResponseEntity<Map<String, Object>> getInatTaxonSearch(@RequestParam String q,
+                                                                  @RequestParam(required = false) Integer limit) {
+        if (limit != null && limit > LIMIT_MAX) {
+            return generateErrorResponse("It is not possible to request more than "
+                    + LIMIT_MAX + " results.", HttpStatus.BAD_REQUEST);
+        }
+        return generateValidResponse("Taxon autocomplete result for [" + q + "]",
+                searchService.inatTaxonSearch(q, limit == null? DEFAULT_AUTOCOMPLETE_LIMIT : limit));
+    }
+
 }
