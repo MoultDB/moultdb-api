@@ -1,8 +1,12 @@
 package org.moultdb.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.moultdb.api.exception.MoultDBException;
+import org.moultdb.api.controller.response.GeneResponse;
+import org.moultdb.api.controller.response.OrthogroupResponse;
+import org.moultdb.api.controller.response.PathwayResponse;
+import org.moultdb.api.controller.response.TaxonResponse;
 import org.moultdb.api.model.Gene;
+import org.moultdb.api.model.Orthogroup;
+import org.moultdb.api.model.Pathway;
 import org.moultdb.api.model.Taxon;
 import org.moultdb.api.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,24 +82,45 @@ public class GeneController {
         return generateValidResponse(gene);
     }
     
-    // TODO group by ID (and not by formatted object) and send also in the answer corresponding objects or update PathwayOrthogroup to add genes
-    private Map<String, Map<String, Map<String, Set<Gene>>>> getGeneData(List<Gene> genes) {
-        return genes.stream().collect(Collectors.groupingBy(gene -> getFormattedKey(gene.getPathway()),
-                Collectors.groupingBy(gene -> getCleanedTaxon(gene.getTaxon()),
-                        Collectors.groupingBy(gene -> getFormattedKey(gene.getOrthogroup()), Collectors.toSet()))));
-    }
-    
-    private static String getCleanedTaxon(Taxon taxon) {
-        return getFormattedKey(new Taxon(taxon.getPath(), taxon.getScientificName(), taxon.getCommonName(),
-                taxon.isExtinct(), taxon.getDbXrefs().isEmpty()? taxon.getDbXrefs() : Collections.singleton(taxon.getDbXrefs().get(0))) );
-    }
-    
-    private static String getFormattedKey(Object g) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(g);
-        } catch (Exception e) {
-            throw new MoultDBException("Error when formatting the object", e);
-        }
+    private List<PathwayResponse> getGeneData(List<Gene> genes) {
+        
+        Map<Pathway, Map<Taxon, Map<Orthogroup, Set<Gene>>>> collect =
+                genes.stream()
+                        .collect(Collectors.groupingBy(g -> Optional.ofNullable(g.getPathway())
+                                        .orElse(new Pathway("NOT_IN_MOULTING_PATHWAY", "NOT_IN_MOULTING_PATHWAY", null, null, null)),
+                                Collectors.groupingBy(Gene::getTaxon,
+                                        Collectors.groupingBy(g -> Optional.ofNullable(g.getOrthogroup()).orElse(new Orthogroup(0, null)),
+                                                Collectors.toSet()))));
+        
+        return collect.entrySet().stream()
+                .map(pathwayEntry -> {
+                    Pathway pathway = pathwayEntry.getKey();
+                    Map<Taxon, Map<Orthogroup, Set<Gene>>> taxonMap = pathwayEntry.getValue();
+                    List<TaxonResponse> taxonResponses = taxonMap.entrySet().stream()
+                            .map(taxonEntry -> {
+                                Taxon taxon = taxonEntry.getKey();
+                                Map<Orthogroup, Set<Gene>> orthogroupMap = taxonEntry.getValue();
+                                List<OrthogroupResponse> orthogroupResponses = orthogroupMap.entrySet().stream()
+                                        .map(orthogroupEntry -> {
+                                            Orthogroup orthogroup = orthogroupEntry.getKey();
+                                            List<GeneResponse> geneGroup = orthogroupEntry.getValue().stream()
+                                                    .map(g -> new GeneResponse(g.getId(), g.getName(), g.getLocusTag()))
+                                                    .sorted(Comparator.comparing(GeneResponse::name, Comparator.nullsLast(String::compareTo))
+                                                            .thenComparing(GeneResponse::id, Comparator.nullsLast(String::compareTo))
+                                                            .thenComparing(GeneResponse::locusTag, Comparator.nullsLast(String::compareTo)))
+                                                    .toList();
+                                            return new OrthogroupResponse(orthogroup.getId(), orthogroup.getName(), geneGroup);
+                                        })
+                                        .sorted(Comparator.comparing(OrthogroupResponse::name, Comparator.nullsLast(String::compareTo))
+                                                .thenComparing(OrthogroupResponse::id))
+                                        .collect(Collectors.toList());
+                                return new TaxonResponse(taxon.getId(), taxon.getScientificName(), taxon.getAccession(), orthogroupResponses);
+                            })
+                            .sorted(Comparator.comparing(TaxonResponse::scientificName))
+                            .collect(Collectors.toList());
+                    return new PathwayResponse(pathway.getId(), pathway.getName(), taxonResponses);
+                })
+                .sorted(Comparator.comparing(PathwayResponse::id))
+                .collect(Collectors.toList());
     }
 }
