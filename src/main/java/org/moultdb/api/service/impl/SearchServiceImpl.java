@@ -30,7 +30,7 @@ public class SearchServiceImpl implements SearchService {
     public List<String> taxonAutocomplete(String searchTerm, int limit) {
         SphinxResult result = search(searchTerm, "moultdb_taxon_autocomplete", null, limit);
         
-        // if result is empty, return an empty list
+        // if the result is empty, return an empty list
         if (result == null || result.totalFound == 0) {
             return List.of();
         }
@@ -51,7 +51,7 @@ public class SearchServiceImpl implements SearchService {
         
         SphinxResult result = search(searchTerm, "moultdb_taxon_search", weights, limit);
 
-        // if result is empty, return an empty list
+        // if the result is empty, return an empty list
         if (result == null || result.totalFound == 0) {
             return List.of();
         }
@@ -74,6 +74,29 @@ public class SearchServiceImpl implements SearchService {
                 .toList();
     }
     
+    @Override
+    public List<TaxonSearchResult> inatTaxonSearch(String searchTerm, int limit) {
+        
+        SphinxResult result = search(searchTerm, "moulting_taxon_search", null, limit);
+        
+        // if the result is empty, return an empty list
+        if (result == null || result.totalFound == 0) {
+            return List.of();
+        }
+        
+        // Get mapping between attribute names and their index
+        Map<String, Integer> attrNameToIdx = new HashMap<>();
+        for (int idx = 0; idx < result.attrNames.length; idx++) {
+            attrNameToIdx.put(result.attrNames[idx], idx);
+        }
+        
+        return Arrays.stream(result.matches)
+                .map(m -> new TaxonSearchResult(
+                        String.valueOf(m.attrValues.get(attrNameToIdx.get("t_accession"))),
+                        String.valueOf(m.attrValues.get(attrNameToIdx.get("t_scientific_name")))))
+                .toList();
+    }
+    
     private SphinxResult search(String searchTerm, String indexName, Map<String, Integer> weights, int limit) {
         SphinxClient sphinxClient = new SphinxClient(searchHost, searchPort);
         SphinxResult result;
@@ -81,7 +104,7 @@ public class SearchServiceImpl implements SearchService {
             sphinxClient.ResetFilters();
             sphinxClient.SetLimits(0, limit, limit);
             sphinxClient.SetRankingMode(SphinxClient.SPH_RANK_SPH04, null);
-            sphinxClient.SetSortMode(SphinxClient.SPH_SORT_RELEVANCE, null);
+//            sphinxClient.SetSortMode(SphinxClient.SPH_SORT_RELEVANCE, null);
             if (weights != null) {
                 sphinxClient.SetFieldWeights(weights);
             }
