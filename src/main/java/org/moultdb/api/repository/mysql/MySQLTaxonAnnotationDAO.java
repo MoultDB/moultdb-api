@@ -79,8 +79,11 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     @Override
     public List<TaxonAnnotationTO> findByTaxonPath(String taxonPath) {
-        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath " + ORDER_BY_STATEMENT,
-                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new TaxonAnnotationResultSetExtractor());
+        return template.query(SELECT_STATEMENT + "WHERE t.path = :taxonPath OR t.path like :childrenTaxonPath " + ORDER_BY_STATEMENT,
+                new MapSqlParameterSource()
+                        .addValue("taxonPath", taxonPath)
+                        .addValue("childrenTaxonPath", taxonPath + ".%"),
+                new TaxonAnnotationResultSetExtractor());
     }
     
     @Override

@@ -124,8 +124,11 @@ public class MySQLGeneDAO implements GeneDAO {
             pathwayCondition = "AND g.pathway_id IS NULL ";
         }
         
-        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath " + pathwayCondition,
-                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new GeneResultSetExtractor());
+        return template.query(SELECT_STATEMENT + "WHERE t.path = :taxonPath OR t.path like :childrenTaxonPath " + pathwayCondition,
+                new MapSqlParameterSource()
+                        .addValue("taxonPath", taxonPath)
+                        .addValue("childrenTaxonPath", taxonPath + ".%"),
+                new GeneResultSetExtractor());
     }
     
     @Override
