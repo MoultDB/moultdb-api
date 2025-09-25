@@ -38,9 +38,16 @@ public class TaxonController {
         } else if (scientificName != null) {
             return generateValidResponse(taxonService.getTaxonByScientificName(scientificName));
         } else if (datasource != null) {
+            if (accession == null) {
+                return generateErrorResponse("Invalid combination of parameters: " +
+                                "datasource parameter should be provided with an accession",
+                        HttpStatus.BAD_REQUEST);
+            }
             return generateValidResponse(taxonService.getTaxonByDbXref(datasource, accession));
         }
-        return generateValidResponse(taxonService.getAllTaxa());
+        return generateErrorResponse("Invalid combination of parameters: " +
+                "a minimum of one of the following elements should be specified: " +
+                "scientificName, taxonPath or datasource", HttpStatus.BAD_REQUEST);
     }
     
     @GetMapping("/search")
