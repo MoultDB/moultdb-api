@@ -17,6 +17,8 @@ public interface OrthogroupDAO extends DAO<OrthogroupTO> {
     
     List<OrthogroupTO> findByIds(Set<Integer> ids);
     
+    List<OrthogroupTO> findMoultingOrthogroupsByTaxon(String taxonPath);
+    
     List<OrthogroupTO> getMoultingOrthogroups();
     
     void batchUpdate(Set<OrthogroupTO> orthogroupTOs);

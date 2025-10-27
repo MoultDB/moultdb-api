@@ -10,6 +10,7 @@ import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Valentine Rech de Laval
@@ -42,8 +44,51 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public Long countAll() {
+        String sql = "SELECT COUNT(*) FROM taxon ";
+        return template.queryForObject(sql, new MapSqlParameterSource(), Long.class);
+    }
+    
+    @Override
     public List<TaxonTO> findAll() {
         return template.query(SELECT_STATEMENT, new TaxonResultSetExtractor());
+    }
+    
+    @Override
+    public List<TaxonTO> findAllPaginated(int pageNumber, int batchSize) {
+        if (pageNumber < 0 || batchSize <= 0) {
+            throw new IllegalArgumentException("Invalid pagination parameters: pageNumber must be ≥ 0 and batchSize must be > 0");
+        }
+        int offset = pageNumber * batchSize;
+        
+        String sql = "SELECT * from taxon t LIMIT :limit OFFSET :offset";
+        return template.query(sql,
+                new MapSqlParameterSource()
+                        .addValue("limit", batchSize)
+                        .addValue("offset", offset),
+                new TaxonRowMapper());
+    }
+    
+    @Override
+    public void processAllInBatches(int batchSize, Consumer<List<TaxonTO>> consumer) {
+        if (batchSize <= 0) {
+            throw new IllegalArgumentException("Invalid batch size: batchSize must be > 0");
+        }
+        
+        long total = countAll();
+        int totalPages = (int) Math.ceil((double) total / batchSize);
+        
+        logger.info("Processing {} taxa in {} batches of {} elements each", total, totalPages, batchSize);
+        
+        for (int page = 0; page < totalPages; page++) {
+            List<TaxonTO> batch = findAllPaginated(page, batchSize);
+            if (!batch.isEmpty()) {
+                logger.debug("# Processing batch {}/{} ({} taxa)", page + 1, totalPages, batch.size());
+                consumer.accept(batch);
+            }
+        }
+        
+        logger.info("Processing completed");
     }
     
     @Override
@@ -127,6 +172,19 @@ public class MySQLTaxonDAO implements TaxonDAO {
             taxonTOs.sort(Comparator.comparing(TaxonTO::getScientificName));
         }
         return taxonTOs;
+    }
+    
+    @Override
+    public List<String> findAllPathsHavingChildren() {
+        String sql = "SELECT DISTINCT SUBSTRING_INDEX(path, '.', LENGTH(path) - LENGTH(REPLACE(path, '.', ''))) " +
+                "FROM taxon WHERE path LIKE '%.%'";
+        return template.queryForList(sql, new MapSqlParameterSource(), String.class);
+    }
+    
+    @Override
+    public List<String> findAllPaths() {
+        String sql = "SELECT path FROM taxon";
+        return template.queryForList(sql, new MapSqlParameterSource(), String.class);
     }
     
     @Override
@@ -226,6 +284,15 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 taxa.put(taxonPath, taxonTO);
             }
             return new ArrayList<>(taxa.values());
+        }
+    }
+    
+    private static class TaxonRowMapper implements RowMapper<TaxonTO> {
+        
+        @Override
+        public TaxonTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
+                    DAO.getBoolean(rs, "t.extinct"), null, null);
         }
     }
 }

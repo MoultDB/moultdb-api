@@ -22,23 +22,20 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.service.ServiceUtils.getExecutionTime;
+
 @Service
 public class TaxonServiceImpl implements TaxonService {
     
     private final static Logger logger = LogManager.getLogger(TaxonServiceImpl.class.getName());
-    private final static int TAXON_SUBSET_SIZE = 30000;
+    protected final static int TAXON_SUBSET_SIZE = 30000;
     
     @Autowired
-    DataSourceDAO dataSourceDAO;
+    private DataSourceDAO dataSourceDAO;
     @Autowired
     private TaxonDAO taxonDAO;
     @Autowired
     private DbXrefDAO dbXrefDAO;
-    
-    @Override
-    public List<Taxon> getAllTaxa() {
-        return getTaxons(taxonDAO.findAll());
-    }
     
     @Override
     public List<Taxon> getTaxonByText(String searchedText) {
@@ -197,16 +194,6 @@ public class TaxonServiceImpl implements TaxonService {
         logger.info("End taxon import. {}", getExecutionTime(startImportTimePoint, endImportTimePoint));
         
         return sum;
-    }
-    
-    private static String getExecutionTime(long startPoint, long endPoint) {
-        long executionTimeInMs = endPoint - startPoint;
-
-        long seconds = (executionTimeInMs / 1000) % 60;
-        long minutes = (executionTimeInMs / (1000 * 60)) % 60;
-        long hours = (executionTimeInMs / (1000 * 60 * 60));
-        
-        return "Execution time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds.";
     }
     
     private TaxonTO convertToDto(Taxon taxon) {

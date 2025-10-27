@@ -98,4 +98,11 @@ public class OrthogroupServiceImpl implements OrthogroupService {
                 .map(ServiceUtils::mapFromTO)
                 .collect(Collectors.toSet());
     }
+    
+    @Override
+    public Set<Orthogroup> getMoultingOrthogroupsByTaxon(String taxonPath) {
+        return orthogroupDAO.findMoultingOrthogroupsByTaxon(taxonPath).stream()
+                .map(ServiceUtils::mapFromTO)
+                .collect(Collectors.toSet());
+    }
 }

@@ -1,0 +1,17 @@
+package org.moultdb.api.service;
+
+import org.moultdb.api.model.TaxonStatistics;
+
+import java.util.List;
+import java.util.Map;
+
+public interface TaxonStatisticsService {
+
+    public List<TaxonStatistics> getAllStats();
+    
+    public TaxonStatistics getTaxonStatsByPath(String path);
+    
+    Map<String, TaxonStatistics> getTaxonStatsByPathWithChildren(String path);
+    
+    public Integer updateTaxonStatistics();
+}

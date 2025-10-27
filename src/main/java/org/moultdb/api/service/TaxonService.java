@@ -7,8 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface TaxonService {
-
-    public List<Taxon> getAllTaxa();
+    
+    // Note: no getAllTaxa() to avoid out of memory exception
     
     public List<Taxon> getTaxonByText(String searchedText);
     

@@ -43,6 +43,16 @@ public class ServiceUtils {
         return allSubsets;
     }
     
+    public static String getExecutionTime(long startPoint, long endPoint) {
+        long executionTimeInMs = endPoint - startPoint;
+        
+        long seconds = (executionTimeInMs / 1000) % 60;
+        long minutes = (executionTimeInMs / (1000 * 60)) % 60;
+        long hours = (executionTimeInMs / (1000 * 60 * 60));
+        
+        return "Execution time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds.";
+    }
+    
     @Value("${moultdb.url.api}")
     public void setApiUrl(String apiUrl) {
         API_URL = apiUrl;
@@ -224,6 +234,16 @@ public class ServiceUtils {
         }
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(),
                 taxonTO.isExtincted(), mapFromDbXrefTOs(taxonTO.getDbXrefTOs(), taxonTO.getTaxonToDbXrefTOs()));
+    }
+    
+    public static TaxonStatistics mapFromTO(TaxonStatisticsTO taxonStatisticsTO) {
+        if (taxonStatisticsTO == null) {
+            return null;
+        }
+        return new TaxonStatistics(taxonStatisticsTO.getPath(), taxonStatisticsTO.getDepth(), taxonStatisticsTO.isLeaf(),
+                taxonStatisticsTO.getSpeciesCount(), taxonStatisticsTO.getGenomeCount(),
+                taxonStatisticsTO.getTaxonAnnotationCount(),
+                StringUtils.defaultIfBlank(taxonStatisticsTO.getOrthogroupRange(), null));
     }
     
     public static Article mapFromTO(ArticleTO articleTO) {

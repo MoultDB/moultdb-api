@@ -1,7 +1,12 @@
 package org.moultdb.api.controller;
 
+import org.moultdb.api.controller.response.StatisticsResponseBuilder;
+import org.moultdb.api.controller.response.StatisticsResponseBuilder.StatisticsNode;
+
 import org.moultdb.api.model.Taxon;
+import org.moultdb.api.model.TaxonStatistics;
 import org.moultdb.api.service.TaxonService;
+import org.moultdb.api.service.TaxonStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +27,11 @@ public class TaxonController {
     
     @Autowired
     TaxonService taxonService;
-
+    @Autowired
+    TaxonStatisticsService taxonStatisticsService;
+    
+    private final StatisticsResponseBuilder statBuilder = new StatisticsResponseBuilder();
+    
     @GetMapping
     public ResponseEntity<Map<String, Object>> getTaxon(@RequestParam(required = false) String scientificName,
                                                         @RequestParam(required = false) String taxonPath,
@@ -67,6 +76,20 @@ public class TaxonController {
         return generateValidResponse(new TaxonChildren(taxon, children));
     }
     
+    @GetMapping("/{taxonPath}/stats")
+    public ResponseEntity<Map<String, StatisticsNode>> getTaxonStats(@PathVariable String taxonPath) {
+        Taxon taxon = taxonService.getTaxonByPath(taxonPath);
+        Map<String, TaxonStatistics> stats = taxonStatisticsService.getTaxonStatsByPathWithChildren(taxonPath);
+        return generateValidResponse(statBuilder.buildTreeNode(taxon, stats.get(taxon.getPath())));
+    }
+    
+    @GetMapping("/{taxonPath}/direct-children-stats")
+    public List<StatisticsNode> getDirectChildrenStats(@PathVariable String taxonPath) {
+        List<Taxon> children = taxonService.getTaxonDirectChildren(taxonPath);
+        Map<String, TaxonStatistics> stats = taxonStatisticsService.getTaxonStatsByPathWithChildren(taxonPath);
+        return statBuilder.buildChildrenList(children, stats);
+    }
+    
     @PostMapping(value = "/import-file")
     public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam MultipartFile file) {
         Integer integer;
@@ -78,6 +101,19 @@ public class TaxonController {
         Map<String, Object> resp = new HashMap<>();
         resp.put("count", integer);
         return generateValidResponse("Taxa imported", resp);
+    }
+    
+    @GetMapping(value = "/compute-stats")
+    public ResponseEntity<Map<String, Object>> computeTaxonStatistics() {
+        Integer integer;
+        try {
+            integer = taxonStatisticsService.updateTaxonStatistics();
+        } catch (Exception e) {
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("count", integer);
+        return generateValidResponse("Taxon statistics computed", resp);
     }
     
     public static class TaxonChildren extends Taxon {
