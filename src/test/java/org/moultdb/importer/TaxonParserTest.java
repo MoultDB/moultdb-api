@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.moultdb.api.repository.dto.TaxonTO;
 import org.moultdb.importer.taxon.TaxonBean;
 import org.moultdb.importer.taxon.TaxonParser;
 
@@ -23,9 +22,5 @@ class TaxonParserTest {
         Set<TaxonBean> taxonBeans = parser.parseTaxonFile(file);
         Gson gson = new Gson();
         logger.debug(gson.toJson(taxonBeans));
-        
-        Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeans);
-        logger.debug(gson.toJson(taxonTOs));
-        
     }
 }

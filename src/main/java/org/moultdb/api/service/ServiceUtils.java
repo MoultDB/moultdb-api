@@ -233,7 +233,7 @@ public class ServiceUtils {
             return null;
         }
         return new Taxon(taxonTO.getPath(), taxonTO.getScientificName(), taxonTO.getCommonName(),
-                taxonTO.isExtincted(), mapFromDbXrefTOs(taxonTO.getDbXrefTOs(), taxonTO.getTaxonToDbXrefTOs()));
+                taxonTO.getRank(), mapFromDbXrefTOs(taxonTO.getDbXrefTOs(), taxonTO.getTaxonToDbXrefTOs()));
     }
     
     public static TaxonStatistics mapFromTO(TaxonStatisticsTO taxonStatisticsTO) {

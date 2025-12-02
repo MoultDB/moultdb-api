@@ -122,7 +122,7 @@ public class TaxonController {
         
         public TaxonChildren(Taxon parent, List<Taxon> children) {
             super(parent.getPath(), parent.getScientificName(), parent.getCommonName(),
-                    parent.isExtinct(), parent.getDbXrefs());
+                    parent.getRank(), parent.getDbXrefs());
             this.children = children;
         }
         

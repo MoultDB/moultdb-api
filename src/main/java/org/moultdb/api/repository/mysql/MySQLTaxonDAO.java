@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
-import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +82,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
         for (int page = 0; page < totalPages; page++) {
             List<TaxonTO> batch = findAllPaginated(page, batchSize);
             if (!batch.isEmpty()) {
-                logger.debug("# Processing batch {}/{} ({} taxa)", page + 1, totalPages, batch.size());
+                logger.debug("## Processing batch {}/{} ({} taxa)", page + 1, totalPages, batch.size());
                 consumer.accept(batch);
             }
         }
@@ -194,11 +193,11 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
     @Override
     public int batchUpdate(Set<TaxonTO> taxonTOs) {
-        String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, extinct) " +
-                "VALUES (:path, :scientific_name, :common_name, :extinct) " +
+        String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, taxon_rank) " +
+                "VALUES (:path, :scientific_name, :common_name, :taxon_rank) " +
                 "AS new " +
                 "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name, " +
-                " extinct = new.extinct";
+                " taxon_rank = new.taxon_rank";
         
         String dbXrefSql = "INSERT INTO db_xref (id, accession, name, data_source_id) " +
                 "VALUES (:id, :accession, :name, :data_source_id) " +
@@ -220,7 +219,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
             taxonSource.addValue("path", taxonTO.getPath());
             taxonSource.addValue("scientific_name", taxonTO.getScientificName());
             taxonSource.addValue("common_name", taxonTO.getCommonName());
-            taxonSource.addValue("extinct", taxonTO.isExtincted());
+            taxonSource.addValue("taxon_rank", taxonTO.getRank());
             taxonParams.add(taxonSource);
             
             for (DbXrefTO dbXrefTO : taxonTO.getDbXrefTOs()) {
@@ -279,7 +278,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                        rs.getString("t.taxon_rank"), dbXrefTOs, taxonToDbXrefTOs);
     
                 taxa.put(taxonPath, taxonTO);
             }
@@ -292,7 +291,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
         @Override
         public TaxonTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                    DAO.getBoolean(rs, "t.extinct"), null, null);
+                    rs.getString("t.taxon_rank"), null, null);
         }
     }
 }

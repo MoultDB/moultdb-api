@@ -177,7 +177,7 @@ public class TaxonServiceImpl implements TaxonService {
             logger.info("# Start subset taxon import {}/{}...", idx, taxonBeanSubsets.size());
             logger.debug("## Start parsing taxon beans...");
             long startTimePoint1 = System.currentTimeMillis();
-            Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, taxonDAO, dataSourceDAO, dbXrefDAO);
+            Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, dataSourceDAO, dbXrefDAO);
             long endTimePoint = System.currentTimeMillis();
             logger.debug("## End parsing taxon beans. {}", getExecutionTime(startTimePoint1, endTimePoint));
             
@@ -204,6 +204,6 @@ public class TaxonServiceImpl implements TaxonService {
                                        })
                                        .collect(Collectors.toSet());
         
-        return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.isExtinct(), dbXrefTOs);
+        return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.getRank(), dbXrefTOs);
     }
 }

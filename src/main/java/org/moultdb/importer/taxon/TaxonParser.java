@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.moultdb.api.model.moutldbenum.DatasourceEnum;
 import org.moultdb.api.repository.dao.DataSourceDAO;
 import org.moultdb.api.repository.dao.DbXrefDAO;
-import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.DataSourceTO;
 import org.moultdb.api.repository.dto.DbXrefTO;
 import org.moultdb.api.repository.dto.TaxonTO;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
  */
 public class TaxonParser {
     
-    @Autowired TaxonDAO taxonDAO;
     @Autowired DataSourceDAO dataSourceDAO;
     @Autowired DbXrefDAO dbXrefDAO;
     
@@ -56,6 +54,9 @@ public class TaxonParser {
     private final static String SYNONYM_GBIF_IDS_COL_NAME = "gbif_synonyms_ids";
     private final static String SYNONYM_GBIF_NAMES_COL_NAME = "gbif_synonyms_names";
     private final static String SYNONYM_NCBI_NAMES_COL_NAME = "ncbi_synonyms_names";
+    private final static String NCBI_RANK_COL_NAME = "ncbi_rank";
+    private final static String GBIF_RANK_COL_NAME = "gbif_rank";
+    private final static String INAT_RANK_COL_NAME = "inat_rank";
     
     public static void main(String[] args) {
         logger.traceEntry(Arrays.toString(args));
@@ -89,11 +90,10 @@ public class TaxonParser {
     }
 
     public Set<TaxonTO> getTaxonTOs(Set<TaxonBean> taxonBeans) {
-        return getTaxonTOs(taxonBeans, taxonDAO, dataSourceDAO, dbXrefDAO);
+        return getTaxonTOs(taxonBeans, dataSourceDAO, dbXrefDAO);
     }
     
-    public Set<TaxonTO> getTaxonTOs(Set<TaxonBean> taxonBeans, TaxonDAO taxonDAO, DataSourceDAO dataSourceDAO,
-                                    DbXrefDAO dbXrefDAO) {
+    public Set<TaxonTO> getTaxonTOs(Set<TaxonBean> taxonBeans, DataSourceDAO dataSourceDAO, DbXrefDAO dbXrefDAO) {
 
         Integer dbXrefLastId = dbXrefDAO.getLastId();
         Integer dbXrefNextId = dbXrefLastId == null ? 1 : dbXrefLastId + 1;
@@ -111,11 +111,14 @@ public class TaxonParser {
                 logger.debug("{} taxon beans converted into a TaxonTO", taxonTOs.size());
             }
             String scientificName = cleanName(bean.getNcbiName());
+            String rank = cleanName(bean.getNcbiRank());
             if (scientificName == null) {
                 scientificName = cleanName(bean.getGbifName());
+                rank = cleanName(bean.getGbifRank());
             }
             if (scientificName == null) {
                 scientificName = cleanName(bean.getInatName());
+                rank = cleanName(bean.getInatRank());
             }
             
             Set<DbXrefTO> dbXrefTOs = new HashSet<>();
@@ -145,7 +148,7 @@ public class TaxonParser {
                         bean.getPath(), false, dbXrefTOs, taxonToDbXrefTOs);
             }
             
-            taxonTOs.add(new TaxonTO(bean.getPath(), scientificName, null, null, dbXrefTOs, taxonToDbXrefTOs));
+            taxonTOs.add(new TaxonTO(bean.getPath(), scientificName, null, rank, dbXrefTOs, taxonToDbXrefTOs));
         }
         return taxonTOs;
     }
@@ -246,7 +249,8 @@ public class TaxonParser {
                         -> new StrNotNullOrEmpty(new Trim());
                 case NCBI_NAME_COL_NAME, GBIF_NAME_COL_NAME, INAT_NAME_COL_NAME, 
                         SYNONYM_GBIF_IDS_COL_NAME, SYNONYM_GBIF_NAMES_COL_NAME, SYNONYM_NCBI_NAMES_COL_NAME,
-                        NCBI_ID_COL_NAME, GBIF_ID_COL_NAME, INAT_ID_COL_NAME
+                        NCBI_ID_COL_NAME, GBIF_ID_COL_NAME, INAT_ID_COL_NAME,
+                        NCBI_RANK_COL_NAME, GBIF_RANK_COL_NAME, INAT_RANK_COL_NAME
                         -> new NegativeIsEmptyOptional(new Trim());
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonBean");
             };
@@ -269,6 +273,9 @@ public class TaxonParser {
                 case SYNONYM_GBIF_IDS_COL_NAME -> "synonymGbifIds";
                 case SYNONYM_GBIF_NAMES_COL_NAME -> "synonymGbifNames";
                 case SYNONYM_NCBI_NAMES_COL_NAME -> "synonymNcbiNames";
+                case NCBI_RANK_COL_NAME -> "ncbiRank";
+                case GBIF_RANK_COL_NAME -> "gbifRank";
+                case INAT_RANK_COL_NAME -> "inatRank";
                 default -> throw new IllegalArgumentException("Unrecognized header: " + header[i] + " for TaxonBean");
             };
         }
