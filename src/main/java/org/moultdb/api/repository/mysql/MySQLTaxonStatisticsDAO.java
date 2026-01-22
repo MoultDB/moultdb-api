@@ -50,10 +50,12 @@ public class MySQLTaxonStatisticsDAO implements TaxonStatisticsDAO {
     }
     
     @Override
-    public List<TaxonStatisticsTO> findByPathWithChildren(String taxonPath) {
+    public List<TaxonStatisticsTO> findByPathWithDirectChildren(String taxonPath) {
         return template.query(SELECT_STATEMENT +
                         "WHERE ts.taxon_path = :taxonPath " +
-                        "OR (ts.taxon_path like CONCAT(:taxonPath, '.%') AND ts.taxon_path NOT LIKE CONCAT(:taxonPath, '.%.%')) ",
+                        "OR (ts.taxon_path like CONCAT(:taxonPath, '.%') " +
+                        "AND ts.taxon_path NOT LIKE CONCAT(:taxonPath, '.%.%')" +
+                        ") ",
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath),
                 new TaxonStatisticsRowMapper());
     }

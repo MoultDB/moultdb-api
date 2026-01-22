@@ -163,7 +163,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     public List<TaxonTO> findDirectChildrenByPath(String taxonPath) {
         List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT +
                         "WHERE path LIKE CONCAT(:taxonPath, '.%') " +
-                        "  AND path NOT LIKE  CONCAT(:taxonPath, '.%.%') ",
+                        "  AND path NOT LIKE CONCAT(:taxonPath, '.%.%') ",
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath), new TaxonResultSetExtractor());
         // TaxonResultSetExtractor does not keep the order, so sorting should be done afterward.
         // This ensures that the order remains the same between two identical queries.
@@ -184,6 +184,13 @@ public class MySQLTaxonDAO implements TaxonDAO {
     public List<String> findAllPaths() {
         String sql = "SELECT path FROM taxon";
         return template.queryForList(sql, new MapSqlParameterSource(), String.class);
+    }
+    
+    @Override
+    public List<String> findAllDescendantPaths(String taxonPath) {
+        String sql = "SELECT DISTINCT path FROM taxon WHERE path LIKE CONCAT(:taxonPath, '.%') ";
+        return template.queryForList(sql,
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), String.class);
     }
     
     @Override

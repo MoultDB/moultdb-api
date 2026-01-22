@@ -17,7 +17,7 @@ public interface TaxonStatisticsDAO extends DAO<TaxonStatisticsTO> {
     
     List<TaxonStatisticsTO> findByPaths(Set<String> taxonPaths);
     
-    List<TaxonStatisticsTO> findByPathWithChildren(String taxonPath);
+    List<TaxonStatisticsTO> findByPathWithDirectChildren(String taxonPath);
     
     void insert(TaxonStatisticsTO taxonStats);
     
