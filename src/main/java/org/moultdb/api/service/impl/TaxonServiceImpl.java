@@ -29,6 +29,7 @@ public class TaxonServiceImpl implements TaxonService {
     
     private final static Logger logger = LogManager.getLogger(TaxonServiceImpl.class.getName());
     protected final static int TAXON_SUBSET_SIZE = 30000;
+    public final static String SPECIES_TAG = "species";
     
     @Autowired
     private DataSourceDAO dataSourceDAO;

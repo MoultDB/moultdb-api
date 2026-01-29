@@ -194,6 +194,14 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public Integer findSpeciesCount(String taxonPath) {
+        String sql = "SELECT count(DISTINCT path) FROM taxon " +
+                "WHERE path LIKE CONCAT(:taxonPath, '.%') AND taxon_rank = 'species'";
+        return template.queryForObject(sql,
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), Integer.class);
+    }
+    
+    @Override
     public void insert(TaxonTO taxonTO) {
         batchUpdate(Collections.singleton(taxonTO));
     }

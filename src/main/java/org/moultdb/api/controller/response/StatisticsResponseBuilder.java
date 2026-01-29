@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.service.impl.TaxonServiceImpl.SPECIES_TAG;
+
 /**
  * @author Valentine Rech de Laval
  * @since 2025-10-22
@@ -24,7 +26,8 @@ public class StatisticsResponseBuilder {
         if (taxon == null) {
             return null;
         }
-        return new StatisticsNode(taxon.getPath(), taxon.getScientificName(), !stats.isLeaf(), taxon.getAccession(), stats);
+        return new StatisticsNode(taxon.getPath(), taxon.getScientificName(), !stats.isLeaf(),
+                SPECIES_TAG.equals(taxon.getRank()), taxon.getAccession(), stats);
     }
     
     public static class StatisticsNode {
@@ -37,16 +40,19 @@ public class StatisticsResponseBuilder {
         // Determine whether this node is a branch (if it has children)
         @JsonProperty
         private boolean isBranch;
+        @JsonProperty
+        private boolean isSpecies;
         // Taxon accession to build URL
         @JsonProperty
         private String accession;
         @JsonProperty
         private TaxonStatistics statistics;
         
-        public StatisticsNode(String id, String name, boolean isBranch, String accession, TaxonStatistics statistics) {
+        public StatisticsNode(String id, String name, boolean isBranch, boolean isSpecies, String accession, TaxonStatistics statistics) {
             this.id = id;
             this.name = name;
             this.isBranch = isBranch;
+            this.isSpecies = isSpecies;
             this.accession = accession;
             this.statistics = statistics;
         }

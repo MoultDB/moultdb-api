@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static org.moultdb.api.service.ServiceUtils.getExecutionTime;
 import static org.moultdb.api.service.ServiceUtils.mapFromTO;
+import static org.moultdb.api.service.impl.TaxonServiceImpl.SPECIES_TAG;
 import static org.moultdb.api.service.impl.TaxonServiceImpl.TAXON_SUBSET_SIZE;
 
 /**
@@ -118,11 +119,7 @@ public class TaxonStatisticsServiceImpl implements TaxonStatisticsService {
         
         boolean isLeaf = !taxonPathsWithChildren.contains(taxonTO.getPath());
         
-        // Among all descendants, count leaves to get species number
-        Set<String> descendantPaths = new HashSet<>(taxonDAO.findAllDescendantPaths(taxonTO.getPath()));
-        int speciesCount = (int) descendantPaths.stream()
-                .filter(descendantPath -> !taxonPathsWithChildren.contains(descendantPath))
-                .count();
+        Integer speciesCount = taxonDAO.findSpeciesCount(taxonTO.getPath());
         
         int genomeCount = (int) genomeTOs.stream()
                 .filter(g -> g.getTaxonTO().getPath().equals(taxonTO.getPath())
@@ -134,7 +131,7 @@ public class TaxonStatisticsServiceImpl implements TaxonStatisticsService {
                 .count();
         
         int ogCount = UNKNOWN_OG_COUNT;
-        if (genomeCount == 1 && isLeaf) {
+        if (genomeCount == 1 && SPECIES_TAG.equals(taxonTO.getRank())) {
             List<OrthogroupTO> moultingOrthogroupsByTaxon = orthogroupDAO.findMoultingOrthogroupsByTaxon(taxonTO.getPath());
             ogCount = moultingOrthogroupsByTaxon.size();
         }
