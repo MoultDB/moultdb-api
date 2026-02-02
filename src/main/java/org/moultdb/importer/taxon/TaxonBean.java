@@ -22,6 +22,9 @@ public class TaxonBean {
     private String synonymGbifIds;
     private String synonymGbifNames;
     private String synonymNcbiNames;
+    private String ncbiRank;
+    private String gbifRank;
+    private String inatRank;
     
     public TaxonBean() {
     }
@@ -118,6 +121,30 @@ public class TaxonBean {
         this.synonymNcbiNames = synonymNcbiNames;
     }
     
+    public String getNcbiRank() {
+        return ncbiRank;
+    }
+    
+    public void setNcbiRank(String ncbiRank) {
+        this.ncbiRank = ncbiRank;
+    }
+    
+    public String getGbifRank() {
+        return gbifRank;
+    }
+    
+    public void setGbifRank(String gbifRank) {
+        this.gbifRank = gbifRank;
+    }
+    
+    public String getInatRank() {
+        return inatRank;
+    }
+    
+    public void setInatRank(String inatRank) {
+        this.inatRank = inatRank;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -133,13 +160,16 @@ public class TaxonBean {
                 && Objects.equals(inatName, taxonBean.inatName)
                 && Objects.equals(synonymGbifIds, taxonBean.synonymGbifIds)
                 && Objects.equals(synonymGbifNames, taxonBean.synonymGbifNames)
-                && Objects.equals(synonymNcbiNames, taxonBean.synonymNcbiNames);
+                && Objects.equals(synonymNcbiNames, taxonBean.synonymNcbiNames)
+                && Objects.equals(ncbiRank, taxonBean.ncbiRank)
+                && Objects.equals(gbifRank, taxonBean.gbifRank)
+                && Objects.equals(inatRank, taxonBean.inatRank);
     }
     
     @Override
     public int hashCode() {
         return Objects.hash(id, path, ncbiId, gbifId, inatId, ncbiName, gbifName, inatName,
-                synonymGbifIds, synonymGbifNames, synonymNcbiNames);
+                synonymGbifIds, synonymGbifNames, synonymNcbiNames, ncbiRank, gbifRank, inatRank);
     }
     
     @Override
@@ -156,6 +186,9 @@ public class TaxonBean {
                 .add("synonymGbifIds='" + synonymGbifIds + "'")
                 .add("synonymGbifNames='" + synonymGbifNames + "'")
                 .add("synonymNcbiNames='" + synonymNcbiNames + "'")
+                .add("ncbiRank='" + ncbiRank + "'")
+                .add("gbifRank='" + gbifRank + "'")
+                .add("inatRank='" + inatRank + "'")
                 .toString();
     }
 }

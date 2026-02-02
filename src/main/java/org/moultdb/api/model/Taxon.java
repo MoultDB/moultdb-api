@@ -11,14 +11,14 @@ import static org.moultdb.api.model.DbXref.DBXREF_COMPARATOR;
 public class Taxon extends NamedEntity<String> {
     
     private final String commonName;
-    private final Boolean extinct;
+    private final String rank;
     private final List<DbXref> dbXrefs;
     
     public Taxon(String path, String scientificName, String commonName,
-                 Boolean extinct, Collection<DbXref> dbXrefs) {
+                 String rank, Collection<DbXref> dbXrefs) {
         super(path, scientificName);
         this.commonName = commonName;
-        this.extinct = extinct;
+        this.rank = rank;
         this.dbXrefs = Collections.unmodifiableList(dbXrefs == null ?
                 new ArrayList<>(): dbXrefs.stream().sorted(DBXREF_COMPARATOR).toList());
     }
@@ -35,8 +35,8 @@ public class Taxon extends NamedEntity<String> {
         return commonName;
     }
     
-    public Boolean isExtinct() {
-        return extinct;
+    public String getRank() {
+        return rank;
     }
     
     public List<DbXref> getDbXrefs() {
@@ -57,7 +57,7 @@ public class Taxon extends NamedEntity<String> {
                 .add("path='" + getPath() + "'")
                 .add("scientificName='" + getScientificName() + "'")
                 .add("commonName='" + commonName + "'")
-                .add("extinct=" + extinct)
+                .add("rank=" + rank)
                 .add("dbXrefs=" + dbXrefs)
                 .toString();
     }

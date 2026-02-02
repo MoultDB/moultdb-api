@@ -4,12 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
-import org.moultdb.api.repository.dao.DAO;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Valentine Rech de Laval
@@ -29,9 +29,6 @@ public class MySQLTaxonDAO implements TaxonDAO {
     
     NamedParameterJdbcTemplate template;
     
-    @Autowired
-    MySQLDbXrefDAO dbXrefDAO;
-    
     private static final String SELECT_STATEMENT = "SELECT * from taxon t " +
             "LEFT JOIN taxon_db_xref tx ON t.path = tx.taxon_path " +
             "LEFT JOIN db_xref x ON tx.db_xref_id = x.id " +
@@ -42,8 +39,51 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public Long countAll() {
+        String sql = "SELECT COUNT(*) FROM taxon ";
+        return template.queryForObject(sql, new MapSqlParameterSource(), Long.class);
+    }
+    
+    @Override
     public List<TaxonTO> findAll() {
         return template.query(SELECT_STATEMENT, new TaxonResultSetExtractor());
+    }
+    
+    @Override
+    public List<TaxonTO> findAllPaginated(int pageNumber, int batchSize) {
+        if (pageNumber < 0 || batchSize <= 0) {
+            throw new IllegalArgumentException("Invalid pagination parameters: pageNumber must be ≥ 0 and batchSize must be > 0");
+        }
+        int offset = pageNumber * batchSize;
+        
+        String sql = "SELECT * from taxon t LIMIT :limit OFFSET :offset";
+        return template.query(sql,
+                new MapSqlParameterSource()
+                        .addValue("limit", batchSize)
+                        .addValue("offset", offset),
+                new TaxonRowMapper());
+    }
+    
+    @Override
+    public void processAllInBatches(int batchSize, Consumer<List<TaxonTO>> consumer) {
+        if (batchSize <= 0) {
+            throw new IllegalArgumentException("Invalid batch size: batchSize must be > 0");
+        }
+        
+        long total = countAll();
+        int totalPages = (int) Math.ceil((double) total / batchSize);
+        
+        logger.info("Processing {} taxa in {} batches of {} elements each", total, totalPages, batchSize);
+        
+        for (int page = 0; page < totalPages; page++) {
+            List<TaxonTO> batch = findAllPaginated(page, batchSize);
+            if (!batch.isEmpty()) {
+                logger.debug("## Processing batch {}/{} ({} taxa)", page + 1, totalPages, batch.size());
+                consumer.accept(batch);
+            }
+        }
+        
+        logger.info("Processing completed");
     }
     
     @Override
@@ -119,7 +159,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
     public List<TaxonTO> findDirectChildrenByPath(String taxonPath) {
         List<TaxonTO> taxonTOs = template.query(SELECT_STATEMENT +
                         "WHERE path LIKE CONCAT(:taxonPath, '.%') " +
-                        "  AND path NOT LIKE  CONCAT(:taxonPath, '.%.%') ",
+                        "  AND path NOT LIKE CONCAT(:taxonPath, '.%.%') ",
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath), new TaxonResultSetExtractor());
         // TaxonResultSetExtractor does not keep the order, so sorting should be done afterward.
         // This ensures that the order remains the same between two identical queries.
@@ -130,17 +170,46 @@ public class MySQLTaxonDAO implements TaxonDAO {
     }
     
     @Override
+    public List<String> findAllPathsHavingChildren() {
+        String sql = "SELECT DISTINCT SUBSTRING_INDEX(path, '.', LENGTH(path) - LENGTH(REPLACE(path, '.', ''))) " +
+                "FROM taxon WHERE path LIKE '%.%'";
+        return template.queryForList(sql, new MapSqlParameterSource(), String.class);
+    }
+    
+    @Override
+    public List<String> findAllPaths() {
+        String sql = "SELECT path FROM taxon";
+        return template.queryForList(sql, new MapSqlParameterSource(), String.class);
+    }
+    
+    @Override
+    public List<String> findAllDescendantPaths(String taxonPath) {
+        String sql = "SELECT DISTINCT path FROM taxon WHERE path LIKE CONCAT(:taxonPath, '.%') ";
+        return template.queryForList(sql,
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), String.class);
+    }
+    
+    @Override
+    public Integer findSpeciesCount(String taxonPath) {
+        String sql = "SELECT count(DISTINCT path) FROM taxon " +
+                "WHERE (path = :taxonPath OR path LIKE CONCAT(:taxonPath, '.%'))" +
+                "AND taxon_rank = 'species'";
+        return template.queryForObject(sql,
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), Integer.class);
+    }
+    
+    @Override
     public void insert(TaxonTO taxonTO) {
         batchUpdate(Collections.singleton(taxonTO));
     }
     
     @Override
     public int batchUpdate(Set<TaxonTO> taxonTOs) {
-        String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, extinct) " +
-                "VALUES (:path, :scientific_name, :common_name, :extinct) " +
+        String taxonSql = "INSERT INTO taxon (path, scientific_name, common_name, taxon_rank) " +
+                "VALUES (:path, :scientific_name, :common_name, :taxon_rank) " +
                 "AS new " +
                 "ON DUPLICATE KEY UPDATE scientific_name = new.scientific_name, common_name = new.common_name, " +
-                " extinct = new.extinct";
+                " taxon_rank = new.taxon_rank";
         
         String dbXrefSql = "INSERT INTO db_xref (id, accession, name, data_source_id) " +
                 "VALUES (:id, :accession, :name, :data_source_id) " +
@@ -162,7 +231,7 @@ public class MySQLTaxonDAO implements TaxonDAO {
             taxonSource.addValue("path", taxonTO.getPath());
             taxonSource.addValue("scientific_name", taxonTO.getScientificName());
             taxonSource.addValue("common_name", taxonTO.getCommonName());
-            taxonSource.addValue("extinct", taxonTO.isExtincted());
+            taxonSource.addValue("taxon_rank", taxonTO.getRank());
             taxonParams.add(taxonSource);
             
             for (DbXrefTO dbXrefTO : taxonTO.getDbXrefTOs()) {
@@ -221,11 +290,20 @@ public class MySQLTaxonDAO implements TaxonDAO {
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                        rs.getString("t.taxon_rank"), dbXrefTOs, taxonToDbXrefTOs);
     
                 taxa.put(taxonPath, taxonTO);
             }
             return new ArrayList<>(taxa.values());
+        }
+    }
+    
+    private static class TaxonRowMapper implements RowMapper<TaxonTO> {
+        
+        @Override
+        public TaxonTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
+                    rs.getString("t.taxon_rank"), null, null);
         }
     }
 }

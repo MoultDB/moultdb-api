@@ -55,6 +55,17 @@ public class MySQLOrthogroupDAO implements OrthogroupDAO {
     }
     
     @Override
+    public List<OrthogroupTO> findMoultingOrthogroupsByTaxon(String taxonPath) {
+        return template.query("SELECT DISTINCT og.* FROM orthogroup og " +
+                        " LEFT JOIN gene g ON g.orthogroup_id = og.id " +
+                        " LEFT JOIN genome gn ON g.genome_acc = gn.genbank_acc " +
+                        "WHERE og.name IS NOT NULL " +
+                        "AND gn.taxon_path = :taxonPath ",
+                new MapSqlParameterSource().addValue("taxonPath", taxonPath), 
+                new OrthogroupRowMapper());
+    }
+    
+    @Override
     public List<OrthogroupTO> getMoultingOrthogroups() {
         return template.query(SELECT_STATEMENT + "WHERE og.name IS NOT NULL ", new OrthogroupRowMapper());
     }

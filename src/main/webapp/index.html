@@ -1,13 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MoultDB API</title>
+    <meta charset="UTF-8">
+    <title>MoultDB API</title>
 </head>
 <body>
 <div>
-  <h1>Description of the API</h1>
-  <p>TODO</p>
+    <style>
+        details {
+            margin-bottom: 1em;
+            border: 1px solid #373737;
+            border-radius: 5px;
+            padding: 0.5em 1em;
+            background-color: #e6f0fa;
+        }
+
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        ul {
+            margin-top: 0.5em;
+            padding-left: 1.2em;
+        }
+
+        li {
+            margin-bottom: 0.4em;
+        }
+
+        code {
+            background-color: #002b36;
+            color: #f1ffff;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            text-align: center;
+            font-weight: bold;
+            padding: 1em;
+        }
+    </style>
+
+    <h1>Available Methods in MoultDB API</h1>
+
+    <details>
+        <summary>Taxa (bulk fetch not supported)</summary>
+        <ul>
+            <li><code>/taxa?scientificName={SC_NAME}</code> &ndash; Retrieve details of taxa of interest, where <code>{SC_NAME}</code> is its scientific name</li>
+            <li><code>/taxa?taxonPath={T_PATH}</code> &ndash; Retrieve details of taxa of interest, where <code>{T_PATH}</code> is its MoultDB taxon path</li>
+            <li><code>/taxa?datasource={DS_NAME}&accession={ACC}</code> &ndash; Retrieve details of a taxon of interest, where <code>{DS_NAME}</code> is its datasource and <code>{ACC}</code> is its accession</li>
+            <li><code>/taxa/{T_PATH}/direct-children</code> &ndash; Retrieve details of direct children (first level only) of a taxon of interest, where <code>{T_PATH}</code> is its MoultDB taxon path</li>
+            <li><code>/taxa/{T_PATH}/lineage</code> &ndash; Retrieve details of parent taxa of a taxon of interest, where <code>{T_PATH}</code> is its MoultDB taxon path</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Genomes</summary>
+        <ul>
+            <li><code>/genomes</code> &ndash; Retrieve details of all genomes</li>
+            <li><code>/genomes?taxonPath={T_PATH}&withSubspeciesGenomes={SP_G}</code> &ndash; Retrieve details of genomes of interest, where <code>{T_PATH}</code> is its MoultDB taxon path and <code>{SP_G}</code> indicates whether genomes from its subspecies should also be included.</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Genes (bulk fetch not supported)</summary>
+        <ul>
+            <li><code>/genes?geneId={GENE_ID}</code> &ndash; Retrieve details of a gene of interest, where <code>{GENE_ID}</code> is its NCBI gene identifier</li>
+            <li><code>/genes?locusTag={LT_ID}</code> &ndash; Retrieve details of a gene of interest, where <code>{LT_ID}</code> is its NCBI locus tag</li>
+            <li><code>/genes?proteinId={PROT_ID}</code> &ndash; Retrieve details of a gene of interest, where <code>{PROT_ID}</code> is its NCBI protein ID</li>
+            <li><code>/genes?pathwayId={PATH_ID}</code> &ndash; Retrieve details of genes involved in a moulting pathway of interest, where <code>{PATH_ID}</code> is its MoultDB pathway ID</li>
+            <li><code>/genes?domainId={D_ID}</code> &ndash; Retrieve details of genes matching a domain of interest, where <code>{D_ID}</code> is its InterPro domain ID</li>
+            <li><code>/genes?orthogroupId={OG_ID}</code> &ndash; Retrieve details of genes matching an orthogroup of interest, where <code>{OG_ID}</code> is its MoultDB orthogroup ID</li>
+            <li><code>/genes?taxonPath={T_PATH}</code> &ndash; Retrieve details of genes of a taxon of interest, where <code>{T_PATH}</code> is its MoultDB taxon path</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Pathways</summary>
+        <ul>
+            <li><code>/pathways</code> &ndash; Retrieve all moulting pathways</li>
+            <li><code>/pathways?pathwayId={PATH_ID}</code> &ndash; Retrieve details of a moulting pathway of interest, where <code>{PATH_ID}</code> is its MoultDB pathway ID</li>
+            <li><code>/pathways/with-orthogroups</code> &ndash; Retrieve pathway IDs with their associated orthogroups</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Orthogroups</summary>
+        <ul>
+            <li><code>/orthogroups/{OG_ID}</code> &ndash; Retrieve details of an orthogroup of interest, where <code>{OG_ID}</code> is its MoultDB orthogroup ID</li>
+            <li><code>/orthogroups/moulting</code> &ndash; Retrieve details of all orthogroups involved in a moulting pathway</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Domains</summary>
+        <ul>
+            <li><code>/domains</code> &ndash; Retrieve details of all domains</li>
+            <li><code>/domains/{D_ID}</code> &ndash; Retrieve details of a domain of interest, where <code>{D_ID}</code> is its InterPro domain ID</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Moulting characters annotations</summary>
+        <ul>
+            <li><code>/taxon-annotations</code> &ndash; Retrieve all moulting characters annotations</li>
+            <li><code>/taxon-annotations/species?scientificName={SC_NAME}</code> &ndash; Retrieve moulting characters annotations of a taxon of interest, where <code>{SC_NAME}</code> is its scientific name</li>
+            <li><code>/taxon-annotations/species?taxonPath={T_PATH}</code> &ndash; Retrieve moulting characters annotations of a taxon of interest, where <code>{T_PATH}</code> is its MoultDB taxon path</li>
+            <li><code>/taxon-annotations/species?datasource={DS_NAME}&accession={ACC}</code> &ndash; Retrieve moulting characters annotations of a taxon of interest, where <code>{DS_NAME}</code> is its datasource and <code>{ACC}</code> is its accession</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Taxon search</summary>
+        <ul>
+            <li><code>/search/taxon_autocomplete?q={QUERY}&limit={LIMIT}</code> &ndash; Retrieve names (scientific name or synonym) matching the search query <code>{QUERY}</code>, limited to <code>{LIMIT}</code> results (default: 100, maximum: 10000)</li>
+            <li><code>/search/taxon_search?q={QUERY}&limit={LIMIT}</code> &ndash; Retrieve details of taxa matching the search query <code>{QUERY}</code>, limited to <code>{LIMIT}</code> results (default: 1000, maximum: 10000)</li>
+            <li><code>/search/inat_search?q={QUERY}&limit={LIMIT}</code> &ndash; Retrieve iNaturalist accession and scientific name of taxa matching the search query <code>{QUERY}</code>, limited to <code>{LIMIT}</code> results (default: 100, maximum: 10000)</li>
+        </ul>
+    </details>
+
+    <details>
+        <summary>Release info</summary>
+        <ul>
+            <li><code>/release/info</code> &ndash; Retrieve release info including some statistics</li>
+        </ul>
+    </details>
+
+    <p class="warning">WARNING: MoultDB IDs and paths are not persistent</p>
+
 </div>
 </body>
 </html>

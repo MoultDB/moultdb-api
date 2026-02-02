@@ -1,17 +1,20 @@
 package org.moultdb.api.controller;
 
+import org.moultdb.api.controller.response.StatisticsResponseBuilder;
+import org.moultdb.api.controller.response.StatisticsResponseBuilder.StatisticsNode;
+
 import org.moultdb.api.model.Taxon;
+import org.moultdb.api.model.TaxonStatistics;
 import org.moultdb.api.service.TaxonService;
+import org.moultdb.api.service.TaxonStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.moultdb.api.controller.ResponseHandler.generateErrorResponse;
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
@@ -22,7 +25,11 @@ public class TaxonController {
     
     @Autowired
     TaxonService taxonService;
-
+    @Autowired
+    TaxonStatisticsService taxonStatisticsService;
+    
+    private final StatisticsResponseBuilder statBuilder = new StatisticsResponseBuilder();
+    
     @GetMapping
     public ResponseEntity<Map<String, Object>> getTaxon(@RequestParam(required = false) String scientificName,
                                                         @RequestParam(required = false) String taxonPath,
@@ -38,9 +45,16 @@ public class TaxonController {
         } else if (scientificName != null) {
             return generateValidResponse(taxonService.getTaxonByScientificName(scientificName));
         } else if (datasource != null) {
+            if (accession == null) {
+                return generateErrorResponse("Invalid combination of parameters: " +
+                                "datasource parameter should be provided with an accession",
+                        HttpStatus.BAD_REQUEST);
+            }
             return generateValidResponse(taxonService.getTaxonByDbXref(datasource, accession));
         }
-        return generateValidResponse(taxonService.getAllTaxa());
+        return generateErrorResponse("Invalid combination of parameters: " +
+                "a minimum of one of the following elements should be specified: " +
+                "scientificName, taxonPath or datasource", HttpStatus.BAD_REQUEST);
     }
     
     @GetMapping("/search")
@@ -60,6 +74,21 @@ public class TaxonController {
         return generateValidResponse(new TaxonChildren(taxon, children));
     }
     
+    @GetMapping("/{taxonPath}/stats")
+    public ResponseEntity<Map<String, StatisticsNode>> getTaxonStats(@PathVariable String taxonPath) {
+        Taxon taxon = taxonService.getTaxonByPath(taxonPath);
+        TaxonStatistics stats = taxonStatisticsService.getTaxonStatsByPath(taxonPath);
+        return generateValidResponse(statBuilder.buildTreeNode(taxon, stats));
+    }
+    
+    @GetMapping("/{taxonPath}/direct-children-stats")
+    public List<StatisticsNode> getDirectChildrenStats(@PathVariable String taxonPath) {
+        List<Taxon> children = taxonService.getTaxonDirectChildren(taxonPath);
+        Set<String> paths = children.stream().map(Taxon::getPath).collect(Collectors.toSet());
+        Map<String, TaxonStatistics> stats = taxonStatisticsService.getTaxonStatsByPaths(paths);
+        return statBuilder.buildChildrenList(children, stats);
+    }
+    
     @PostMapping(value = "/import-file")
     public ResponseEntity<Map<String, Object>> insertTaxa(@RequestParam MultipartFile file) {
         Integer integer;
@@ -73,13 +102,26 @@ public class TaxonController {
         return generateValidResponse("Taxa imported", resp);
     }
     
+    @GetMapping(value = "/compute-stats")
+    public ResponseEntity<Map<String, Object>> computeTaxonStatistics() {
+        Integer integer;
+        try {
+            integer = taxonStatisticsService.updateTaxonStatistics();
+        } catch (Exception e) {
+            return generateErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("count", integer);
+        return generateValidResponse("Taxon statistics computed", resp);
+    }
+    
     public static class TaxonChildren extends Taxon {
         
         private final List<Taxon> children;
         
         public TaxonChildren(Taxon parent, List<Taxon> children) {
             super(parent.getPath(), parent.getScientificName(), parent.getCommonName(),
-                    parent.isExtinct(), parent.getDbXrefs());
+                    parent.getRank(), parent.getDbXrefs());
             this.children = children;
         }
         

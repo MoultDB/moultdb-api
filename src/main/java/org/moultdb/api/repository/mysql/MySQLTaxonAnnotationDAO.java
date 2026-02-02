@@ -79,8 +79,11 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
     
     @Override
     public List<TaxonAnnotationTO> findByTaxonPath(String taxonPath) {
-        return template.query(SELECT_STATEMENT + "WHERE t.path like :taxonPath " + ORDER_BY_STATEMENT,
-                new MapSqlParameterSource().addValue("taxonPath", taxonPath + "%"), new TaxonAnnotationResultSetExtractor());
+        return template.query(SELECT_STATEMENT + "WHERE t.path = :taxonPath OR t.path like :childrenTaxonPath " + ORDER_BY_STATEMENT,
+                new MapSqlParameterSource()
+                        .addValue("taxonPath", taxonPath)
+                        .addValue("childrenTaxonPath", taxonPath + ".%"),
+                new TaxonAnnotationResultSetExtractor());
     }
     
     @Override
@@ -172,7 +175,7 @@ public class MySQLTaxonAnnotationDAO implements TaxonAnnotationDAO {
                 
                 // Build TaxonTO. Even if it already exists, we create a new one because it's an unmutable object
                 taxonTO = new TaxonTO(rs.getString("t.path"), rs.getString("t.scientific_name"), rs.getString("t.common_name"),
-                        DAO.getBoolean(rs, "t.extinct"), dbXrefTOs, taxonToDbXrefTOs);
+                        rs.getString("t.taxon_rank"), dbXrefTOs, taxonToDbXrefTOs);
                 
                 DevStageTO devStageTO = null;
                 if (StringUtils.isNotBlank(rs.getString("c.dev_stage_id"))) {

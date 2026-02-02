@@ -17,21 +17,21 @@ public class TaxonTO extends NamedEntityTO<String> {
     private static final long serialVersionUID = 1237027968081812208L;
     
     private final String commonName;
-    private final Boolean isExtincted;
+    private final String rank;
     private final Set<DbXrefTO> dbXrefTOs;
     private final Set<TaxonToDbXrefTO> taxonToDbXrefTOs;
     
     public TaxonTO(String path, String scientificName, String commonName,
-                   Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs) {
-        this(path, scientificName, commonName, isExtincted, dbXrefTOs, null);
+                   String rank, Collection<DbXrefTO> dbXrefTOs) {
+        this(path, scientificName, commonName, rank, dbXrefTOs, null);
     }
     
     public TaxonTO(String path, String scientificName, String commonName,
-                   Boolean isExtincted, Collection<DbXrefTO> dbXrefTOs,
+                   String rank, Collection<DbXrefTO> dbXrefTOs,
                    Collection<TaxonToDbXrefTO> taxonToDbXrefTOs) {
         super(path, scientificName, null);
         this.commonName = commonName;
-        this.isExtincted = isExtincted;
+        this.rank = rank;
         this.dbXrefTOs = Collections.unmodifiableSet(dbXrefTOs == null ?
                 new HashSet<>(): new HashSet<>(dbXrefTOs));
         this.taxonToDbXrefTOs = Collections.unmodifiableSet(taxonToDbXrefTOs == null ?
@@ -50,8 +50,8 @@ public class TaxonTO extends NamedEntityTO<String> {
         return commonName;
     }
     
-    public Boolean isExtincted() {
-        return isExtincted;
+    public String getRank() {
+        return rank;
     }
     
     public Set<DbXrefTO> getDbXrefTOs() {
@@ -68,7 +68,7 @@ public class TaxonTO extends NamedEntityTO<String> {
                 .add("path=" + getPath())
                 .add("scientificName='" + getScientificName() + "'")
                 .add("commonName='" + commonName + "'")
-                .add("isExtincted=" + isExtincted)
+                .add("rank=" + rank)
                 .add("dbXrefTOs=" + dbXrefTOs)
                 .add("taxonToDbXrefTOs=" + taxonToDbXrefTOs)
                 .toString();

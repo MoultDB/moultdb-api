@@ -50,8 +50,7 @@ public class GeneController {
             @RequestParam(required = false) String pathwayId,
             @RequestParam(required = false) String domainId,
             @RequestParam(required = false) Integer orthogroupId,
-            @RequestParam(required = false) String taxonPath,
-            @RequestParam(required = false) Boolean inAMoultingPathway
+            @RequestParam(required = false) String taxonPath
     ) {
         // Validate combinations (can be done at controller or service level)
         if (MoultdbController.hasMultipleParams(Arrays.asList(geneId, locusTag, proteinId, pathwayId, domainId, taxonPath))) {
@@ -59,7 +58,13 @@ public class GeneController {
                     "a maximum of one of the following elements can be specified: " +
                     "proteinId, pathwayId, domainId or taxonPath", HttpStatus.BAD_REQUEST);
         }
-
+        
+        if (!MoultdbController.hasAtLeastOneParam(Arrays.asList(geneId, locusTag, proteinId, pathwayId, domainId, taxonPath))) {
+            return generateErrorResponse("Invalid combination of parameters: " +
+                    "a minimum of one of the following elements should be specified: " +
+                    "geneId, locusTag, proteinId, orthogroupId, pathwayId, domainId or taxonPath", HttpStatus.BAD_REQUEST);
+        }
+        
         Gene gene = null;
         if (geneId != null) {
             gene = geneService.getGene(geneId);
@@ -70,14 +75,15 @@ public class GeneController {
         } 
         if (orthogroupId != null) {
             return generateValidResponse(getGeneData(geneService.getGenesByOrthogroup(orthogroupId, gene)));
-        } else if (pathwayId != null) {
+        } 
+        if (pathwayId != null) {
             return generateValidResponse(getGeneData(geneService.getGenesByPathway(pathwayId)));
-        } else if (domainId != null) {
+        }
+        if (domainId != null) {
             return generateValidResponse(getGeneData(geneService.getGenesByDomain(domainId)));
-        } else if (taxonPath != null) {
-            return generateValidResponse(getGeneData(geneService.getGenesByTaxon(taxonPath, inAMoultingPathway)));
-        } else if (gene == null) {
-            return generateValidResponse(geneService.getAllGenes());
+        }
+        if (taxonPath != null) {
+            return generateValidResponse(getGeneData(geneService.getGenesByTaxon(taxonPath, true)));
         }
         return generateValidResponse(gene);
     }

@@ -22,23 +22,21 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.moultdb.api.service.ServiceUtils.getExecutionTime;
+
 @Service
 public class TaxonServiceImpl implements TaxonService {
     
     private final static Logger logger = LogManager.getLogger(TaxonServiceImpl.class.getName());
-    private final static int TAXON_SUBSET_SIZE = 30000;
+    protected final static int TAXON_SUBSET_SIZE = 30000;
+    public final static String SPECIES_TAG = "species";
     
     @Autowired
-    DataSourceDAO dataSourceDAO;
+    private DataSourceDAO dataSourceDAO;
     @Autowired
     private TaxonDAO taxonDAO;
     @Autowired
     private DbXrefDAO dbXrefDAO;
-    
-    @Override
-    public List<Taxon> getAllTaxa() {
-        return getTaxons(taxonDAO.findAll());
-    }
     
     @Override
     public List<Taxon> getTaxonByText(String searchedText) {
@@ -180,7 +178,7 @@ public class TaxonServiceImpl implements TaxonService {
             logger.info("# Start subset taxon import {}/{}...", idx, taxonBeanSubsets.size());
             logger.debug("## Start parsing taxon beans...");
             long startTimePoint1 = System.currentTimeMillis();
-            Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, taxonDAO, dataSourceDAO, dbXrefDAO);
+            Set<TaxonTO> taxonTOs = parser.getTaxonTOs(taxonBeanSubset, dataSourceDAO, dbXrefDAO);
             long endTimePoint = System.currentTimeMillis();
             logger.debug("## End parsing taxon beans. {}", getExecutionTime(startTimePoint1, endTimePoint));
             
@@ -199,16 +197,6 @@ public class TaxonServiceImpl implements TaxonService {
         return sum;
     }
     
-    private static String getExecutionTime(long startPoint, long endPoint) {
-        long executionTimeInMs = endPoint - startPoint;
-
-        long seconds = (executionTimeInMs / 1000) % 60;
-        long minutes = (executionTimeInMs / (1000 * 60)) % 60;
-        long hours = (executionTimeInMs / (1000 * 60 * 60));
-        
-        return "Execution time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds.";
-    }
-    
     private TaxonTO convertToDto(Taxon taxon) {
         Set<DbXrefTO> dbXrefTOs = taxon.getDbXrefs().stream()
                                        .map(xref -> {
@@ -217,6 +205,6 @@ public class TaxonServiceImpl implements TaxonService {
                                        })
                                        .collect(Collectors.toSet());
         
-        return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.isExtinct(), dbXrefTOs);
+        return new TaxonTO(null, taxon.getScientificName(), taxon.getCommonName(), taxon.getRank(), dbXrefTOs);
     }
 }

@@ -40,7 +40,7 @@ public class TaxonAnnotationController {
         return generateValidResponse(taxonAnnotationService.getUserTaxonAnnotations(username));
     }
     
-    @GetMapping("/species")
+    @GetMapping("/taxa")
     public ResponseEntity<Map<String, Object>> getTaxonAnnotationBySpecies(
             @RequestParam(required = false) String scientificName,
             @RequestParam(required = false) String taxonPath,
@@ -49,16 +49,23 @@ public class TaxonAnnotationController {
             ) {
         if (MoultdbController.hasMultipleParams(Arrays.asList(scientificName, taxonPath, datasource))) {
             return generateErrorResponse("Invalid combination of parameters: " +
-                    "one parameter and one only must be specified between scientificName, taxonPath, or accession",
+                    "one parameter and one only must be specified between scientificName, taxonPath, or datasource",
                     HttpStatus.BAD_REQUEST);
         }
         if (scientificName != null) {
             return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonName(scientificName));
         } else if (taxonPath != null) {
             return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByTaxonPath(taxonPath));
+        } else if (datasource != null && accession != null) {
+            return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
+        } else if (datasource != null) {
+            return generateErrorResponse("Invalid combination of parameters: " +
+                            "datasource parameter should be provided with an accession",
+                    HttpStatus.BAD_REQUEST);
         }
-        assert (datasource != null);
-        return generateValidResponse(taxonAnnotationService.getTaxonAnnotationsByDbXref(datasource, accession));
+        return generateErrorResponse("Invalid combination of parameters: " +
+                "a minimum of one of the following elements should be specified: " +
+                "scientificName, taxonPath, datasource", HttpStatus.BAD_REQUEST);
     }
     
     @PostMapping("/import-file")

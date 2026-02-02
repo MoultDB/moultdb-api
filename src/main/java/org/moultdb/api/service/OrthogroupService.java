@@ -16,4 +16,6 @@ public interface OrthogroupService {
     public Orthogroup getOrthogroupById(String orthogroupId);
     
     public Set<Orthogroup> getMoultingOrthogroups();
+    
+    public Set<Orthogroup> getMoultingOrthogroupsByTaxon(String taxonPath);
 }

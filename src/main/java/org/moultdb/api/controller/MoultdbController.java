@@ -15,4 +15,8 @@ public interface MoultdbController {
         }
         return false;
     }
+    
+    static boolean hasAtLeastOneParam(Collection<Object> params) {
+        return params != null && params.stream().anyMatch(Objects::nonNull);
+    }
 }
