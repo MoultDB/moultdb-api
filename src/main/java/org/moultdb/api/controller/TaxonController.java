@@ -13,10 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.moultdb.api.controller.ResponseHandler.generateErrorResponse;
 import static org.moultdb.api.controller.ResponseHandler.generateValidResponse;
@@ -79,14 +77,15 @@ public class TaxonController {
     @GetMapping("/{taxonPath}/stats")
     public ResponseEntity<Map<String, StatisticsNode>> getTaxonStats(@PathVariable String taxonPath) {
         Taxon taxon = taxonService.getTaxonByPath(taxonPath);
-        Map<String, TaxonStatistics> stats = taxonStatisticsService.getTaxonStatsByPathWithChildren(taxonPath);
-        return generateValidResponse(statBuilder.buildTreeNode(taxon, stats.get(taxon.getPath())));
+        TaxonStatistics stats = taxonStatisticsService.getTaxonStatsByPath(taxonPath);
+        return generateValidResponse(statBuilder.buildTreeNode(taxon, stats));
     }
     
     @GetMapping("/{taxonPath}/direct-children-stats")
     public List<StatisticsNode> getDirectChildrenStats(@PathVariable String taxonPath) {
         List<Taxon> children = taxonService.getTaxonDirectChildren(taxonPath);
-        Map<String, TaxonStatistics> stats = taxonStatisticsService.getTaxonStatsByPathWithChildren(taxonPath);
+        Set<String> paths = children.stream().map(Taxon::getPath).collect(Collectors.toSet());
+        Map<String, TaxonStatistics> stats = taxonStatisticsService.getTaxonStatsByPaths(paths);
         return statBuilder.buildChildrenList(children, stats);
     }
     

@@ -54,6 +54,13 @@ public class TaxonStatisticsServiceImpl implements TaxonStatisticsService {
     }
     
     @Override
+    public Map<String, TaxonStatistics> getTaxonStatsByPaths(Set<String> paths) {
+        return taxonStatisticsDAO.findByPaths(paths).stream()
+                .map(ServiceUtils::mapFromTO)
+                .collect(Collectors.toMap(TaxonStatistics::getTaxonPath, Function.identity()));
+    }
+    
+    @Override
     public Integer updateTaxonStatistics() {
         
         logger.info("Start computation of taxon statistics...");
