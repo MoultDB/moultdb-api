@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.moultdb.api.exception.MoultDBException;
 import org.moultdb.api.repository.dao.TaxonDAO;
 import org.moultdb.api.repository.dto.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,9 +28,6 @@ public class MySQLTaxonDAO implements TaxonDAO {
     private final static Logger logger = LogManager.getLogger(MySQLTaxonDAO.class.getName());
     
     NamedParameterJdbcTemplate template;
-    
-    @Autowired
-    MySQLDbXrefDAO dbXrefDAO;
     
     private static final String SELECT_STATEMENT = "SELECT * from taxon t " +
             "LEFT JOIN taxon_db_xref tx ON t.path = tx.taxon_path " +
@@ -196,7 +192,8 @@ public class MySQLTaxonDAO implements TaxonDAO {
     @Override
     public Integer findSpeciesCount(String taxonPath) {
         String sql = "SELECT count(DISTINCT path) FROM taxon " +
-                "WHERE path LIKE CONCAT(:taxonPath, '.%') AND taxon_rank = 'species'";
+                "WHERE (path = :taxonPath OR path LIKE CONCAT(:taxonPath, '.%'))" +
+                "AND taxon_rank = 'species'";
         return template.queryForObject(sql,
                 new MapSqlParameterSource().addValue("taxonPath", taxonPath), Integer.class);
     }
