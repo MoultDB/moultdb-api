@@ -53,13 +53,15 @@ public class GeneController {
             @RequestParam(required = false) String taxonPath
     ) {
         // Validate combinations (can be done at controller or service level)
+        // orthogroupId can be associated to geneId, locusTag or proteinId
         if (MoultdbController.hasMultipleParams(Arrays.asList(geneId, locusTag, proteinId, pathwayId, domainId, taxonPath))) {
             return generateErrorResponse("Invalid combination of parameters: " +
                     "a maximum of one of the following elements can be specified: " +
                     "proteinId, pathwayId, domainId or taxonPath", HttpStatus.BAD_REQUEST);
         }
         
-        if (!MoultdbController.hasAtLeastOneParam(Arrays.asList(geneId, locusTag, proteinId, pathwayId, domainId, taxonPath))) {
+        if (!MoultdbController.hasAtLeastOneParam(Arrays.asList(geneId, locusTag, proteinId,
+                pathwayId, domainId, orthogroupId, taxonPath))) {
             return generateErrorResponse("Invalid combination of parameters: " +
                     "a minimum of one of the following elements should be specified: " +
                     "geneId, locusTag, proteinId, orthogroupId, pathwayId, domainId or taxonPath", HttpStatus.BAD_REQUEST);
